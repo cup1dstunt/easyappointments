@@ -92,6 +92,27 @@ class Console extends EA_Controller
     }
 
     /**
+     * Roll back an LNU-specific migration.
+     *
+     * LNU-specific migrations (named "lnu_*.php" in application/migrations/) aren't tracked by the
+     * standard sequential version number - "migrate"/"migrate fresh" always (re-)applies every one of
+     * them present. Use this command to revert one specific LNU feature's database changes, or all of
+     * them at once if no name is given.
+     *
+     * Usage:
+     *
+     * php index.php console migrate_lnu_down provider_colour
+     *
+     * php index.php console migrate_lnu_down
+     *
+     * @param string $name
+     */
+    public function migrate_lnu_down(string $name = ''): void
+    {
+        $this->instance->migrate_lnu_down($name);
+    }
+
+    /**
      * Seed the database with test data.
      *
      * Use this method to add test data to your database
@@ -197,6 +218,7 @@ class Console extends EA_Controller
             '⇾ php index.php console migrate fresh',
             '⇾ php index.php console migrate up',
             '⇾ php index.php console migrate down',
+            '⇾ php index.php console migrate_lnu_down [name]    (rolls back one, or all, LNU-specific migrations)',
             '⇾ php index.php console seed',
             '⇾ php index.php console install',
             '⇾ php index.php console backup',
