@@ -75,6 +75,24 @@ class Instance
         if ($this->CI->migration->latest() === false) {
             show_error($this->CI->migration->error_string());
         }
+
+        $this->CI->migration->run_lnu_migrations();
+    }
+
+    /**
+     * Roll back a single LNU-specific migration by name, or all of them if no name is given.
+     *
+     * @param string $name The LNU migration name (e.g. "provider_colour"), or empty to roll back all of them.
+     */
+    public function migrate_lnu_down(string $name = ''): void
+    {
+        if ($name === '') {
+            $this->CI->migration->run_lnu_migrations_down();
+
+            return;
+        }
+
+        $this->CI->migration->run_lnu_migration_down($name);
     }
 
     /**

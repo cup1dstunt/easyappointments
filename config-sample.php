@@ -53,4 +53,10 @@ class Config
     // const GOOGLE_SYNC_FEATURE = false;
     // const GOOGLE_CLIENT_ID = '';
     // const GOOGLE_CLIENT_SECRET = '';
+
+    // ------------------------------------------------------------------------
+    // LNU SETTINGS
+    // ------------------------------------------------------------------------
+    // Settings related to the Lnu features
+
 }
