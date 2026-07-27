@@ -66,6 +66,7 @@ class Config
     // const GOOGLE_CLIENT_SECRET = '';
 
     // ------------------------------------------------------------------------
+<<<<<<< HEAD
     // ZOOM MEETING LINKS (Optional - can also be configured via UI)
     // ------------------------------------------------------------------------
     // These settings are optional and can be configured through the admin UI
@@ -116,10 +117,13 @@ class Config
     // const OIDC_BOOKING_LOGOUT_AFTER_REGISTER = false;
 
     // ------------------------------------------------------------------------
+=======
+>>>>>>> 46033f81 (Simplified migration for Lnu features)
     // LNU SETTINGS
     // ------------------------------------------------------------------------
     // Settings related to the Lnu features
 
+<<<<<<< HEAD
     // Custom Fields (Optional)
     // ------------------------------------------------------------------------
     // The maximum number of custom fields available for customers and for
@@ -206,4 +210,6 @@ class Config
     // though it contains a replaced word, e.g. '!identity provider'.
     //
     // const LANGUAGE_REPLACEMENTS = 'provider=tutor;providers=tutors;customer=student;customers=students;utförare=handledare;utförarens=handledarens;utföraren=handledaren;utförar=handledar;kund=student;kunden=studenten;kunder=studenter;';
+=======
+>>>>>>> 46033f81 (Simplified migration for Lnu features)
 }
