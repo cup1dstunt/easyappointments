@@ -47,11 +47,6 @@ App.Components.AppointmentsModal = (function () {
     const $insertAppointment = $('#insert-appointment');
     const $existingCustomersList = $('#existing-customers-list');
     const $newCustomer = $('#new-customer');
-    const $customField1 = $('#custom-field-1');
-    const $customField2 = $('#custom-field-2');
-    const $customField3 = $('#custom-field-3');
-    const $customField4 = $('#custom-field-4');
-    const $customField5 = $('#custom-field-5');
 
     const moment = window.moment;
 
@@ -112,6 +107,10 @@ App.Components.AppointmentsModal = (function () {
                 appointment.id = $appointmentId.val();
             }
 
+            App.Utils.CustomFields.getFieldIndexes('appt-custom-field-container').forEach((i) => {
+                appointment[`appt_custom_field_${i}`] = $(`#appt-custom-field-${i}`).val();
+            });
+
             const customer = {
                 first_name: $firstName.val(),
                 last_name: $lastName.val(),
@@ -123,12 +122,11 @@ App.Components.AppointmentsModal = (function () {
                 language: $language.val(),
                 timezone: $timezone.val(),
                 notes: $customerNotes.val(),
-                custom_field_1: $customField1.val(),
-                custom_field_2: $customField2.val(),
-                custom_field_3: $customField3.val(),
-                custom_field_4: $customField4.val(),
-                custom_field_5: $customField5.val(),
             };
+
+            App.Utils.CustomFields.getFieldIndexes('custom-field-container').forEach((i) => {
+                customer[`custom_field_${i}`] = $(`#custom-field-${i}`).val();
+            });
 
             if ($customerId.val() !== '') {
                 // Set the id value, only if we are editing an appointment.
@@ -333,11 +331,11 @@ App.Components.AppointmentsModal = (function () {
                 $language.val(customer.language);
                 $timezone.val(customer.timezone);
                 $customerNotes.val(customer.notes);
-                $customField1.val(customer.custom_field_1);
-                $customField2.val(customer.custom_field_2);
-                $customField3.val(customer.custom_field_3);
-                $customField4.val(customer.custom_field_4);
-                $customField5.val(customer.custom_field_5);
+
+                App.Utils.CustomFields.getFieldIndexes('custom-field-container').forEach((i) => {
+                    $(`#custom-field-${i}`).val(customer[`custom_field_${i}`]);
+                });
+                App.Utils.CustomFields.splitAllGroupValues('custom-field-container');
             }
 
             $selectCustomer.trigger('click'); // Hide the list.
@@ -495,11 +493,11 @@ App.Components.AppointmentsModal = (function () {
             $language.val(vars('default_language'));
             $timezone.val(vars('default_timezone'));
             $customerNotes.val('');
-            $customField1.val('');
-            $customField2.val('');
-            $customField3.val('');
-            $customField4.val('');
-            $customField5.val('');
+
+            App.Utils.CustomFields.getFieldIndexes('custom-field-container').forEach((i) => {
+                $(`#custom-field-${i}`).val('');
+            });
+            App.Utils.CustomFields.splitAllGroupValues('custom-field-container');
         });
     }
 
@@ -511,7 +509,9 @@ App.Components.AppointmentsModal = (function () {
      */
     function resetModal() {
         // Empty form fields.
-        $appointmentsModal.find('input, textarea').val('');
+        $appointmentsModal.find('textarea, select').val('');
+        $appointmentsModal.find('input:not([type="checkbox"]):not([type="radio"])').val('');
+        $appointmentsModal.find('input:where([type="checkbox"], [type="radio"])').prop('checked', false);
         $appointmentsModal.find('.modal-message').addClass('.d-none');
         $appointmentsModal.find('.is-invalid').removeClass('is-invalid');
 
@@ -595,6 +595,9 @@ App.Components.AppointmentsModal = (function () {
         $appointmentsModal.find('.modal-message').addClass('d-none');
 
         try {
+            App.Utils.CustomFields.joinAllGroupValues('appt-custom-field-container');
+            App.Utils.CustomFields.joinAllGroupValues('custom-field-container');
+
             // Check required fields.
             let missingRequiredField = false;
 

@@ -207,11 +207,12 @@ App.Utils.CalendarTableView = (function () {
         $appointmentsModal.find('#language').val(customer.language);
         $appointmentsModal.find('#timezone').val(customer.timezone);
         $appointmentsModal.find('#customer-notes').val(customer.notes);
-        $appointmentsModal.find('#custom-field-1').val(customer.custom_field_1);
-        $appointmentsModal.find('#custom-field-2').val(customer.custom_field_2);
-        $appointmentsModal.find('#custom-field-3').val(customer.custom_field_3);
-        $appointmentsModal.find('#custom-field-4').val(customer.custom_field_4);
-        $appointmentsModal.find('#custom-field-5').val(customer.custom_field_5);
+
+        App.Utils.CustomFields.getFieldIndexes('custom-field-container').forEach((i) => {
+            $appointmentsModal.find(`#custom-field-${i}`).val(customer[`custom_field_${i}`]);
+        });
+
+        App.Utils.CustomFields.splitAllGroupValues('custom-field-container');
 
         // Appointment fields
 
@@ -219,6 +220,13 @@ App.Utils.CalendarTableView = (function () {
         $appointmentsModal.find('#appointment-meeting-link').val(appointment.meeting_link);
         $appointmentsModal.find('#appointment-status').val(appointment.status);
         $appointmentsModal.find('#appointment-notes').val(appointment.notes);
+
+        App.Utils.CustomFields.getFieldIndexes('appt-custom-field-container').forEach((i) => {
+            $appointmentsModal.find(`#appt-custom-field-${i}`).val(appointment[`appt_custom_field_${i}`]);
+        });
+
+        App.Utils.CustomFields.splitAllGroupValues('appt-custom-field-container');
+
         App.Components.ColorSelection.setColor($appointmentsModal.find('#appointment-color'), appointment.color);
         $appointmentsModal.modal('show');
     }

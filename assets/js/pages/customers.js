@@ -28,11 +28,6 @@ App.Pages.Customers = (function () {
     const $timezone = $('#timezone');
     const $language = $('#language');
     const $ldapDn = $('#ldap-dn');
-    const $customField1 = $('#custom-field-1');
-    const $customField2 = $('#custom-field-2');
-    const $customField3 = $('#custom-field-3');
-    const $customField4 = $('#custom-field-4');
-    const $customField5 = $('#custom-field-5');
     const $notes = $('#notes');
     const $formMessage = $('#form-message');
     const $customerAppointments = $('#customer-appointments');
@@ -148,13 +143,13 @@ App.Pages.Customers = (function () {
                 notes: $notes.val(),
                 timezone: $timezone.val(),
                 language: $language.val() || 'english',
-                custom_field_1: $customField1.val(),
-                custom_field_2: $customField2.val(),
-                custom_field_3: $customField3.val(),
-                custom_field_4: $customField4.val(),
-                custom_field_5: $customField5.val(),
                 ldap_dn: $ldapDn.val(),
             };
+
+            App.Utils.CustomFields.joinAllGroupValues('custom-field-container');
+            App.Utils.CustomFields.getFieldIndexes('custom-field-container').forEach((i) => {
+                customer[`custom_field_${i}`] = $(`#custom-field-${i}`).val();
+            });
 
             if ($id.val()) {
                 customer.id = $id.val();
@@ -270,7 +265,10 @@ App.Pages.Customers = (function () {
      * Bring the customer form back to its initial state.
      */
     function resetForm() {
-        $customers.find('.record-details').find('input, select, textarea').val('').prop('disabled', true);
+        $customers.find('.record-details').find('input, select, textarea').prop('disabled', true);
+        $customers.find('.record-details').find('textarea, select').val('');
+        $customers.find('.record-details').find('input:not([type="checkbox"]):not([type="radio"])').val('');
+        $customers.find('.record-details').find('input:where([type="checkbox"], [type="radio"])').prop('checked', false);
         $customers.find('.record-details .form-label span').prop('hidden', true);
         $customers.find('.record-details #timezone').val(vars('default_timezone'));
         $customers.find('.record-details #language').val(vars('default_language'));
@@ -307,11 +305,11 @@ App.Pages.Customers = (function () {
         $timezone.val(customer.timezone);
         $language.val(customer.language || 'english');
         $ldapDn.val(customer.ldap_dn);
-        $customField1.val(customer.custom_field_1);
-        $customField2.val(customer.custom_field_2);
-        $customField3.val(customer.custom_field_3);
-        $customField4.val(customer.custom_field_4);
-        $customField5.val(customer.custom_field_5);
+
+        App.Utils.CustomFields.getFieldIndexes('custom-field-container').forEach((i) => {
+            $(`#custom-field-${i}`).val(customer[`custom_field_${i}`]);
+        });
+        App.Utils.CustomFields.splitAllGroupValues('custom-field-container');
 
         $customerAppointments.empty();
 

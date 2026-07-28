@@ -198,6 +198,8 @@
                                         : '' ?> form-control" rows="3"></textarea>
                                 </div>
 
+                                <?php component('custom_fields', ['disabled' => false, 'fieldset' => 'appointment']); ?>
+
                             </div>
                         </div>
                     </fieldset>
@@ -292,8 +294,6 @@
                                     </select>
                                 </div>
 
-                                <?php component('custom_fields'); ?>
-
                             </div>
                             <div class="col-12 col-sm-6">
                                 <div class="mb-3">
@@ -349,6 +349,8 @@
                                     </label>
                                     <textarea id="customer-notes" rows="3" class="form-control"></textarea>
                                 </div>
+
+                                <?php component('custom_fields', ['disabled' => false, 'fieldset' => 'customer']); ?>
 
                             </div>
                         </div>

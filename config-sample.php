@@ -59,4 +59,13 @@ class Config
     // ------------------------------------------------------------------------
     // Settings related to the Lnu features
 
+    // Custom Fields (Optional)
+    // ------------------------------------------------------------------------
+    // The maximum number of custom fields available for customers and for
+    // appointments. Used only the first time the migration runs, to seed the
+    // settings table - after that, change the active number of fields via
+    // Settings > Booking > Custom Fields in the admin UI instead.
+    //
+    // const MAX_CUSTOM_FIELDS = 5;
+    // const MAX_APPOINTMENT_CUSTOM_FIELDS = 5;
 }

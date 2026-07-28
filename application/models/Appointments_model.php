@@ -51,6 +51,17 @@ class Appointments_model extends EA_Model
     ];
 
     /**
+     * Appointments_model constructor.
+     * Configurable number of appointment custom fields added dynamically.
+     */
+    function __construct() {
+        parent::__construct();
+        for ($i = 1; $i <= config('max_appt_custom_fields', 5); $i++) {
+            $this->api_resource['apptCustomField' . $i] = 'appt_custom_field_' . $i;
+        }
+    }
+
+    /**
      * Save (insert or update) an appointment.
      *
      * @param array $appointment Associative array with the appointment data.
@@ -613,6 +624,10 @@ class Appointments_model extends EA_Model
                 $appointment['id_caldav_calendar'] !== null ? $appointment['id_caldav_calendar'] : null,
         ];
 
+        for ($i = 1; $i <= config('max_appt_custom_fields', 5); $i++) {
+            $encoded_resource['apptCustomField' . $i] = $appointment['appt_custom_field_' . $i];
+        }
+
         $appointment = $encoded_resource;
     }
 
@@ -684,6 +699,12 @@ class Appointments_model extends EA_Model
 
         if (array_key_exists('meetingLink', $appointment)) {
             $decoded_resource['meeting_link'] = $appointment['meetingLink'];
+        }
+
+        for ($i = 1; $i <= config('max_appt_custom_fields', 5); $i++) {
+            if (array_key_exists('apptCustomField' . $i, $appointment)) {
+                $decoded_resource['appt_custom_field_' . $i] = $appointment['apptCustomField' . $i];
+            }
         }
 
         $decoded_resource['is_unavailability'] = false;

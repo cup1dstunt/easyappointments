@@ -33,11 +33,6 @@ App.Pages.Booking = (function () {
     const $availableHours = $('#available-hours');
     const $bookAppointmentSubmit = $('#book-appointment-submit');
     const $deletePersonalInformation = $('#delete-personal-information');
-    const $customField1 = $('#custom-field-1');
-    const $customField2 = $('#custom-field-2');
-    const $customField3 = $('#custom-field-3');
-    const $customField4 = $('#custom-field-4');
-    const $customField5 = $('#custom-field-5');
     const $displayBookingSelection = $('.display-booking-selection');
     const $rememberMe = $('#remember-me');
     const tippy = window.tippy;
@@ -290,19 +285,19 @@ App.Pages.Booking = (function () {
         // If a column has only one control shown then move the control to the other column.
 
         const $firstCol = $('#wizard-frame-3 .field-col:first');
-        const $firstColControls = $firstCol.find('.form-control');
+        const $firstColInputs = $firstCol.find('.form-input');
         const $secondCol = $('#wizard-frame-3 .field-col:last');
-        const $secondColControls = $secondCol.find('.form-control');
+        const $secondColInputs = $secondCol.find('.form-input');
 
-        if ($firstColControls.length === 1 && $secondColControls.length > 1) {
-            $firstColControls.each((index, controlEl) => {
-                $(controlEl).parent().insertBefore($secondColControls.first().parent());
+        if ($firstColInputs.length === 1 && $secondColInputs.length > 1) {
+            $firstColInputs.toArray().forEach((controlEl) => {
+                $(controlEl).parent().insertBefore($secondColInputs.first().parent());
             });
         }
 
-        if ($secondColControls.length === 1 && $firstColControls.length > 1) {
-            $secondColControls.each((index, controlEl) => {
-                $(controlEl).parent().insertAfter($firstColControls.last().parent());
+        if ($secondColInputs.length === 1 && $firstColInputs.length > 1) {
+            $secondColInputs.toArray().forEach((controlEl) => {
+                $(controlEl).parent().insertAfter($firstColInputs.last().parent());
             });
         }
 
@@ -313,7 +308,7 @@ App.Pages.Booking = (function () {
         $fieldCols.each((index, fieldColEl) => {
             const $fieldCol = $(fieldColEl);
 
-            if (!$fieldCol.find('.form-control').length) {
+            if (!$fieldCol.find('.form-input').length) {
                 $fieldCol.hide();
             }
         });
@@ -647,6 +642,9 @@ App.Pages.Booking = (function () {
         $('#wizard-frame-3 .is-invalid').removeClass('is-invalid');
         $('#wizard-frame-3 label.text-danger').removeClass('text-danger');
 
+        App.Utils.CustomFields.joinAllGroupValues('appt-custom-field-container');
+        App.Utils.CustomFields.joinAllGroupValues('custom-field-container');
+
         // Validate required fields.
         let missingRequiredField = false;
 
@@ -728,18 +726,18 @@ App.Pages.Booking = (function () {
 
         const timezoneOptionText = $selectTimezone.find('option:selected').text();
 
-        $('#appointment-details').html(`
+        let appointmentDetailsHtml = `
             <div>
                 <div class="mb-2 fw-bold fs-3">
                     ${serviceOptionText}
-                </div> 
+                </div>
                 <div class="mb-2 fw-bold text-muted">
                     ${providerOptionText}
                 </div>
                 <div class="mb-2">
                     <i class="fas fa-calendar-day me-2"></i>
                     ${formattedSelectedDate}
-                </div> 
+                </div>
                 <div class="mb-2">
                     <i class="fas fa-clock me-2"></i>
                     ${service.duration} ${lang('minutes')}
@@ -747,13 +745,29 @@ App.Pages.Booking = (function () {
                 <div class="mb-2">
                     <i class="fas fa-globe me-2"></i>
                     ${timezoneOptionText}
-                </div> 
+                </div>
                 <div class="mb-2" ${!Number(service.price) ? 'hidden' : ''}>
                     <i class="fas fa-cash-register me-2"></i>
                     ${Number(service.price).toFixed(2)} ${service.currency}
                 </div>
-            </div>     
-        `);
+            </div>
+        `;
+
+        // Appointment custom fields
+        Array.from(document.getElementsByClassName('appt-custom-field-container')).forEach((container) => {
+            const label = App.Utils.String.escapeHtml(container.querySelector('.form-label').childNodes[0].textContent.trim());
+            const rawValue = container.querySelector('.form-input').value;
+            const value = App.Utils.String.escapeHtml(
+                rawValue ? rawValue.split(';').map((string) => lang(string)).join('; ') : lang('no_field_value'),
+            );
+            appointmentDetailsHtml += `
+                <div class="mb-2">
+                    <b>${label}:</b> ${value}
+                </div>
+            `;
+        });
+
+        $('#appointment-details').html(appointmentDetailsHtml);
 
         // Render the customer information
 
@@ -776,7 +790,7 @@ App.Pages.Booking = (function () {
             addressParts.push(zipCode);
         }
 
-        $('#customer-details').html(`
+        let customerDetailsHtml = `
             <div>
                 <div class="mb-2 fw-bold fs-3">
                     ${lang('contact_info')}
@@ -797,7 +811,23 @@ App.Pages.Booking = (function () {
                     ${addressParts.join(', ')}
                 </div>
             </div>
-        `);
+        `;
+
+        // Customer custom fields
+        Array.from(document.getElementsByClassName('custom-field-container')).forEach((container) => {
+            const label = App.Utils.String.escapeHtml(container.querySelector('.form-label').childNodes[0].textContent.trim());
+            const rawValue = container.querySelector('.form-input').value;
+            const value = App.Utils.String.escapeHtml(
+                rawValue ? rawValue.split(';').map((string) => lang(string)).join('; ') : lang('no_field_value'),
+            );
+            customerDetailsHtml += `
+                <div class="mb-2">
+                    <b>${label}:</b> ${value}
+                </div>
+            `;
+        });
+
+        $('#customer-details').html(customerDetailsHtml);
 
         // Update appointment form data for submission to server when the user confirms the appointment.
 
@@ -812,12 +842,11 @@ App.Pages.Booking = (function () {
             city: $city.val(),
             zip_code: $zipCode.val(),
             timezone: $selectTimezone.val(),
-            custom_field_1: $customField1.val(),
-            custom_field_2: $customField2.val(),
-            custom_field_3: $customField3.val(),
-            custom_field_4: $customField4.val(),
-            custom_field_5: $customField5.val(),
         };
+
+        App.Utils.CustomFields.getFieldIndexes('custom-field-container').forEach((i) => {
+            data.customer[`custom_field_${i}`] = $(`#custom-field-${i}`).val();
+        });
 
         data.appointment = {
             start_datetime:
@@ -831,6 +860,10 @@ App.Pages.Booking = (function () {
             id_users_provider: $selectProvider.val(),
             id_services: $selectService.val(),
         };
+
+        App.Utils.CustomFields.getFieldIndexes('appt-custom-field-container').forEach((i) => {
+            data.appointment[`appt_custom_field_${i}`] = $(`#appt-custom-field-${i}`).val();
+        });
 
         data.manage_mode = Number(manageMode);
 
@@ -918,11 +951,17 @@ App.Pages.Booking = (function () {
             const appointmentNotes = appointment.notes !== null ? appointment.notes : '';
             $notes.val(appointmentNotes);
 
-            $customField1.val(customer.custom_field_1);
-            $customField2.val(customer.custom_field_2);
-            $customField3.val(customer.custom_field_3);
-            $customField4.val(customer.custom_field_4);
-            $customField5.val(customer.custom_field_5);
+            App.Utils.CustomFields.getFieldIndexes('appt-custom-field-container').forEach((i) => {
+                $(`#appt-custom-field-${i}`).val(appointment[`appt_custom_field_${i}`]);
+            });
+
+            App.Utils.CustomFields.splitAllGroupValues('appt-custom-field-container');
+
+            App.Utils.CustomFields.getFieldIndexes('custom-field-container').forEach((i) => {
+                $(`#custom-field-${i}`).val(customer[`custom_field_${i}`]);
+            });
+
+            App.Utils.CustomFields.splitAllGroupValues('custom-field-container');
 
             App.Pages.Booking.updateConfirmFrame();
 
@@ -1005,13 +1044,12 @@ App.Pages.Booking = (function () {
             address: $address.val(),
             city: $city.val(),
             zipCode: $zipCode.val(),
-            customField1: $customField1.val(),
-            customField2: $customField2.val(),
-            customField3: $customField3.val(),
-            customField4: $customField4.val(),
-            customField5: $customField5.val(),
             rememberMe: true,
         };
+
+        App.Utils.CustomFields.getFieldIndexes('custom-field-container').forEach((i) => {
+            customerInfo[`customField${i}`] = $(`#custom-field-${i}`).val();
+        });
 
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(customerInfo));
@@ -1064,21 +1102,13 @@ App.Pages.Booking = (function () {
             if (!urlParams.has('zip_code') && !$zipCode.val()) {
                 $zipCode.val(customerInfo.zipCode || '');
             }
-            if (!urlParams.has('custom_field_1') && !$customField1.val()) {
-                $customField1.val(customerInfo.customField1 || '');
-            }
-            if (!urlParams.has('custom_field_2') && !$customField2.val()) {
-                $customField2.val(customerInfo.customField2 || '');
-            }
-            if (!urlParams.has('custom_field_3') && !$customField3.val()) {
-                $customField3.val(customerInfo.customField3 || '');
-            }
-            if (!urlParams.has('custom_field_4') && !$customField4.val()) {
-                $customField4.val(customerInfo.customField4 || '');
-            }
-            if (!urlParams.has('custom_field_5') && !$customField5.val()) {
-                $customField5.val(customerInfo.customField5 || '');
-            }
+            App.Utils.CustomFields.getFieldIndexes('custom-field-container').forEach((i) => {
+                const $field = $(`#custom-field-${i}`);
+                if (!urlParams.has(`custom_field_${i}`) && !$field.val()) {
+                    $field.val(customerInfo[`customField${i}`] || '');
+                }
+            });
+            App.Utils.CustomFields.splitAllGroupValues('custom-field-container');
         } catch (e) {
             console.warn('Could not load customer info from localStorage:', e);
         }

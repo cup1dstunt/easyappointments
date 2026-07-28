@@ -17,6 +17,8 @@ $customer_full_name = trim($customer_first_name . ' ' . $customer_last_name);
 $customer_email = trim((string) ($customer['email'] ?? ''));
 $customer_phone_number = trim((string) ($customer['phone_number'] ?? ''));
 $customer_address = trim((string) ($customer['address'] ?? ''));
+$max_custom_fields = config('max_custom_fields', 5);
+$max_appt_custom_fields = config('max_appt_custom_fields', 5);
 ?>
 
 <!doctype html>
@@ -528,6 +530,24 @@ $customer_address = trim((string) ($customer['address'] ?? ''));
                                                     </td>
                                                 </tr>
                                             <?php endif; ?>
+
+                                            <?php for ($i = 1; $i <= $max_appt_custom_fields; $i++): ?>
+                                                <?php if (intval(setting('display_appt_custom_field_' . $i)) === 1): ?>
+                                                    <?php $label_data = setting('label_appt_custom_field_' . $i, 'appt_custom_field'); ?>
+                                                    <?php preg_match('/^(.+)(\s*{.+})*$/U', $label_data, $matches); ?>
+                                                    <?php $raw_value = $appointment['appt_custom_field_' . $i] ?? ''; ?>
+                                                    <tr>
+                                                        <td class="label" style="padding: 3px;font-weight: bold;">
+                                                            <?= e(lang($matches[1] ?? $label_data)) ?>
+                                                        </td>
+                                                        <td style="padding: 3px;">
+                                                            <?= $raw_value !== ''
+                                                                ? e(implode('; ', array_map('lang', explode(';', $raw_value))))
+                                                                : e(lang('no_field_value')) ?>
+                                                        </td>
+                                                    </tr>
+                                                <?php endif; ?>
+                                            <?php endfor; ?>
                                         </table>
 
                                         <br>
@@ -581,20 +601,19 @@ $customer_address = trim((string) ($customer['address'] ?? ''));
                                                 </tr>
                                             <?php endif; ?>
 
-                                            <?php for ($i = 1; $i <= 5; $i++): ?>
-                                                <?php if (
-                                                    setting('display_custom_field_' . $i) &&
-                                                    !empty($customer['custom_field_' . $i])
-                                                ): ?>
+                                            <?php for ($i = 1; $i <= $max_custom_fields; $i++): ?>
+                                                <?php if (intval(setting('display_custom_field_' . $i)) === 1): ?>
+                                                    <?php $label_data = setting('label_custom_field_' . $i, 'custom_field'); ?>
+                                                    <?php preg_match('/^(.+)(\s*{.+})*$/U', $label_data, $matches); ?>
+                                                    <?php $raw_value = $customer['custom_field_' . $i] ?? ''; ?>
                                                     <tr>
                                                         <td class="label" style="padding: 3px;font-weight: bold;">
-                                                            <?= e(
-                                                                setting('label_custom_field_' . $i) ?:
-                                                                lang('custom_field') . ' #' . $i,
-                                                            ) ?>
+                                                            <?= e(lang($matches[1] ?? $label_data)) ?>
                                                         </td>
                                                         <td style="padding: 3px;">
-                                                            <?= e($customer['custom_field_' . $i]) ?>
+                                                            <?= $raw_value !== ''
+                                                                ? e(implode('; ', array_map('lang', explode(';', $raw_value))))
+                                                                : e(lang('no_field_value')) ?>
                                                         </td>
                                                     </tr>
                                                 <?php endif; ?>
