@@ -161,7 +161,59 @@ App.Pages.BookingSettings = (function () {
             updateRequireSwitch($requireSwitch);
         });
 
+        $bookingSettings.find('.form-check-input').each((index, formCheckInputEl) => {
+            updateSubSettings($(formCheckInputEl), false);
+        });
+
         $disableBookingMessage.closest('.form-group').prop('hidden', !$disableBooking.prop('checked'));
+    }
+
+    /**
+     * LNU: Enable/disable a setting's "subsettings" fields together with its own switch state.
+     *
+     * A "subsettings" block is a sibling ".subsettings" element within the same ".setting-group" container
+     * as the ".form-check-input" switch - see booking_settings.php's "Attached Files" setting for an example.
+     * ".setting-group" is a dedicated marker rather than relying on a Bootstrap spacing class like ".mb-3":
+     * those are reused all over the page for unrelated spacing, so a switch with no closer ".mb-3" of its
+     * own (e.g. "disable-booking") would otherwise walk up and match some unrelated, larger container that
+     * only coincidentally also wraps a ".subsettings" block.
+     *
+     * @param {jQuery} $formCheckInput
+     * @param {Boolean} [animate] Whether to slide the block in/out or apply the state instantly (used on
+     * page load, so the initial state doesn't visibly animate in).
+     */
+    function updateSubSettings($formCheckInput, animate = true) {
+        // A switch that is itself inside a ".subsettings" block (eg. "hide provider selection") is a
+        // subsetting field, not a switch that owns a subsettings block of its own - skip it, otherwise its
+        // own checked state would fight with the owning switch over the very same ".subsettings" block.
+        if ($formCheckInput.closest('.subsettings').length) {
+            return;
+        }
+
+        const $subSettings = $formCheckInput.closest('.setting-group').find('.subsettings');
+
+        if (!$subSettings.length) {
+            return;
+        }
+
+        const enabled = $formCheckInput.prop('checked');
+
+        $subSettings.find('input, select').prop('disabled', !enabled);
+
+        if (animate) {
+            enabled ? $subSettings.slideDown() : $subSettings.slideUp();
+        } else {
+            $subSettings.toggle(enabled);
+        }
+    }
+
+    /**
+     * Update the UI.
+     *
+     * @param {Event} event
+     */
+    function onFormCheckInputClick(event) {
+        updateSubSettings($(event.target));
     }
 
     /**
@@ -220,7 +272,8 @@ App.Pages.BookingSettings = (function () {
 
         $bookingSettings
             .on('click', '.display-switch', onDisplaySwitchClick)
-            .on('click', '.require-switch', onRequireSwitchClick);
+            .on('click', '.require-switch', onRequireSwitchClick)
+            .on('click', '.form-check-input', onFormCheckInputClick);
 
         $disableBookingMessage.trumbowyg();
 
