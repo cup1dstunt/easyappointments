@@ -501,6 +501,7 @@ $config['max_attached_files'] = defined('Config::MAX_ATTACHED_FILES') ? Config::
 $config['attached_files_max_size'] = defined('Config::ATTACHED_FILES_MAX_SIZE') ? Config::ATTACHED_FILES_MAX_SIZE : 8000000;
 $config['attached_files_allowed_types'] = defined('Config::ATTACHED_FILES_ALLOWED_TYPES') ? Config::ATTACHED_FILES_ALLOWED_TYPES : '.doc,.docx,application/msword';
 $config['attached_files_allowed_types_hint'] = defined('Config::ATTACHED_FILES_ALLOWED_TYPES_HINT') ? Config::ATTACHED_FILES_ALLOWED_TYPES_HINT : 'attached_files_user_allowed_types_hint';
+$config['default_book_advance_timeout_unit'] = defined('Config::DEFAULT_BOOK_ADVANCE_TIMEOUT_UNIT') ? Config::DEFAULT_BOOK_ADVANCE_TIMEOUT_UNIT : 'minutes';
 
 /* End of file config.php */
 /* Location: ./application/config/config.php */

@@ -89,4 +89,13 @@ class Config
     // const ATTACHED_FILES_MAX_SIZE = 8000000;
     // const ATTACHED_FILES_ALLOWED_TYPES = '.doc,.docx,application/msword';
     // const ATTACHED_FILES_ALLOWED_TYPES_HINT = 'attached_files_user_allowed_types_hint';
+
+    // Unit Selection for Booking Advance Timeout (Optional)
+    // ------------------------------------------------------------------------
+    // The default unit for the "Book Advance Timeout" setting, used only the
+    // first time the migration runs, to seed the settings table - after that,
+    // change the active unit via Settings > Business Logic in the admin UI
+    // instead. One of: 'minutes', 'hours', 'days', 'weekdays'.
+    //
+    // const DEFAULT_BOOK_ADVANCE_TIMEOUT_UNIT = 'minutes';
 }

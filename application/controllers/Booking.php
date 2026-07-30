@@ -198,6 +198,7 @@ class Booking extends EA_Controller
         $display_login_button = setting('display_login_button');
         $display_delete_personal_information = setting('display_delete_personal_information');
         $book_advance_timeout = setting('book_advance_timeout');
+        $book_advance_timeout_unit = setting('book_advance_timeout_unit', config('default_book_advance_timeout_unit'));
         $legal_notice_url = setting('legal_notice_url');
         $imprint_url = setting('imprint_url');
         $theme = request('theme', setting('theme', 'default'));
@@ -256,19 +257,15 @@ class Booking extends EA_Controller
 
             $limit = new DateTime('now', $provider_timezone);
 
-            $limit->modify('+' . $book_advance_timeout . ' minutes');
+            $limit->modify('+' . $book_advance_timeout . ' ' . $book_advance_timeout_unit);
 
             if ($appointment_start < $limit) {
-                $hours = floor($book_advance_timeout / 60);
-
-                $minutes = $book_advance_timeout % 60;
-
                 html_vars([
                     'show_message' => true,
                     'page_title' => lang('page_title') . ' ' . $company_name,
                     'message_title' => lang('appointment_locked'),
                     'message_text' => strtr(lang('appointment_locked_message'), [
-                        '{$limit}' => sprintf('%02d:%02d', $hours, $minutes),
+                        '{$limit}' => sprintf('%d %s', $book_advance_timeout, lang($book_advance_timeout_unit)),
                     ]),
                     'message_icon' => base_url('assets/img/error.png'),
                     'google_analytics_code' => $google_analytics_code,

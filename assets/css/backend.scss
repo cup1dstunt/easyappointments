@@ -440,6 +440,12 @@ body .modal.full-screen .modal-push {
     border: none;
 }
 
+/* LNU: Unit Selection for Booking Advance Timeout (README.md #4). */
+#book-advance-timeout-unit {
+    width: 200px;
+    max-width: 100%;
+}
+
 /* Breaks table */
 .breaks.table,
 #working-plan-exceptions-breaks {
