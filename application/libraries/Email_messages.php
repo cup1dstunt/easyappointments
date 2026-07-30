@@ -96,6 +96,8 @@ class Email_messages
             $appointment['end_datetime'] = $appointment_end->format('Y-m-d H:i:s');
         }
 
+        $appointment['attached_file_names'] = $this->CI->appointments_model->get_attached_files((int) $appointment['id']);
+
         $html = $this->CI->load->view(
             'emails/appointment_saved_email',
             [
@@ -160,6 +162,8 @@ class Email_messages
             $appointment_end->setTimezone($custom_timezone);
             $appointment['end_datetime'] = $appointment_end->format('Y-m-d H:i:s');
         }
+
+        $appointment['attached_file_names'] = $this->CI->appointments_model->get_attached_files((int) $appointment['id']);
 
         $html = $this->CI->load->view(
             'emails/appointment_deleted_email',

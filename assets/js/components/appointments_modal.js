@@ -134,6 +134,9 @@ App.Components.AppointmentsModal = (function () {
                 appointment.id_users_customer = customer.id;
             }
 
+            const attachedFiles = App.Utils.AttachedFiles.getAttachedFiles();
+            const discardedFileNames = App.Utils.AttachedFiles.getDiscardedFileNames();
+
             // Define success callback.
             const successCallback = () => {
                 // Display success message to the user.
@@ -168,6 +171,9 @@ App.Components.AppointmentsModal = (function () {
                                 successCallback,
                                 errorCallback,
                                 false,
+                                undefined,
+                                attachedFiles,
+                                discardedFileNames,
                             );
                         },
                     },
@@ -181,6 +187,9 @@ App.Components.AppointmentsModal = (function () {
                                 successCallback,
                                 errorCallback,
                                 true,
+                                undefined,
+                                attachedFiles,
+                                discardedFileNames,
                             );
                         },
                     },
@@ -201,6 +210,9 @@ App.Components.AppointmentsModal = (function () {
                                     successCallback,
                                     errorCallback,
                                     false,
+                                    undefined,
+                                    attachedFiles,
+                                    discardedFileNames,
                                 );
                             },
                         },
@@ -214,6 +226,9 @@ App.Components.AppointmentsModal = (function () {
                                     successCallback,
                                     errorCallback,
                                     true,
+                                    undefined,
+                                    attachedFiles,
+                                    discardedFileNames,
                                 );
                             },
                         },
@@ -515,6 +530,8 @@ App.Components.AppointmentsModal = (function () {
         $appointmentsModal.find('.modal-message').addClass('.d-none');
         $appointmentsModal.find('.is-invalid').removeClass('is-invalid');
 
+        App.Utils.AttachedFiles.initialize(null, []);
+
         const defaultStatusValue = $appointmentStatus.find('option:first').val();
         $appointmentStatus.val(defaultStatusValue);
 
@@ -647,6 +664,7 @@ App.Components.AppointmentsModal = (function () {
      */
     function initialize() {
         addEventListeners();
+        App.Utils.AttachedFiles.addEventListeners();
     }
 
     document.addEventListener('DOMContentLoaded', initialize);

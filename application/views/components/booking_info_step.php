@@ -135,6 +135,7 @@
                 <?php endif; ?>
 
                 <?php component('custom_fields', ['disabled' => false, 'fieldset' => 'appointment']); ?>
+                <?php component('attached_files'); ?>
 
                 <?php if (!vars('manage_mode')): ?>
                 <div class="mb-3">

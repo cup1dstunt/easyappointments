@@ -68,4 +68,25 @@ class Config
     //
     // const MAX_CUSTOM_FIELDS = 5;
     // const MAX_APPOINTMENT_CUSTOM_FIELDS = 5;
+
+    // Attached Files (Optional)
+    // ------------------------------------------------------------------------
+    // MAX_ATTACHED_FILES is a ceiling, used only the first time the migration
+    // runs, to seed the settings table - after that, change the active limit
+    // via Settings > Booking > Attached Files in the admin UI instead.
+    //
+    // ATTACHED_FILES_MAX_SIZE is the maximum size of a single file, in bytes.
+    //
+    // ATTACHED_FILES_ALLOWED_TYPES is a comma-separated list of accepted file
+    // extensions and/or MIME types.
+    //
+    // ATTACHED_FILES_ALLOWED_TYPES_HINT is shown to the user next to the
+    // upload control, describing the above allowed types. It can be either
+    // plain text or the name of a translations_lang.php key (used to look up
+    // the text shown to the user).
+    //
+    // const MAX_ATTACHED_FILES = 10;
+    // const ATTACHED_FILES_MAX_SIZE = 8000000;
+    // const ATTACHED_FILES_ALLOWED_TYPES = '.doc,.docx,application/msword';
+    // const ATTACHED_FILES_ALLOWED_TYPES_HINT = 'attached_files_user_allowed_types_hint';
 }

@@ -29,6 +29,8 @@ App.Http.Calendar = (function () {
      * @param {Function} [errorCallback] Optional, if defined, this function is going to be executed on post failure.
      * @param {Boolean} [notifyUsers] Optional, whether to send notification to users (defaults to true).
      * @param {Boolean} [forceSave] Optional, whether to force save even if there's a conflict (defaults to false).
+     * @param {File[]} [attachedFiles] Optional, new files to attach to the appointment.
+     * @param {String[]} [discardedFileNames] Optional, previously-attached file names to discard.
      *
      * @return {*|jQuery}
      */
@@ -39,21 +41,38 @@ App.Http.Calendar = (function () {
         errorCallback,
         notifyUsers = true,
         forceSave = false,
+        attachedFiles = [],
+        discardedFileNames = [],
     ) {
         const url = App.Utils.Url.siteUrl('calendar/save_appointment');
 
-        const data = {
-            csrf_token: vars('csrf_token'),
-            appointment_data: appointment,
-            notify_users: notifyUsers ? 1 : 0,
-            force_save: forceSave ? 1 : 0,
-        };
+        // appointment_data/customer_data are sent as JSON strings rather than natively-nested fields, since
+        // attached files require a multipart/form-data request, which cannot carry nested fields on its own.
+        const formData = new FormData();
+        formData.append('csrf_token', vars('csrf_token'));
+        formData.append('appointment_data', JSON.stringify(appointment));
+        formData.append('notify_users', notifyUsers ? 1 : 0);
+        formData.append('force_save', forceSave ? 1 : 0);
 
         if (customer) {
-            data.customer_data = customer;
+            formData.append('customer_data', JSON.stringify(customer));
         }
 
-        return $.post(url, data)
+        if (discardedFileNames.length) {
+            formData.append('discarded_file_names', JSON.stringify(discardedFileNames));
+        }
+
+        attachedFiles.forEach((file, index) => {
+            formData.append(`attached_file_data_${index + 1}`, file);
+        });
+
+        return $.ajax({
+            url: url,
+            method: 'post',
+            data: formData,
+            contentType: false,
+            processData: false,
+        })
             .done((response) => {
                 if (successCallback) {
                     successCallback(response);
@@ -257,6 +276,8 @@ App.Http.Calendar = (function () {
      * @param {Function} [errorCallback] Optional callback function to execute on error.
      * @param {Boolean} notifyUsers Whether to notify users.
      * @param {Function} [revertCallback] Optional callback function to execute when user cancels on conflict.
+     * @param {File[]} [attachedFiles] Optional, new files to attach to the appointment.
+     * @param {String[]} [discardedFileNames] Optional, previously-attached file names to discard.
      */
     function saveAppointmentWithConflictHandling(
         appointment,
@@ -265,9 +286,20 @@ App.Http.Calendar = (function () {
         errorCallback,
         notifyUsers,
         revertCallback,
+        attachedFiles = [],
+        discardedFileNames = [],
     ) {
         const attemptSave = (forceSave = false) => {
-            saveAppointment(appointment, customer, null, errorCallback, notifyUsers, forceSave).done((response) => {
+            saveAppointment(
+                appointment,
+                customer,
+                null,
+                errorCallback,
+                notifyUsers,
+                forceSave,
+                attachedFiles,
+                discardedFileNames,
+            ).done((response) => {
                 if (response.conflict) {
                     // Show conflict confirmation dialog
                     App.Utils.Message.show(

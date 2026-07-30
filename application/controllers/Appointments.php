@@ -292,6 +292,8 @@ class Appointments extends EA_Controller
 
             $this->appointments_model->delete($appointment_id);
 
+            $this->appointments_model->delete_attached_files((int) $appointment_id);
+
             $this->webhooks_client->trigger(WEBHOOK_APPOINTMENT_DELETE, $appointment);
 
             json_response([

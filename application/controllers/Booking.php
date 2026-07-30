@@ -245,6 +245,7 @@ class Booking extends EA_Controller
             }
 
             $appointment = $results[0];
+            $appointment['attached_file_names'] = $this->appointments_model->get_attached_files((int) $appointment['id']);
             $provider = $this->providers_model->find($appointment['id_users_provider']);
 
             // Make sure the appointment can still be rescheduled.
@@ -382,10 +383,12 @@ class Booking extends EA_Controller
                 abort(403);
             }
 
-            check('post_data', 'array');
+            check('post_data', 'string');
             check('captcha', 'string|null');
 
-            $post_data = request('post_data');
+            // post_data arrives as a JSON string rather than a natively-nested array, since attached files
+            // require a multipart/form-data request, which cannot carry nested fields on its own.
+            $post_data = json_decode(request('post_data'), true);
 
             // Validate that post_data is an array
             if (!is_array($post_data)) {
@@ -396,6 +399,7 @@ class Booking extends EA_Controller
             $appointment = $post_data['appointment'] ?? [];
             $customer = $post_data['customer'] ?? [];
             $manage_mode = filter_var($post_data['manage_mode'] ?? false, FILTER_VALIDATE_BOOLEAN);
+            $discarded_file_names = $post_data['discarded_file_names'] ?? [];
 
             // Validate required appointment fields
             if (empty($appointment) || !is_array($appointment)) {
@@ -553,6 +557,18 @@ class Booking extends EA_Controller
             $appointment_id = $this->appointments_model->save($appointment);
             $appointment = $this->appointments_model->find($appointment_id);
 
+            if ($manage_mode && is_array($discarded_file_names)) {
+                foreach ($discarded_file_names as $discarded_file_name) {
+                    $this->appointments_model->delete_attached_file($appointment_id, $discarded_file_name);
+                }
+            }
+
+            $max_attached_files = boolval(setting('attached_files_supported', 0)) ? (int) setting('max_attached_files', 0) : 0;
+
+            for ($i = 1; $i <= $max_attached_files; $i++) {
+                $this->appointments_model->save_attached_file($appointment_id, 'attached_file_data_' . $i);
+            }
+
             $company_color = setting('company_color');
 
             $settings = [
@@ -605,7 +621,7 @@ class Booking extends EA_Controller
      */
     protected function check_datetime_availability(): ?int
     {
-        $post_data = request('post_data');
+        $post_data = json_decode(request('post_data'), true);
 
         $appointment = $post_data['appointment'];
 

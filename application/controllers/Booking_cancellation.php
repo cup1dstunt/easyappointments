@@ -116,6 +116,8 @@ class Booking_cancellation extends EA_Controller
 
             $this->appointments_model->delete($appointment['id']);
 
+            $this->appointments_model->delete_attached_files((int) $appointment['id']);
+
             $this->synchronization->sync_appointment_deleted($appointment, $provider);
 
             $this->notifications->notify_appointment_deleted(

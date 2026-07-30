@@ -169,6 +169,8 @@ App.Pages.Booking = (function () {
 
         // Bind the event handlers (might not be necessary every time we use this class).
         addEventListeners();
+        App.Utils.AttachedFiles.addEventListeners();
+        App.Utils.AttachedFiles.initialize(null, []);
 
         optimizeContactInfoDisplay();
 
@@ -767,6 +769,41 @@ App.Pages.Booking = (function () {
             `;
         });
 
+        // Attached files
+        if (App.Utils.AttachedFiles.getMaxAttachedFiles() > 0) {
+            const existingFileRows = Array.from(document.getElementsByClassName('existing-file-name-row'))
+                .map((row) => $(row))
+                .filter(($row) => $row.data('filename'));
+            const hasPreviousFiles = manageMode && existingFileRows.length > 0;
+
+            const attachedFileNamesText = App.Utils.AttachedFiles.getAttachedFiles().length
+                ? App.Utils.AttachedFiles.getAttachedFiles()
+                      .map((file) => App.Utils.String.escapeHtml(file.name))
+                      .join('; ')
+                : App.Utils.String.escapeHtml(lang('no_field_value'));
+
+            appointmentDetailsHtml += `
+                <div class="mb-2">
+                    <b>${hasPreviousFiles ? lang('new_attached_files') : lang('attached_files')}:</b> ${attachedFileNamesText}
+                </div>
+            `;
+
+            if (hasPreviousFiles) {
+                const previousFilesText = existingFileRows
+                    .map(($row) => {
+                        const fileName = App.Utils.String.escapeHtml($row.data('filename'));
+                        return $row.data('discarded') ? `<s>${fileName}</s>` : fileName;
+                    })
+                    .join('; ');
+
+                appointmentDetailsHtml += `
+                    <div class="mb-2">
+                        <b>${lang('prev_attached_files')}:</b> ${previousFilesText}
+                    </div>
+                `;
+            }
+        }
+
         $('#appointment-details').html(appointmentDetailsHtml);
 
         // Render the customer information
@@ -866,6 +903,7 @@ App.Pages.Booking = (function () {
         });
 
         data.manage_mode = Number(manageMode);
+        data.discarded_file_names = App.Utils.AttachedFiles.getDiscardedFileNames();
 
         if (manageMode) {
             data.appointment.id = vars('appointment_data').id;
@@ -936,6 +974,9 @@ App.Pages.Booking = (function () {
                 appointment.id_services,
                 startMoment.format('YYYY-MM-DD'),
             );
+
+            // Initialize attached files
+            App.Utils.AttachedFiles.initialize(appointment.id, appointment.attached_file_names || []);
 
             // Apply Customer's Data
             $lastName.val(customer.last_name);

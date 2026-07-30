@@ -86,7 +86,7 @@
             <i class="fas fa-chevron-left me-2"></i>
             <?= lang('back') ?>
         </button>
-        <form id="book-appointment-form" class="d-inline-block" method="post">
+        <form id="book-appointment-form" class="d-inline-block" method="post" enctype="multipart/form-data">
             <button id="book-appointment-submit" type="button" class="btn btn-primary w-100">
                 <i class="fas fa-check-square me-2"></i>
                 <?= $manage_mode ? lang('update') : lang('confirm') ?>

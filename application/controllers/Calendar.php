@@ -152,6 +152,10 @@ class Calendar extends EA_Controller
                 $edit_appointment = $occurrences[0];
 
                 $this->appointments_model->load($edit_appointment, ['customer']);
+
+                $edit_appointment['attached_file_names'] = $this->appointments_model->get_attached_files(
+                    (int) $edit_appointment['id'],
+                );
             }
         }
 
@@ -269,18 +273,26 @@ class Calendar extends EA_Controller
         try {
             method('post');
 
-            check('customer_data', 'array|null');
-            check('appointment_data', 'array');
+            check('customer_data', 'string|null');
+            check('appointment_data', 'string');
             check('notify_users', 'bool|null');
             check('force_save', 'bool|null');
+            check('discarded_file_names', 'string|null');
 
-            $customer_data = request('customer_data');
+            // appointment_data/customer_data arrive as JSON strings rather than natively-nested arrays,
+            // since attached files require a multipart/form-data request, which cannot carry nested fields
+            // on its own.
+            $customer_data = request('customer_data') ? json_decode(request('customer_data'), true) : null;
 
-            $appointment_data = request('appointment_data');
+            $appointment_data = json_decode(request('appointment_data'), true);
 
             $notify_users = filter_var(request('notify_users', true), FILTER_VALIDATE_BOOLEAN);
 
             $force_save = filter_var(request('force_save', false), FILTER_VALIDATE_BOOLEAN);
+
+            $discarded_file_names = request('discarded_file_names')
+                ? json_decode(request('discarded_file_names'), true)
+                : [];
 
             $this->check_event_permissions((int) $appointment_data['id_users_provider']);
 
@@ -361,6 +373,20 @@ class Calendar extends EA_Controller
                 $this->appointments_model->optional($appointment, $this->optional_appointment_fields);
 
                 $appointment['id'] = $this->appointments_model->save($appointment);
+
+                if ($manage_mode && is_array($discarded_file_names)) {
+                    foreach ($discarded_file_names as $discarded_file_name) {
+                        $this->appointments_model->delete_attached_file((int) $appointment['id'], $discarded_file_name);
+                    }
+                }
+
+                $max_attached_files = boolval(setting('attached_files_supported', 0))
+                    ? (int) setting('max_attached_files', 0)
+                    : 0;
+
+                for ($i = 1; $i <= $max_attached_files; $i++) {
+                    $this->appointments_model->save_attached_file((int) $appointment['id'], 'attached_file_data_' . $i);
+                }
             }
 
             if (empty($appointment['id'])) {
@@ -475,6 +501,8 @@ class Calendar extends EA_Controller
 
             // Delete appointment record from the database.
             $this->appointments_model->delete($appointment_id);
+
+            $this->appointments_model->delete_attached_files((int) $appointment_id);
 
             if ($notify_users) {
                 $this->notifications->notify_appointment_deleted(
@@ -672,10 +700,18 @@ class Calendar extends EA_Controller
                 ]),
             ];
 
+            $attached_files_supported = boolval(setting('attached_files_supported', 0));
+
             foreach ($response['appointments'] as &$appointment) {
                 $appointment['provider'] = $this->providers_model->find($appointment['id_users_provider']);
                 $appointment['service'] = $this->services_model->find($appointment['id_services']);
                 $appointment['customer'] = $this->customers_model->find($appointment['id_users_customer']);
+
+                if ($attached_files_supported) {
+                    $appointment['attached_file_names'] = $this->appointments_model->get_attached_files(
+                        (int) $appointment['id'],
+                    );
+                }
             }
 
             unset($appointment);
@@ -827,10 +863,18 @@ class Calendar extends EA_Controller
 
             $response['appointments'] = $this->db->get()->result_array();
 
+            $attached_files_supported = boolval(setting('attached_files_supported', 0));
+
             foreach ($response['appointments'] as &$appointment) {
                 $appointment['provider'] = $this->providers_model->find($appointment['id_users_provider']);
                 $appointment['service'] = $this->services_model->find($appointment['id_services']);
                 $appointment['customer'] = $this->customers_model->find($appointment['id_users_customer']);
+
+                if ($attached_files_supported) {
+                    $appointment['attached_file_names'] = $this->appointments_model->get_attached_files(
+                        (int) $appointment['id'],
+                    );
+                }
             }
 
             unset($appointment);

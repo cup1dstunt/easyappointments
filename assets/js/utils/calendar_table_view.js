@@ -227,6 +227,8 @@ App.Utils.CalendarTableView = (function () {
 
         App.Utils.CustomFields.splitAllGroupValues('appt-custom-field-container');
 
+        App.Utils.AttachedFiles.initialize(appointment.id, appointment.attached_file_names || []);
+
         App.Components.ColorSelection.setColor($appointmentsModal.find('#appointment-color'), appointment.color);
         $appointmentsModal.modal('show');
     }

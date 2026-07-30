@@ -178,24 +178,29 @@ App.Http.Booking = (function () {
             return;
         }
 
-        const formData = JSON.parse($('input[name="post_data"]').val());
+        // post_data is sent as-is (already a JSON string) rather than parsed and re-serialized, since
+        // attached files require a multipart/form-data request, which cannot carry nested fields on its own.
+        const postData = $('input[name="post_data"]').val();
 
-        const data = {
-            csrf_token: vars('csrf_token'),
-            post_data: formData,
-        };
+        const formData = new FormData();
+        formData.append('csrf_token', vars('csrf_token'));
+        formData.append('post_data', postData);
 
         if ($captchaText.length > 0) {
-            data.captcha = $captchaText.val();
+            formData.append('captcha', $captchaText.val());
         }
-        
+
         if ($altchaPayload.length > 0 && $altchaPayload.val()) {
-            data.altcha_payload = $altchaPayload.val();
+            formData.append('altcha_payload', $altchaPayload.val());
         }
 
         if (vars('manage_mode')) {
-            data.exclude_appointment_id = vars('appointment_data').id;
+            formData.append('exclude_appointment_id', vars('appointment_data').id);
         }
+
+        App.Utils.AttachedFiles.getAttachedFiles().forEach((file, index) => {
+            formData.append(`attached_file_data_${index + 1}`, file);
+        });
 
         const url = App.Utils.Url.siteUrl('booking/register');
 
@@ -204,7 +209,9 @@ App.Http.Booking = (function () {
         $.ajax({
             url: url,
             method: 'post',
-            data: data,
+            data: formData,
+            contentType: false,
+            processData: false,
             dataType: 'json',
             beforeSend: () => {
                 $layer.appendTo('body').css({

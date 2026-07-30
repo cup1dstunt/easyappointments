@@ -21,6 +21,7 @@ $customer_phone_number = trim((string) ($customer['phone_number'] ?? ''));
 $customer_address = trim((string) ($customer['address'] ?? ''));
 $max_custom_fields = config('max_custom_fields', 5);
 $max_appt_custom_fields = config('max_appt_custom_fields', 5);
+$max_attached_files = boolval(setting('attached_files_supported', 0)) ? (int) setting('max_attached_files', 0) : 0;
 ?>
 
 <!doctype html>
@@ -549,6 +550,19 @@ $max_appt_custom_fields = config('max_appt_custom_fields', 5);
                                                     </tr>
                                                 <?php endif; ?>
                                             <?php endfor; ?>
+
+                                            <?php if ($max_attached_files > 0): ?>
+                                                <tr>
+                                                    <td class="label" style="padding: 3px;font-weight: bold;">
+                                                        <?= lang('attached_files') ?>
+                                                    </td>
+                                                    <td style="padding: 3px;">
+                                                        <?= !empty($appointment['attached_file_names'])
+                                                            ? e(implode('; ', $appointment['attached_file_names']))
+                                                            : e(lang('no_field_value')) ?>
+                                                    </td>
+                                                </tr>
+                                            <?php endif; ?>
                                         </table>
 
                                         <br>

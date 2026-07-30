@@ -602,3 +602,16 @@ li.language {
     width: 70%;
     line-height: 2.4rem;
 }
+
+/* LNU: Support for Attached Files (README.md #2). */
+#attach-file-button {
+    cursor: pointer;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.discard-file-button {
+    cursor: pointer;
+    margin-left: 10px;
+    vertical-align: middle;
+}
