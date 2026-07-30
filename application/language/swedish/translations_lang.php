@@ -612,4 +612,9 @@ $lang['unknown_error'] = 'Okänt fel.';
 $lang['invalid_parameters'] = 'Ogiltiga parametrar.';
 $lang['failed_to_move_file'] = 'Överföring av bifogad fil misslyckades.';
 $lang['previously_attached'] = 'tidigare bifogad';
+$lang['hide_provider_selection'] = 'Dölj val av utförare';
+$lang['provider_selection_method'] = 'Metod för val av utförare';
+$lang['provider_selection_on_date'] = 'Tillgänglig på datum';
+$lang['provider_selection_around_date'] = 'Tillgänglig runt bokningen';
+$lang['hide_provider_selection_hint'] = 'Om denna är aktiverad döljs valet av utförare för kunderna, även när flera utförare är tillgängliga. Utföraren väljs istället automatiskt enligt den valda metoden: \'Tillgänglig på datum\' väljer den utförare som har flest lediga tider på bokningsdatumet. \'Tillgänglig runt bokningen\' väljer den utförare vars befintliga bokningar ligger längst ifrån den nya bokningen, för att fördela bokningarna jämnt över tid.';
 // End

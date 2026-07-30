@@ -4,11 +4,15 @@
  *
  * @var array $available_services
  */
+// LNU: Hide Provider Selection (README.md #3).
+$hide_provider_selection = boolval(setting('display_any_provider', 0)) && boolval(setting('hide_provider_selection', 0));
 ?>
 
 <div id="wizard-frame-1" class="wizard-frame p-3 p-md-4" style="visibility: hidden;">
     <div class="frame-container py-3" style="min-height: 500px;">
-        <h2 class="frame-title fw-light text-center mb-4 text-muted mt-md-5"><?= lang('service_and_provider') ?></h2>
+        <h2 class="frame-title fw-light text-center mb-4 text-muted mt-md-5">
+            <?= $hide_provider_selection ? lang('select_service') : lang('service_and_provider') ?>
+        </h2>
 
         <div class="row frame-content">
             <div class="col col-lg-8 offset-md-2">

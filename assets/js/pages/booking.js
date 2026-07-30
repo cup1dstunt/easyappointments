@@ -220,16 +220,25 @@ App.Pages.Booking = (function () {
                 $selectProvider.val(selectedProviderId).trigger('change');
             }
 
+            const isSingleService = vars('available_services').length === 1;
+            const isSingleProvider = vars('available_providers').length === 1;
+
+            // LNU: Hide Provider Selection (README.md #3).
+            const selectHiddenAnyProvider =
+                Boolean(Number(vars('display_any_provider'))) && Boolean(Number(vars('hide_provider_selection')));
+
             if (
                 (selectedServiceId && selectedProviderId) ||
-                (vars('available_services').length === 1 && vars('available_providers').length === 1)
+                (isSingleService && (isSingleProvider || selectHiddenAnyProvider))
             ) {
                 if (!selectedServiceId) {
                     $selectService.val(vars('available_services')[0].id).trigger('change');
                 }
 
                 if (!selectedProviderId) {
-                    $selectProvider.val(vars('available_providers')[0].id).trigger('change');
+                    $selectProvider
+                        .val(isSingleProvider ? vars('available_providers')[0].id : vars('ANY_PROVIDER'))
+                        .trigger('change');
                 }
 
                 $('.active-step').removeClass('active-step');
@@ -355,7 +364,11 @@ App.Pages.Booking = (function () {
             const serviceId = $selectService.val();
             const previousProviderId = $selectProvider.val();
 
-            $selectProvider.parent().prop('hidden', !Boolean(serviceId));
+            // LNU: Hide Provider Selection (README.md #3).
+            const selectHiddenAnyProvider =
+                Boolean(Number(vars('display_any_provider'))) && Boolean(Number(vars('hide_provider_selection')));
+
+            $selectProvider.parent().prop('hidden', !Boolean(serviceId) || selectHiddenAnyProvider);
 
             $selectProvider.empty();
 
@@ -384,6 +397,7 @@ App.Pages.Booking = (function () {
 
             if (providerOptionCount === 2) {
                 $selectProvider.find('option[value=""]').remove();
+                $selectProvider.val($selectProvider.find('option:first').val());
             }
 
             // Add the "Any Provider" entry
@@ -396,6 +410,10 @@ App.Pages.Booking = (function () {
             if (previousProviderId && previousProviderCanServe) {
                 $selectProvider.val(previousProviderId);
             } else if (previousProviderId === 'any-provider' && providerOptionCount > 2 && Boolean(Number(vars('display_any_provider')))) {
+                $selectProvider.val('any-provider');
+            } else if (selectHiddenAnyProvider && providerOptionCount > 2) {
+                // LNU: Hide Provider Selection (README.md #3) - no explicit choice to restore, so
+                // default straight to "Any Provider" since the selection UI is hidden from the customer.
                 $selectProvider.val('any-provider');
             }
 
@@ -689,13 +707,17 @@ App.Pages.Booking = (function () {
         const serviceId = $selectService.val();
         const providerId = $selectProvider.val();
 
-        $displayBookingSelection.text(`${lang('service')} │ ${lang('provider')}`); // Notice: "│" is a custom ASCII char
+        // LNU: Hide Provider Selection (README.md #3).
+        const selectHiddenAnyProvider =
+            Boolean(Number(vars('display_any_provider'))) && Boolean(Number(vars('hide_provider_selection')));
 
         const serviceOptionText = serviceId ? $selectService.find('option:selected').text() : lang('service');
         const providerOptionText = providerId ? $selectProvider.find('option:selected').text() : lang('provider');
 
-        if (serviceId || providerId) {
-            $displayBookingSelection.text(`${serviceOptionText} │ ${providerOptionText}`);
+        if (selectHiddenAnyProvider) {
+            $displayBookingSelection.text(`${serviceOptionText}`);
+        } else {
+            $displayBookingSelection.text(`${serviceOptionText} │ ${providerOptionText}`); // Notice: "│" is a custom ASCII char
         }
 
         if (!$availableHours.find('.selected-hour').text()) {
@@ -733,7 +755,7 @@ App.Pages.Booking = (function () {
                 <div class="mb-2 fw-bold fs-3">
                     ${serviceOptionText}
                 </div>
-                <div class="mb-2 fw-bold text-muted">
+                <div class="mb-2 fw-bold text-muted" ${selectHiddenAnyProvider ? 'hidden' : ''}>
                     ${providerOptionText}
                 </div>
                 <div class="mb-2">

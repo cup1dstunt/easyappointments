@@ -306,6 +306,8 @@ class Booking extends EA_Controller
             'first_weekday' => $first_weekday,
             'display_cookie_notice' => $display_cookie_notice,
             'display_any_provider' => setting('display_any_provider'),
+            'hide_provider_selection' => setting('hide_provider_selection'),
+            'ANY_PROVIDER' => ANY_PROVIDER,
             'future_booking_limit' => setting('future_booking_limit'),
             'appointment_data' => $appointment,
             'provider_data' => $provider ? filter_sensitive_user_data($provider) : null,
@@ -632,7 +634,13 @@ class Booking extends EA_Controller
         $hour = $appointment_start->format('H:i');
 
         if ($appointment['id_users_provider'] === ANY_PROVIDER) {
-            $appointment['id_users_provider'] = $this->search_any_provider($appointment['id_services'], $date, $hour);
+            $appointment['id_users_provider'] = match (setting('provider_selection_method')) {
+                'around_date' => $this->search_provider_available_around_date(
+                    $appointment['id_services'],
+                    $appointment_start,
+                ),
+                default => $this->search_any_provider($appointment['id_services'], $date, $hour),
+            };
 
             return $appointment['id_users_provider'];
         }
@@ -706,6 +714,64 @@ class Booking extends EA_Controller
         }
 
         return $provider_id;
+    }
+
+    /**
+     * LNU: Get the IDs of the providers who can provide the given service and are available at the given date
+     * and hour (README.md #3).
+     *
+     * @param int $service_id Service ID.
+     * @param string $date Selected date (Y-m-d).
+     * @param string $hour Selected hour (H:i).
+     *
+     * @return int[] Returns the IDs of the available providers.
+     *
+     * @throws Exception
+     */
+    protected function get_available_providers_for_service(int $service_id, string $date, string $hour): array
+    {
+        $available_provider_ids = [];
+
+        $service = $this->services_model->find($service_id);
+
+        foreach ($this->providers_model->get_available_providers(true) as $provider) {
+            if (!in_array($service_id, $provider['services'])) {
+                continue;
+            }
+
+            $available_hours = $this->availability->get_available_hours($date, $service, $provider);
+
+            if (in_array($hour, $available_hours)) {
+                $available_provider_ids[] = $provider['id'];
+            }
+        }
+
+        return $available_provider_ids;
+    }
+
+    /**
+     * LNU: Search for the provider whose existing bookings are furthest away from the new booking, in order to
+     * distribute bookings among providers as evenly as possible over time (README.md #3).
+     *
+     * Unlike search_any_provider(), which only looks at availability on the exact booking date, this also
+     * takes into account how far away each available provider's closest existing booking is.
+     *
+     * @param int $service_id Service ID.
+     * @param DateTime $appointment_start Selected appointment start date and time.
+     *
+     * @return int|null Returns the ID of the selected provider, or null if none are available.
+     *
+     * @throws Exception
+     */
+    protected function search_provider_available_around_date(int $service_id, DateTime $appointment_start): ?int
+    {
+        $available_providers = $this->get_available_providers_for_service(
+            $service_id,
+            $appointment_start->format('Y-m-d'),
+            $appointment_start->format('H:i'),
+        );
+
+        return $this->providers_model->get_provider_available_around_date($appointment_start, $available_providers);
     }
 
     /**

@@ -673,6 +673,52 @@ class Providers_model extends EA_Model
     }
 
     /**
+     * LNU: Get the ID of the provider whose closest existing appointment is furthest away from the given time,
+     * among the given list of available providers (README.md #3).
+     *
+     * Providers with no existing appointments at all are considered equally available, and one of them is
+     * chosen at random. This distributes bookings among providers as evenly as possible over time.
+     *
+     * @param DateTime $time Selected appointment start date and time.
+     * @param int[] $available_providers IDs of the providers available for the requested service and time.
+     *
+     * @return int|null Returns the ID of the selected provider, or null if $available_providers is empty.
+     */
+    public function get_provider_available_around_date(DateTime $time, array $available_providers): ?int
+    {
+        if (empty($available_providers)) {
+            return null;
+        }
+
+        $time_string = $time->format('Y-m-d H:i:s');
+
+        $provider_appointment_distances = $this->db
+            ->select(
+                "id_users_provider, MIN(ABS(TIMESTAMPDIFF(MINUTE, '$time_string', start_datetime))) AS nearest_distance",
+            )
+            ->from('appointments')
+            ->where('is_unavailability', false)
+            ->where_in('id_users_provider', $available_providers)
+            ->group_by('id_users_provider')
+            ->order_by('nearest_distance', 'DESC')
+            ->get()
+            ->result_array();
+
+        $providers_with_appointments = array_map(
+            'intval',
+            array_column($provider_appointment_distances, 'id_users_provider'),
+        );
+
+        $providers_without_appointments = array_diff($available_providers, $providers_with_appointments);
+
+        if (!empty($providers_without_appointments)) {
+            return $providers_without_appointments[array_rand($providers_without_appointments)];
+        }
+
+        return $providers_with_appointments[0];
+    }
+
+    /**
      * Get the query builder interface, configured for use with the users (provider-filtered) table.
      *
      * @return CI_DB_query_builder

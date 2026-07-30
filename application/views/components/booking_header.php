@@ -4,6 +4,8 @@
  *
  * @var string $company_name
  */
+// LNU: Hide Provider Selection (README.md #3).
+$hide_provider_selection = boolval(setting('display_any_provider', 0)) && boolval(setting('hide_provider_selection', 0));
 ?>
 
 <div id="header" class="overflow-hidden p-3 p-md-4 d-flex flex-column flex-lg-row align-items-center bg-primary">
@@ -17,7 +19,7 @@
 
         <div class="d-flex justify-content-center justify-content-md-start">
             <span class="display-booking-selection small fw-normal text-white-50">
-                <?= lang('service') ?> │ <?= lang('provider') ?>
+                <?= lang('service') ?><?= $hide_provider_selection ? '' : ' │ ' . lang('provider') ?>
             </span>
         </div>
     </div>
