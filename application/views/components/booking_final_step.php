@@ -80,6 +80,13 @@
 
     </div>
 
+    <div class="text-center mx-auto" style="max-width: 630px;">
+        <div id="customer-booking-limits-wait">
+            <span class="spinner-border spinner-border-sm"></span> <?= lang('validating_booking') ?>
+        </div>
+        <div id="customer-booking-limits-text" class="small"></div>
+    </div>
+
     <div class="command-buttons text-center my-3 mx-auto d-md-flex justify-content-md-between">
         <button type="button" id="button-back-4" class="btn button-back btn-outline-secondary" style="min-width: 120px; margin-right: 10px;"
                 data-step_index="4">

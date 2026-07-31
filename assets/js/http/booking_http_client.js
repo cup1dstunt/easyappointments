@@ -429,11 +429,36 @@ App.Http.Booking = (function () {
         });
     }
 
+    /**
+     * LNU: Check whether the customer is allowed to make this booking, given the configured customer booking
+     * limits (README.md #7).
+     *
+     * @param {String} customerEmail Email address of the booking customer.
+     * @param {Number} serviceId ID of the selected service.
+     * @param {String} bookingDate Start date of the booking (Y-m-d).
+     * @param {Number|null} excludeAppointmentId ID of the appointment being edited, if rescheduling.
+     * @param {Function} callback Called with the response ({allowed, message}).
+     */
+    function checkCustomerBookingLimits(customerEmail, serviceId, bookingDate, excludeAppointmentId, callback) {
+        const url = App.Utils.Url.siteUrl('booking/check_customer_booking_limits');
+
+        const data = {
+            csrf_token: vars('csrf_token'),
+            customer_email: customerEmail,
+            service_id: serviceId,
+            booking_date: bookingDate,
+            exclude_appointment_id: excludeAppointmentId,
+        };
+
+        $.post(url, data).done(callback);
+    }
+
     return {
         registerAppointment,
         getAvailableHours,
         getUnavailableDates,
         applyPreviousUnavailableDates,
         deletePersonalInformation,
+        checkCustomerBookingLimits,
     };
 })();

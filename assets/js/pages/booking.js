@@ -477,7 +477,8 @@ App.Pages.Booking = (function () {
                     return; // Validation failed, do not continue.
                 } else {
                     App.Pages.Booking.updateConfirmFrame();
-                    
+                    App.Pages.Booking.checkCustomerBookingLimits();
+
                     // Initialize ALTCHA widget if present
                     if ($('#altcha-widget').length && App.Utils.Altcha) {
                         App.Utils.Altcha.initialize('altcha-widget');
@@ -704,6 +705,29 @@ App.Pages.Booking = (function () {
         }
 
         return true;
+    }
+
+    /**
+     * LNU: Check whether the customer is allowed to make this booking, given the configured customer booking
+     * limits (README.md #7). Disables the submit button until the check completes, and re-disables it if the
+     * booking turns out not to be allowed.
+     */
+    function checkCustomerBookingLimits() {
+        const customerEmail = $('#email').val();
+        const serviceId = $selectService.val();
+        const bookingDate = moment(App.Utils.UI.getDateTimePickerValue($selectDate)).format('YYYY-MM-DD');
+        const excludeAppointmentId = manageMode ? vars('appointment_data').id : null;
+
+        $('#book-appointment-submit').prop('disabled', true);
+        $('#customer-booking-limits-wait').show();
+        $('#customer-booking-limits-text').hide();
+
+        App.Http.Booking.checkCustomerBookingLimits(customerEmail, serviceId, bookingDate, excludeAppointmentId, (result) => {
+            $('#book-appointment-submit').prop('disabled', !result.allowed);
+            $('#customer-booking-limits-text').html(result.message).toggleClass('text-danger', !result.allowed);
+            $('#customer-booking-limits-wait').hide();
+            $('#customer-booking-limits-text').show();
+        });
     }
 
     /**
@@ -1237,5 +1261,6 @@ App.Pages.Booking = (function () {
         updateConfirmFrame,
         updateServiceDescription,
         validateCustomerForm,
+        checkCustomerBookingLimits,
     };
 })();

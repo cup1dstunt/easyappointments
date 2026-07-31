@@ -442,6 +442,20 @@ class Booking extends EA_Controller
                 $customer['phone_number'] = '';
             }
 
+            // LNU: Enforce the customer booking limits (README.md #7). This is the authoritative check - the
+            // AJAX check_customer_booking_limits() endpoint only provides a live preview while the customer is
+            // still filling out the wizard, it does not gate the actual save.
+            $booking_limit_status = $this->get_customer_booking_limit_status(
+                $customer['email'],
+                (int) $appointment['id_services'],
+                $appointment['start_datetime'],
+                $appointment['id'] ?? null,
+            );
+
+            if (!$booking_limit_status['allowed']) {
+                throw new RuntimeException($booking_limit_status['message']);
+            }
+
             // Check appointment availability before registering it to the database.
             $appointment['id_users_provider'] = $this->check_datetime_availability();
 
@@ -971,5 +985,256 @@ class Booking extends EA_Controller
         }
 
         return $provider_list;
+    }
+
+    /**
+     * LNU: Check whether the customer is allowed to make this booking, given the configured customer booking
+     * limits (README.md #7). This is the AJAX endpoint the booking wizard polls to show a live message while
+     * the customer is still filling out the form; register() separately calls
+     * get_customer_booking_limit_status() again as the actual, authoritative check before saving.
+     */
+    public function check_customer_booking_limits(): void
+    {
+        try {
+            method('post');
+
+            check('customer_email', 'string');
+            check('service_id', 'numeric');
+            check('booking_date', 'date');
+            check('exclude_appointment_id', 'numeric|null');
+
+            // jQuery's $.post() serializes a JS `null` as an empty string on the wire, not as an absent field, so
+            // both must be treated as "not editing an existing appointment" here.
+            $exclude_appointment_id = request('exclude_appointment_id');
+            $exclude_appointment_id =
+                $exclude_appointment_id !== null && $exclude_appointment_id !== '' ? (int) $exclude_appointment_id : null;
+
+            json_response(
+                $this->get_customer_booking_limit_status(
+                    request('customer_email'),
+                    (int) request('service_id'),
+                    request('booking_date'),
+                    $exclude_appointment_id,
+                ),
+            );
+        } catch (Throwable $e) {
+            json_exception($e);
+        }
+    }
+
+    /**
+     * LNU: Get whether the customer is allowed to make this booking, given the configured customer booking
+     * limits, and the message to show them either way (README.md #7). A customer is identified by their email
+     * address.
+     *
+     * @param string $customer_email
+     * @param int $service_id
+     * @param string $booking_date Start date/time of the appointment being booked.
+     * @param int|null $exclude_appointment_id The ID of the appointment being edited, if rescheduling - it is
+     * already included among the customer's existing appointments, so it must not also be counted as a new one.
+     *
+     * @return array{allowed: bool, message: string}
+     */
+    protected function get_customer_booking_limit_status(
+        string $customer_email,
+        int $service_id,
+        string $booking_date,
+        ?int $exclude_appointment_id,
+    ): array {
+        $is_test_email = in_array($customer_email, explode(';', config('test_email_addresses', '')), true);
+
+        $max_appointments = (int) setting('max_customer_appointments');
+        $max_service_bookings = (int) setting('max_customer_service_bookings');
+        $limit_period = setting('max_customer_appointments_period');
+
+        $num_appointments = 0;
+        $num_service_bookings = 0;
+        $next_service_booking_date = null;
+
+        $customer = ['email' => $customer_email];
+
+        if ($this->customers_model->exists($customer)) {
+            $customer_id = $this->customers_model->find_record_id($customer);
+
+            $existing_appointments = $this->appointments_model->get(
+                ['id_users_customer' => $customer_id],
+                null,
+                null,
+                'start_datetime DESC',
+            );
+
+            $period = $this->get_customer_booking_limit_period(new DateTimeImmutable($booking_date), $limit_period);
+
+            $now = new DateTimeImmutable();
+
+            foreach ($existing_appointments as $appointment) {
+                $appointment_start = new DateTimeImmutable($appointment['start_datetime']);
+
+                if ($appointment_start >= $period['start'] && $appointment_start <= $period['end']) {
+                    $num_appointments++;
+                }
+
+                if ((int) $appointment['id_services'] !== $service_id || $appointment_start <= $now) {
+                    continue;
+                }
+
+                $num_service_bookings++;
+
+                if ((int) $appointment['id'] !== $exclude_appointment_id) {
+                    $next_service_booking_date = $appointment['start_datetime'];
+                }
+            }
+        }
+
+        // When editing an existing appointment, it is already included in the counts above, so it should not
+        // also be counted as a new one.
+        $nth_appointment = $exclude_appointment_id !== null ? $num_appointments : $num_appointments + 1;
+        $nth_service_booking = $exclude_appointment_id !== null ? $num_service_bookings : $num_service_bookings + 1;
+
+        $max_appointments_exceeded = $max_appointments > 0 && $nth_appointment > $max_appointments;
+        $max_service_bookings_exceeded = $max_service_bookings > 0 && $nth_service_booking > $max_service_bookings;
+
+        $appointments_policy_message = $this->get_appointments_policy_message(
+            $max_appointments,
+            $nth_appointment,
+            $limit_period,
+        );
+
+        if ($max_appointments_exceeded) {
+            $message = sprintf(lang('disallowed_booking'), $appointments_policy_message);
+        } elseif ($max_service_bookings_exceeded) {
+            $message = sprintf(
+                lang('disallowed_booking'),
+                $this->get_service_bookings_policy_message(
+                    $max_service_bookings,
+                    $nth_service_booking,
+                    $next_service_booking_date,
+                ),
+            );
+        } else {
+            $message = $max_appointments > 0 ? $appointments_policy_message : '';
+        }
+
+        return [
+            'allowed' => $is_test_email || (!$max_appointments_exceeded && !$max_service_bookings_exceeded),
+            'message' => $message,
+        ];
+    }
+
+    /**
+     * LNU: Get the start and end of the customer booking limit period containing the given date (README.md #7).
+     *
+     * @param DateTimeImmutable $date A date falling within the period.
+     * @param string $period One of 'day', 'week', 'month', 'half-year', 'calendar_year', 'school_year'.
+     *
+     * @return DateTimeImmutable[] Returns ['start' => DateTimeImmutable, 'end' => DateTimeImmutable].
+     */
+    protected function get_customer_booking_limit_period(DateTimeImmutable $date, string $period): array
+    {
+        $start_of_day = $date->setTime(0, 0, 0);
+
+        switch ($period) {
+            case 'week':
+                $day_names = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
+                $first_weekday_index = array_search(setting('first_weekday'), $day_names);
+
+                // PHP's "N" format is ISO-8601 (1 = Monday ... 7 = Sunday); "% 7" folds Sunday from 7 to 0, to
+                // match $day_names' 0-indexed (Sunday first) order.
+                $current_weekday_index = (int) $date->format('N') % 7;
+
+                $days_since_first_weekday = ($current_weekday_index - $first_weekday_index + 7) % 7;
+
+                $start = $start_of_day->modify("-{$days_since_first_weekday} days");
+                $end = $start->modify('+6 days')->setTime(23, 59, 59);
+                break;
+
+            case 'month':
+                $start = $start_of_day->modify('first day of this month');
+                $end = $start_of_day->modify('last day of this month')->setTime(23, 59, 59);
+                break;
+
+            case 'half-year':
+                $half_start_month = (int) $date->format('n') <= 6 ? 1 : 7;
+                $start = $start_of_day->setDate((int) $date->format('Y'), $half_start_month, 1);
+                $end = $start->modify('+5 months')->modify('last day of this month')->setTime(23, 59, 59);
+                break;
+
+            case 'calendar_year':
+                $year = (int) $date->format('Y');
+                $start = $start_of_day->setDate($year, 1, 1);
+                $end = $start_of_day->setDate($year, 12, 31)->setTime(23, 59, 59);
+                break;
+
+            case 'school_year':
+                $start_year = (int) $date->format('n') <= 6 ? (int) $date->format('Y') - 1 : (int) $date->format('Y');
+                $start = $start_of_day->setDate($start_year, 7, 1);
+                $end = $start_of_day->setDate($start_year + 1, 6, 30)->setTime(23, 59, 59);
+                break;
+
+            case 'day':
+            default:
+                $start = $start_of_day;
+                $end = $start_of_day->setTime(23, 59, 59);
+                break;
+        }
+
+        return ['start' => $start, 'end' => $end];
+    }
+
+    /**
+     * LNU: Build the "you can book at most N appointments during X" policy message (README.md #7).
+     */
+    private function get_appointments_policy_message(int $max_appointments, int $nth_appointment, string $limit_period): string
+    {
+        return sprintf(
+            lang('allowed_bookings_policy'),
+            $this->get_cardinal_word($max_appointments),
+            $max_appointments === 1 ? lang('appointment_lc') : lang('appointments_lc'),
+            lang('each_' . $limit_period),
+            $this->get_ordinal_word($nth_appointment),
+        );
+    }
+
+    /**
+     * LNU: Build the "you can have at most N active bookings for this service" policy message (README.md #7).
+     */
+    private function get_service_bookings_policy_message(
+        int $max_service_bookings,
+        int $nth_service_booking,
+        ?string $next_service_booking_date,
+    ): string {
+        $next_booking_datetime = $next_service_booking_date ? new DateTimeImmutable($next_service_booking_date) : null;
+
+        return sprintf(
+            lang('active_bookings_policy'),
+            $this->get_cardinal_word($max_service_bookings),
+            $max_service_bookings === 1 ? lang('active_booking') : lang('active_bookings'),
+            $this->get_ordinal_word($nth_service_booking),
+            $next_booking_datetime ? $next_booking_datetime->format('Y-m-d') : '',
+            $next_booking_datetime ? $next_booking_datetime->format('H:i') : '',
+        );
+    }
+
+    /**
+     * LNU: Get the word for a small cardinal number (README.md #7), eg. 3 -> "three", falling back to the digit
+     * itself for anything larger.
+     */
+    private function get_cardinal_word(int $number): string
+    {
+        $words = ['one', 'two', 'three', 'four', 'five'];
+
+        return $number >= 1 && $number <= count($words) ? lang($words[$number - 1]) : (string) $number;
+    }
+
+    /**
+     * LNU: Get the word for a small ordinal number (README.md #7), eg. 3 -> "third", falling back to "Nth" for
+     * anything larger.
+     */
+    private function get_ordinal_word(int $number): string
+    {
+        $words = ['first', 'second', 'third', 'fourth', 'fifth'];
+
+        return $number >= 1 && $number <= count($words) ? lang($words[$number - 1]) : $number . '.';
     }
 }

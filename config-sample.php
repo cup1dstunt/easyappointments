@@ -98,4 +98,11 @@ class Config
     // instead. One of: 'minutes', 'hours', 'days', 'weekdays'.
     //
     // const DEFAULT_BOOK_ADVANCE_TIMEOUT_UNIT = 'minutes';
+
+    // Customer Booking Limits (Optional)
+    // ------------------------------------------------------------------------
+    // Semicolon-separated list of email addresses that are always exempt from
+    // the customer booking limits (Settings > Business Logic), eg. for testing.
+    //
+    // const TEST_EMAIL_ADDRESSES = 'test@example.com;qa@example.com';
 }
