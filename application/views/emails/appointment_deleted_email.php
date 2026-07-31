@@ -24,6 +24,9 @@ $max_attached_files = boolval(setting('attached_files_supported', 0)) ? (int) se
 // LNU: Cooldown period for services (README.md #5). "duration" is the full blocked timeslot (customer-facing
 // time + cooldown) - only the customer-facing part is communicated here.
 $customer_duration = (int) $service['duration'] - (int) $service['cooldown'];
+
+// LNU: Hide Timezone from Customers (README.md #6).
+$hide_customer_timezone = boolval(setting('hide_customer_timezone', 0));
 ?>
 
 <!doctype html>
@@ -458,6 +461,7 @@ $customer_duration = (int) $service['duration'] - (int) $service['cooldown'];
                                                     <?= $customer_duration ?> <?= lang('minutes') ?>
                                                 </td>
                                             </tr>
+                                            <?php if (!$hide_customer_timezone): ?>
                                             <tr>
                                                 <td class="label" style="padding: 3px;font-weight: bold;">
                                                     <?= lang('timezone') ?>
@@ -466,6 +470,7 @@ $customer_duration = (int) $service['duration'] - (int) $service['cooldown'];
                                                     <?= format_timezone($timezone) ?>
                                                 </td>
                                             </tr>
+                                            <?php endif; ?>
 
                                             <?php if (!empty($appointment['status'])): ?>
                                                 <tr>

@@ -303,6 +303,7 @@ class Booking extends EA_Controller
             'first_weekday' => $first_weekday,
             'display_cookie_notice' => $display_cookie_notice,
             'display_any_provider' => setting('display_any_provider'),
+            'hide_customer_timezone' => setting('hide_customer_timezone', 0),
             'hide_provider_selection' => setting('hide_provider_selection'),
             'ANY_PROVIDER' => ANY_PROVIDER,
             'future_booking_limit' => setting('future_booking_limit'),

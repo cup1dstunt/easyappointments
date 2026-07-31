@@ -627,4 +627,6 @@ $lang['cooldown_minutes'] = 'Cooldown (minuter)';
 $lang['cooldown'] = 'cooldown';
 $lang['min'] = 'min';
 $lang['invalid_cooldown'] = 'Ogiltig cooldown.';
+$lang['hide_customer_timezone'] = 'Dölj tidszon för kunder';
+$lang['hide_customer_timezone_hint'] = 'Dölj tidszonval från kunderna. Istället används Standardtidszon (definierad under Generella inställningar) för alla nya bokningar.';
 // End

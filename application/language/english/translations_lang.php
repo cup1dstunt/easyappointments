@@ -627,4 +627,6 @@ $lang['cooldown_minutes'] = 'Cooldown (Minutes)';
 $lang['cooldown'] = 'cooldown';
 $lang['min'] = 'min';
 $lang['invalid_cooldown'] = 'Invalid cooldown.';
+$lang['hide_customer_timezone'] = 'Hide Customer Timezone';
+$lang['hide_customer_timezone_hint'] = 'Hide the timezone selection from the customers. Instead, use the Default Timezone (defined under General Settings) for all new bookings.';
 // End

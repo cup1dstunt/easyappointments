@@ -163,9 +163,16 @@ App.Pages.Booking = (function () {
 
         App.Utils.UI.setDateTimePickerValue($selectDate, new Date());
 
-        const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        const isTimezoneSupported = $selectTimezone.find(`option[value="${browserTimezone}"]`).length > 0;
-        $selectTimezone.val(isTimezoneSupported ? browserTimezone : 'UTC');
+        // LNU: Hide Timezone from Customers (README.md #6).
+        if (Boolean(Number(vars('hide_customer_timezone')))) {
+            const defaultTimezone = vars('default_timezone');
+            const isDefaultTimezoneSupported = $selectTimezone.find(`option[value="${defaultTimezone}"]`).length > 0;
+            $selectTimezone.val(isDefaultTimezoneSupported ? defaultTimezone : 'UTC');
+        } else {
+            const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const isTimezoneSupported = $selectTimezone.find(`option[value="${browserTimezone}"]`).length > 0;
+            $selectTimezone.val(isTimezoneSupported ? browserTimezone : 'UTC');
+        }
 
         // Bind the event handlers (might not be necessary every time we use this class).
         addEventListeners();
@@ -769,7 +776,7 @@ App.Pages.Booking = (function () {
                     <i class="fas fa-clock me-2"></i>
                     ${customerDuration} ${lang('minutes')}
                 </div>
-                <div class="mb-2">
+                <div class="mb-2" ${Boolean(Number(vars('hide_customer_timezone'))) ? 'hidden' : ''}>
                     <i class="fas fa-globe me-2"></i>
                     ${timezoneOptionText}
                 </div>
