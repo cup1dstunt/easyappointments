@@ -747,6 +747,22 @@ App.Utils.CalendarDefaultView = (function () {
 
         const buttons = [
             {
+                text: lang('availability'),
+                click: (event, messageModal) => {
+                    $('#insert-availability').trigger('click');
+                    const $providerSelect = $('#availability-provider');
+                    if (isProviderFilter()) {
+                        $providerSelect.val($selectFilterItem.val());
+                    } else {
+                        $providerSelect.find('option:first').prop('selected', true);
+                    }
+                    $providerSelect.trigger('change');
+                    App.Utils.UI.setDateTimePickerValue($('#availability-start'), info.start);
+                    App.Utils.UI.setDateTimePickerValue($('#availability-end'), info.end);
+                    messageModal.hide();
+                },
+            },
+            {
                 text: lang('unavailability'),
                 click: (event, messageModal) => {
                     $('#insert-unavailability').trigger('click');

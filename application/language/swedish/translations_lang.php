@@ -661,4 +661,7 @@ $lang['fifth'] = 'femte';
 $lang['allowed_bookings_policy'] = 'Du kan boka max. %s %s %s. Det här är din %s bokning.';
 $lang['active_bookings_policy'] = 'Du kan ha max. %s %s för den valda tjänsten. Det här är din %s bokning. Ditt nästa möte är bokat %s kl. %s.';
 $lang['disallowed_booking'] = 'Tyvärr kan du inte boka detta möte. %s';
+$lang['availability'] = 'Tillgänglig';
+$lang['new_availability_title'] = 'Ny tillgänglig period';
+$lang['availability_saved'] = 'Tillgänglig period sparad.';
 // End

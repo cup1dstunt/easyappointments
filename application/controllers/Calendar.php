@@ -614,7 +614,7 @@ class Calendar extends EA_Controller
         try {
             method('post');
 
-            if (cannot('edit', PRIV_USERS)) {
+            if (cannot('edit', PRIV_APPOINTMENTS)) {
                 throw new RuntimeException('You do not have the required permissions for this task.');
             }
 
@@ -644,7 +644,7 @@ class Calendar extends EA_Controller
         try {
             method('post');
 
-            if (cannot('edit', PRIV_USERS)) {
+            if (cannot('edit', PRIV_APPOINTMENTS)) {
                 throw new RuntimeException('You do not have the required permissions for this task.');
             }
 

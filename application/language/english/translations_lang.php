@@ -661,4 +661,7 @@ $lang['fifth'] = 'fifth';
 $lang['allowed_bookings_policy'] = 'You can book max. %s %s during %s. This is your %s booking.';
 $lang['active_bookings_policy'] = 'You can have at most %s %s for the selected service. This is your %s booking. Your next appointment for this service is on %s at %s.';
 $lang['disallowed_booking'] = 'Unfortunately you can\'t book this appointment. %s';
+$lang['availability'] = 'Availability';
+$lang['new_availability_title'] = 'New Availability';
+$lang['availability_saved'] = 'Availability saved successfully.';
 // End
