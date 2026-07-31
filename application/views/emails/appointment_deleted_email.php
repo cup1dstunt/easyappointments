@@ -20,6 +20,10 @@ $customer_address = trim((string) ($customer['address'] ?? ''));
 $max_custom_fields = config('max_custom_fields', 5);
 $max_appt_custom_fields = config('max_appt_custom_fields', 5);
 $max_attached_files = boolval(setting('attached_files_supported', 0)) ? (int) setting('max_attached_files', 0) : 0;
+
+// LNU: Cooldown period for services (README.md #5). "duration" is the full blocked timeslot (customer-facing
+// time + cooldown) - only the customer-facing part is communicated here.
+$customer_duration = (int) $service['duration'] - (int) $service['cooldown'];
 ?>
 
 <!doctype html>
@@ -448,11 +452,10 @@ $max_attached_files = boolval(setting('attached_files_supported', 0)) ? (int) se
                                             </tr>
                                             <tr>
                                                 <td class="label" style="padding: 3px;font-weight: bold;">
-                                                    <?= lang('end') ?>
+                                                    <?= lang('duration') ?>
                                                 </td>
                                                 <td style="padding: 3px;">
-                                                    <?= format_date_time($appointment['end_datetime']) ?>
-
+                                                    <?= $customer_duration ?> <?= lang('minutes') ?>
                                                 </td>
                                             </tr>
                                             <tr>

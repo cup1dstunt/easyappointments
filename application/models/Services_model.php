@@ -38,6 +38,7 @@ class Services_model extends EA_Model
         'id' => 'id',
         'name' => 'name',
         'duration' => 'duration',
+        'cooldown' => 'cooldown',
         'price' => 'price',
         'currency' => 'currency',
         'description' => 'description',
@@ -113,6 +114,20 @@ class Services_model extends EA_Model
                 throw new InvalidArgumentException(
                     'The service duration cannot be less than ' . EVENT_MINIMUM_DURATION . ' minutes long.',
                 );
+            }
+        }
+
+        // LNU: Make sure the cooldown value is valid (README.md #5). "duration" always represents the full
+        // blocked timeslot (customer-facing time + cooldown), so cooldown must leave a positive remainder.
+        if (isset($service['cooldown'])) {
+            if ((int) $service['cooldown'] < EVENT_MINIMUM_COOLDOWN) {
+                throw new InvalidArgumentException(
+                    'The service cooldown cannot be less than ' . EVENT_MINIMUM_COOLDOWN . ' minutes long.',
+                );
+            }
+
+            if (!empty($service['duration']) && (int) $service['cooldown'] >= (int) $service['duration']) {
+                throw new InvalidArgumentException('The service cooldown must be less than the service duration.');
             }
         }
 
@@ -475,6 +490,7 @@ class Services_model extends EA_Model
             'id' => array_key_exists('id', $service) ? (int) $service['id'] : null,
             'name' => $service['name'],
             'duration' => (int) $service['duration'],
+            'cooldown' => (int) $service['cooldown'],
             'price' => (float) $service['price'],
             'currency' => $service['currency'],
             'description' => $service['description'],
@@ -509,6 +525,10 @@ class Services_model extends EA_Model
 
         if (array_key_exists('duration', $service)) {
             $decoded_resource['duration'] = $service['duration'];
+        }
+
+        if (array_key_exists('cooldown', $service)) {
+            $decoded_resource['cooldown'] = $service['cooldown'];
         }
 
         if (array_key_exists('price', $service)) {

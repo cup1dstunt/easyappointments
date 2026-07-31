@@ -734,6 +734,9 @@ App.Pages.Booking = (function () {
             return; // Service was not found
         }
 
+        // LNU: "duration" is the full blocked timeslot (customer-facing time + cooldown) (README.md #5).
+        const customerDuration = Number(service.duration) - Number(service.cooldown);
+
         const selectedDateObject = App.Utils.UI.getDateTimePickerValue($selectDate);
         const selectedDateMoment = moment(selectedDateObject);
         const selectedDate = selectedDateMoment.format('YYYY-MM-DD');
@@ -764,7 +767,7 @@ App.Pages.Booking = (function () {
                 </div>
                 <div class="mb-2">
                     <i class="fas fa-clock me-2"></i>
-                    ${service.duration} ${lang('minutes')}
+                    ${customerDuration} ${lang('minutes')}
                 </div>
                 <div class="mb-2">
                     <i class="fas fa-globe me-2"></i>
@@ -1060,8 +1063,11 @@ App.Pages.Booking = (function () {
 
         const additionalInfoParts = [];
 
-        if (service.duration) {
-            additionalInfoParts.push(`${lang('duration')}: ${service.duration} ${lang('minutes')}`);
+        // LNU: "duration" is the full blocked timeslot (customer-facing time + cooldown) (README.md #5).
+        const customerDuration = Number(service.duration) - Number(service.cooldown);
+
+        if (customerDuration) {
+            additionalInfoParts.push(`${lang('duration')}: ${customerDuration} ${lang('minutes')}`);
         }
 
         if (Number(service.price) > 0) {

@@ -623,4 +623,8 @@ $lang['provider_selection_method'] = 'Provider selection method';
 $lang['provider_selection_on_date'] = 'Available on date';
 $lang['provider_selection_around_date'] = 'Available around booking';
 $lang['hide_provider_selection_hint'] = "If enabled, provider selection is hidden from customers even when multiple providers are available. The provider is instead selected automatically using the chosen algorithm: 'Available on date' selects the provider with the most available periods on the booking date. 'Available around booking' selects the provider whose existing bookings are furthest away from the new booking, to distribute bookings evenly over time.";
+$lang['cooldown_minutes'] = 'Cooldown (Minutes)';
+$lang['cooldown'] = 'cooldown';
+$lang['min'] = 'min';
+$lang['invalid_cooldown'] = 'Invalid cooldown.';
 // End
