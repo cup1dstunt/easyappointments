@@ -460,7 +460,9 @@ App.Components.AppointmentsModal = (function () {
 
             vars('available_providers').forEach((provider) => {
                 provider.services.forEach((providerServiceId) => {
+                    // LNU: Extended Backend Permissions for Providers (README.md #9).
                     if (
+                        !Number(vars('provider_extended_backend_permissions')) &&
                         vars('role_slug') === App.Layouts.Backend.DB_SLUG_PROVIDER &&
                         Number(provider.id) !== vars('user_id')
                     ) {

@@ -82,6 +82,11 @@ class Services extends EA_Controller
 
         $role_slug = session('role_slug');
 
+        // LNU: Extended Backend Permissions for Providers (README.md #9).
+        if ($role_slug === DB_SLUG_PROVIDER && !setting('provider_extended_backend_permissions')) {
+            abort(403, 'Forbidden');
+        }
+
         $providers = $this->providers_model->get();
 
         script_vars([
@@ -113,6 +118,11 @@ class Services extends EA_Controller
             method('post');
 
             if (cannot('view', PRIV_SERVICES)) {
+                abort(403, 'Forbidden');
+            }
+
+            // LNU: Extended Backend Permissions for Providers (README.md #9).
+            if (session('role_slug') === DB_SLUG_PROVIDER && !setting('provider_extended_backend_permissions')) {
                 abort(403, 'Forbidden');
             }
 
@@ -189,6 +199,11 @@ class Services extends EA_Controller
                 abort(403, 'Forbidden');
             }
 
+            // LNU: Extended Backend Permissions for Providers (README.md #9).
+            if (session('role_slug') === DB_SLUG_PROVIDER && !setting('provider_extended_backend_permissions')) {
+                abort(403, 'Forbidden');
+            }
+
             check('service_id', 'numeric');
 
             $service_id = request('service_id');
@@ -215,6 +230,11 @@ class Services extends EA_Controller
             method('post');
 
             if (cannot('edit', PRIV_SERVICES)) {
+                abort(403, 'Forbidden');
+            }
+
+            // LNU: Extended Backend Permissions for Providers (README.md #9).
+            if (session('role_slug') === DB_SLUG_PROVIDER && !setting('provider_extended_backend_permissions')) {
                 abort(403, 'Forbidden');
             }
 

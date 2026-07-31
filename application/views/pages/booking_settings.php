@@ -551,6 +551,22 @@ $max_appt_custom_fields = config('max_appt_custom_fields', 5);
                                         </div>
                                     </div>
 
+                                    <div class="mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="provider-extended-backend-permissions"
+                                                   data-field="provider_extended_backend_permissions">
+                                            <label class="form-check-label" for="provider-extended-backend-permissions">
+                                                <?= lang('provider_extended_backend_permissions') ?>
+                                            </label>
+                                        </div>
+
+                                        <div class="form-text text-muted">
+                                            <small>
+                                                <?= lang('provider_extended_backend_permissions_hint') ?>
+                                            </small>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                         </div>

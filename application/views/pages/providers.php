@@ -2,15 +2,24 @@
 
 <?php section('content'); ?>
 
+<?php
+// LNU: Extended Backend Permissions for Providers (README.md #9) - a provider viewing this page can only
+// ever have their own record, so the add/search/delete actions make no sense and are hidden; edit is the
+// only meaningful action, so it's styled as the primary button instead.
+$is_provider = session('role_slug') === DB_SLUG_PROVIDER;
+$hide_for_providers = $is_provider ? 'hidden' : '';
+$edit_button_class = $is_provider ? 'btn btn-primary' : 'btn btn-outline-secondary';
+?>
+
 <div class="container backend-page py-3" id="providers-page">
     <div class="row" id="providers">
         <div id="filter-providers" class="filter-records column col-12 mb-4">
-            <button id="add-provider" class="btn btn-primary add-record-btn mb-4">
+            <button id="add-provider" class="btn btn-primary add-record-btn mb-4" <?= $hide_for_providers ?>>
                 <i class="fas fa-plus-square me-2"></i>
                 <?= lang('add') ?>
             </button>
 
-            <form class="mb-4">
+            <form class="mb-4" <?= $hide_for_providers ?>>
                 <div class="input-group">
                     <input type="text" class="key form-control" aria-label="keyword">
 
@@ -33,7 +42,7 @@
         <div class="record-details column col-12 mb-4">
             <div class="float-md-start mb-4 me-4">
                 <div class="add-edit-delete-group btn-group">
-                    <button id="edit-provider" class="btn btn-outline-secondary" disabled="disabled">
+                    <button id="edit-provider" class="<?= $edit_button_class ?>" disabled="disabled">
                         <i class="fas fa-edit me-2"></i>
                         <?= lang('edit') ?>
                     </button>
@@ -47,7 +56,7 @@
                     <button id="cancel-provider" class="btn btn-outline-secondary">
                         <?= lang('cancel') ?>
                     </button>
-                    <button id="delete-provider" class="btn btn-outline-danger ms-2">
+                    <button id="delete-provider" class="btn btn-outline-danger ms-2" <?= $hide_for_providers ?>>
                         <i class="fas fa-trash-alt me-2"></i>
                         <?= lang('delete') ?>
                     </button>

@@ -1245,7 +1245,18 @@ App.Utils.CalendarDefaultView = (function () {
 
             $('#insert-working-plan-exception').toggle(isProviderFilter());
             $reloadAppointments.trigger('click');
-            window.localStorage.setItem('EasyAppointments.SelectFilterItem', providerId);
+
+            // LNU: Extended Backend Permissions for Providers (README.md #9) - store the provider's own filter
+            // selection in sessionStorage keyed to their user id, so it doesn't leak to a different provider
+            // logging in later on the same shared browser via localStorage.
+            if (vars('role_slug') === App.Layouts.Backend.DB_SLUG_PROVIDER) {
+                window.sessionStorage.setItem(
+                    'EasyAppointments.ProviderFilterItem',
+                    JSON.stringify({ userId: vars('user_id'), value: providerId }),
+                );
+            } else {
+                window.localStorage.setItem('EasyAppointments.SelectFilterItem', providerId);
+            }
         });
     }
 
@@ -1383,20 +1394,26 @@ App.Utils.CalendarDefaultView = (function () {
 
         $('#insert-working-plan-exception').hide();
 
-        // Select provider if user is a provider
-        if (vars('role_slug') === App.Layouts.Backend.DB_SLUG_PROVIDER) {
-            $selectFilterItem.find('optgroup:eq(0) option[value="' + vars('user_id') + '"]').prop('selected', true);
-        }
-
         addEventListeners();
 
-        // Restore saved filter selection
-        const savedFilter = window.localStorage.getItem('EasyAppointments.SelectFilterItem');
+        // LNU: Extended Backend Permissions for Providers (README.md #9) - restore the provider's own filter
+        // selection from sessionStorage (scoped to their user id), falling back to their own record, instead of
+        // sharing the localStorage filter used by non-provider roles.
+        if (vars('role_slug') === App.Layouts.Backend.DB_SLUG_PROVIDER) {
+            const storedProvider = JSON.parse(window.sessionStorage.getItem('EasyAppointments.ProviderFilterItem') || 'null');
+            const restoredValue = storedProvider && storedProvider.userId === vars('user_id') ? storedProvider.value : vars('user_id');
 
-        if (savedFilter && $selectFilterItem.find('option[value="' + savedFilter + '"]').length) {
-            $selectFilterItem.val(savedFilter).trigger('change');
-        } else {
+            $selectFilterItem.find('optgroup[type="providers-group"] option[value="' + restoredValue + '"]').prop('selected', true);
             $reloadAppointments.trigger('click');
+        } else {
+            // Restore saved filter selection
+            const savedFilter = window.localStorage.getItem('EasyAppointments.SelectFilterItem');
+
+            if (savedFilter && $selectFilterItem.find('option[value="' + savedFilter + '"]').length) {
+                $selectFilterItem.val(savedFilter).trigger('change');
+            } else {
+                $reloadAppointments.trigger('click');
+            }
         }
 
         // Display edit dialog if appointment hash provided

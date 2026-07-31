@@ -2,10 +2,19 @@
 
 <?php section('content'); ?>
 
+<?php
+// LNU: Extended Backend Permissions for Providers (README.md #9) - a provider can only ever reach this page
+// when the setting is on (gated in Services::index()), so being a provider here already implies that; add and
+// delete aren't granted to the provider role regardless, so hide those actions rather than let them click into
+// a 403.
+$is_provider = session('role_slug') === DB_SLUG_PROVIDER;
+$hide_for_providers = $is_provider ? 'd-none' : '';
+?>
+
 <div class="container backend-page py-3" id="services-page">
     <div class="row" id="services">
         <div id="filter-services" class="filter-records col col-12 mb-4">
-            <button id="add-service" class="btn btn-primary add-record-btn mb-4">
+            <button id="add-service" class="btn btn-primary add-record-btn mb-4 <?= $hide_for_providers ?>">
                 <i class="fas fa-plus-square me-2"></i>
                 <?= lang('add') ?>
             </button>
@@ -47,7 +56,7 @@
                     <button id="cancel-service" class="btn btn-outline-secondary">
                         <?= lang('cancel') ?>
                     </button>
-                    <button id="delete-service" class="btn btn-outline-danger ms-2">
+                    <button id="delete-service" class="btn btn-outline-danger ms-2 <?= $hide_for_providers ?>">
                         <i class="fas fa-trash-alt me-2"></i>
                         <?= lang('delete') ?>
                     </button>

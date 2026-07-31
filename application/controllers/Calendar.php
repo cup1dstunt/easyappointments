@@ -163,7 +163,8 @@ class Calendar extends EA_Controller
 
         $available_providers = $this->providers_model->get_available_providers();
 
-        if ($role_slug === DB_SLUG_PROVIDER) {
+        // LNU: Extended Backend Permissions for Providers (README.md #9).
+        if ($role_slug === DB_SLUG_PROVIDER && !setting('provider_extended_backend_permissions')) {
             $available_providers = array_values(
                 array_filter($available_providers, function ($available_provider) use ($user_id) {
                     return (int) $available_provider['id'] === (int) $user_id;
@@ -237,6 +238,7 @@ class Calendar extends EA_Controller
             'customers' => $customers,
             'default_language' => setting('default_language'),
             'default_timezone' => setting('default_timezone'),
+            'provider_extended_backend_permissions' => setting('provider_extended_backend_permissions'),
         ]);
 
         html_vars([
@@ -445,7 +447,12 @@ class Calendar extends EA_Controller
             abort(403);
         }
 
-        if ($role_slug === DB_SLUG_PROVIDER && $user_id !== $provider_id) {
+        // LNU: Extended Backend Permissions for Providers (README.md #9).
+        if (
+            $role_slug === DB_SLUG_PROVIDER &&
+            $user_id !== $provider_id &&
+            !setting('provider_extended_backend_permissions')
+        ) {
             abort(403);
         }
     }
@@ -721,7 +728,8 @@ class Calendar extends EA_Controller
             $role_slug = session('role_slug');
 
             // If the current user is a provider he must only see his own appointments.
-            if ($role_slug === DB_SLUG_PROVIDER) {
+            // LNU: Extended Backend Permissions for Providers (README.md #9).
+            if ($role_slug === DB_SLUG_PROVIDER && !setting('provider_extended_backend_permissions')) {
                 foreach ($response['appointments'] as $index => $appointment) {
                     if ((int) $appointment['id_users_provider'] !== (int) $user_id) {
                         unset($response['appointments'][$index]);
@@ -916,7 +924,8 @@ class Calendar extends EA_Controller
             $role_slug = session('role_slug');
 
             // If the current user is a provider he must only see his own appointments.
-            if ($role_slug === DB_SLUG_PROVIDER) {
+            // LNU: Extended Backend Permissions for Providers (README.md #9).
+            if ($role_slug === DB_SLUG_PROVIDER && !setting('provider_extended_backend_permissions')) {
                 foreach ($response['appointments'] as $index => $appointment) {
                     if ((int) $appointment['id_users_provider'] !== (int) $user_id) {
                         unset($response['appointments'][$index]);

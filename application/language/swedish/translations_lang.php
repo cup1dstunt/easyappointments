@@ -664,4 +664,6 @@ $lang['disallowed_booking'] = 'Tyvärr kan du inte boka detta möte. %s';
 $lang['availability'] = 'Tillgänglig';
 $lang['new_availability_title'] = 'Ny tillgänglig period';
 $lang['availability_saved'] = 'Tillgänglig period sparad.';
+$lang['provider_extended_backend_permissions'] = 'Utökade behörigheter i adminvyn för utförare';
+$lang['provider_extended_backend_permissions_hint'] = 'När denna är aktiverad kan utförare även visa och redigera varandras bokningar i kalendern, visa och redigera Kunder och Tjänster, samt sitt eget Konto (inklusive schemat).';
 // End

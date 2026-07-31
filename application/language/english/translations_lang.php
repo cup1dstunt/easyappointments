@@ -664,4 +664,6 @@ $lang['disallowed_booking'] = 'Unfortunately you can\'t book this appointment. %
 $lang['availability'] = 'Availability';
 $lang['new_availability_title'] = 'New Availability';
 $lang['availability_saved'] = 'Availability saved successfully.';
+$lang['provider_extended_backend_permissions'] = 'Extended Backend Permissions for Providers';
+$lang['provider_extended_backend_permissions_hint'] = 'When enabled, providers can also view and edit each other\'s bookings in the calendar, view and edit Customers and Services, as well as their own Account (including the schedule).';
 // End

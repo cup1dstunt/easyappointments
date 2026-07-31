@@ -25,4 +25,15 @@
 
 <?php end_section('content'); ?>
 
+<?php section('scripts'); ?>
+
+<script>
+    // LNU: sessionStorage otherwise survives a logout/login cycle in the same browser tab, so a provider's
+    // last calendar filter selection would stick around instead of defaulting back to themselves on their
+    // next login - confusing since they might not notice they're viewing someone else's calendar.
+    window.sessionStorage.removeItem('EasyAppointments.ProviderFilterItem');
+</script>
+
+<?php end_section('scripts'); ?>
+
 
