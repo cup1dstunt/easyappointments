@@ -668,4 +668,14 @@ $lang['provider_extended_backend_permissions'] = 'Extended Backend Permissions f
 $lang['provider_extended_backend_permissions_hint'] = 'When enabled, providers can also view and edit each other\'s bookings in the calendar, view and edit Customers and Services, as well as their own Account (including the schedule).';
 $lang['current_language_services_first'] = 'Services in Current Language Shown First';
 $lang['current_language_services_first_hint'] = 'When enabled, services with a category name matching the current language are displayed first, in the service/provider selection step in the booking wizard.';
+$lang['booking_custom_messages_enabled'] = 'Custom Booking Messages/Links';
+$lang['booking_custom_messages_hint'] = 'When enabled, custom messages and links can be added to some predefined places in the booking UI. Use either plain text or an ID in the language files as the message or link. To suppress the message for a specific language, define the ID as an empty string.';
+$lang['booking_custom_message_service_page'] = 'Message on Service/Provider Page';
+$lang['booking_custom_message_time_unavailable'] = 'Message on Date/Time Unavailability';
+$lang['booking_custom_message_confirm_link'] = 'Link on Confirmation Page';
+$lang['booking_custom_message_confirm_link_text'] = 'Link Text on Confirmation Page';
+$lang['booking_custom_message_special_teacher'] = 'If you have difficulties to read and write you can get tutoring adapted to your needs. Contact special teacher <a href="mailto:jane@example.org">Jane Doe</a> for more information.';
+$lang['booking_custom_message_no_available_slots'] = 'If you can\'t find any available time slots, we are fully booked and cannot handle additional requests. Sometimes, bookings need to be made several weeks in advance. New time slots for the coming weeks are being added continuously.';
+$lang['booking_custom_message_easyappointments_link'] = 'https://easyappointments.org/';
+$lang['booking_custom_message_easyappointments_link_text'] = 'Return to the Easy!Appointments Home Page';
 // End

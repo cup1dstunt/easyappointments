@@ -306,6 +306,9 @@ class Booking extends EA_Controller
             'hide_customer_timezone' => setting('hide_customer_timezone', 0),
             'hide_provider_selection' => setting('hide_provider_selection'),
             'ANY_PROVIDER' => ANY_PROVIDER,
+            // LNU: Custom Messages during Booking (README.md #12).
+            'custom_messages_enabled' => setting('booking_custom_messages_enabled', 0),
+            'custom_message_time_unavailable' => setting('booking_custom_message_time_unavailable', ''),
             'future_booking_limit' => setting('future_booking_limit'),
             'appointment_data' => $appointment,
             'provider_data' => $provider ? filter_sensitive_user_data($provider) : null,

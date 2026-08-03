@@ -668,4 +668,14 @@ $lang['provider_extended_backend_permissions'] = 'Utökade behörigheter i admin
 $lang['provider_extended_backend_permissions_hint'] = 'När denna är aktiverad kan utförare även visa och redigera varandras bokningar i kalendern, visa och redigera Kunder och Tjänster, samt sitt eget Konto (inklusive schemat).';
 $lang['current_language_services_first'] = 'Tjänster i användarens språk visas först';
 $lang['current_language_services_first_hint'] = 'När denna är aktiverad visas tjänster med kategorinamn som matchar det aktuella språket först, i steget för val av tjänst/utförare i bokningen.';
+$lang['booking_custom_messages_enabled'] = 'Anpassade meddelanden/länkar';
+$lang['booking_custom_messages_hint'] = 'När denna är aktiverad kan anpassade meddelanden och länkar läggas till på vissa fördefinierade platser i bokningsgränssnittet. Använd antingen vanlig text eller ett ID från språkfilerna som meddelande eller länk. För att dölja meddelandet för ett specifikt språk, ange ID:t som en tom sträng.';
+$lang['booking_custom_message_service_page'] = 'Meddelande på tjänst/utförarvalssidan';
+$lang['booking_custom_message_time_unavailable'] = 'Meddelande för otillgänglighet av datum/tid';
+$lang['booking_custom_message_confirm_link'] = 'Länk på bekräftelsesidan';
+$lang['booking_custom_message_confirm_link_text'] = 'Länktext på bekräftelsesidan';
+$lang['booking_custom_message_special_teacher'] = 'Har du läs- och skrivsvårigheter kan du få handledning anpassad för dina behov. Kontakta speciallärare <a href="mailto:anna.nord@lnu.se">Anna Nord</a> för mer info.';
+$lang['booking_custom_message_no_available_slots'] = 'Finns inga lediga tider är vi fullbokade och kan inte ta fler handledningar i närtid. I perioder kan handledning behöva bokas flera veckor i förväg. Nya tider för kommande veckor läggs ut löpande.';
+$lang['booking_custom_message_easyappointments_link'] = 'https://easyappointments.org/';
+$lang['booking_custom_message_easyappointments_link_text'] = 'Return to the Easy!Appointments Home Page';
 // End

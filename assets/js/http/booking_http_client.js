@@ -21,6 +21,7 @@ App.Http.Booking = (function () {
     const $selectService = $('#select-service');
     const $selectProvider = $('#select-provider');
     const $availableHours = $('#available-hours');
+    const $customMessageTimeUnavailable = $('#custom-message-time-unavailable');
     const $captchaHint = $('#captcha-hint');
     const $captchaTitle = $('.captcha-title');
 
@@ -33,6 +34,30 @@ App.Http.Booking = (function () {
     let processingUnavailableDates = false;
     let searchedMonthStart;
     let searchedMonthCounter = 0;
+
+    /**
+     * Show the configured "no available hours" custom message, if the feature is enabled.
+     *
+     * LNU: Custom Messages during Booking (README.md #12) - customMessageId can be either a translation id or
+     * literal plain text. Checking `lang()[id]` directly (lang() with no key returns the raw translations
+     * object, see js_lang_script.php) tells the two cases apart: undefined means the id isn't recognized at
+     * all, so it's shown as plain text as-is; '' means the id is recognized but has been explicitly left empty
+     * for this language, suppressing the message; anything else is the resolved translation, shown as usual.
+     */
+    function showCustomMessageTimeUnavailable() {
+        const customMessageId = vars('custom_message_time_unavailable');
+
+        if (!Boolean(Number(vars('custom_messages_enabled'))) || !customMessageId) {
+            return;
+        }
+
+        const resolved = lang()[customMessageId];
+        const display = resolved !== undefined ? resolved : customMessageId;
+
+        if (display !== '') {
+            $customMessageTimeUnavailable.text(display);
+        }
+    }
 
     /**
      * Get Available Hours
@@ -77,6 +102,7 @@ App.Http.Booking = (function () {
 
         $.post(url, data).done((response) => {
             $availableHours.empty();
+            $customMessageTimeUnavailable.empty();
 
             // The response contains the available hours for the selected provider and service. Fill the available
             // hours div with response data.
@@ -144,6 +170,7 @@ App.Http.Booking = (function () {
 
             if (!$availableHours.find('.available-hour').length) {
                 $availableHours.text(lang('no_available_hours'));
+                showCustomMessageTimeUnavailable();
             }
         });
     }
@@ -372,6 +399,7 @@ App.Http.Booking = (function () {
         // If all the days are unavailable then hide the appointments hours.
         if (unavailableDates.length === numberOfDays) {
             $availableHours.text(lang('no_available_hours'));
+            showCustomMessageTimeUnavailable();
         }
 
         // Grey out unavailable dates.

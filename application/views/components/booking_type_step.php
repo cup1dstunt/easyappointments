@@ -121,6 +121,22 @@ $hide_provider_selection = boolval(setting('display_any_provider', 0)) && boolva
         </div>
     </div>
 
+    <?php
+    // LNU: Custom Messages during Booking (README.md #12) - $custom_message can be either a translation id or
+    // literal plain text. get_instance()->lang->line() (called directly, rather than through lang()) tells the
+    // two cases apart: false means the id isn't recognized at all, so the raw value is shown as plain text; ''
+    // means the id is recognized but has been explicitly left empty for this language, suppressing the message;
+    // anything else is the resolved translation, shown as usual.
+    $custom_message = setting('booking_custom_message_service_page', '');
+    $resolved_custom_message = get_instance()->lang->line($custom_message, false);
+    $custom_message_hidden =
+        !setting('booking_custom_messages_enabled', 0) || $custom_message === '' || $resolved_custom_message === '';
+    $custom_message_display = $resolved_custom_message !== false ? $resolved_custom_message : $custom_message;
+    ?>
+    <div id="booking-custom-message-service-page" <?= $custom_message_hidden ? 'hidden' : '' ?>>
+        <?= $custom_message_display ?>
+    </div>
+
     <div class="command-buttons text-center my-3 mx-auto d-md-flex justify-content-md-between">
         <span>&nbsp;</span>
 

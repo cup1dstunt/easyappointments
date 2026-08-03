@@ -58,6 +58,16 @@
     color: var(--bs-white) !important;
 }
 
+/* LNU: Custom Messages during Booking (README.md #12). */
+#book-appointment-wizard #booking-custom-message-service-page {
+    padding: 24px;
+    margin-top: 16px;
+    text-align: center;
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    background-color: var(--bs-secondary-bg);
+}
+
 /* Captcha refresh icon hover effect */
 #book-appointment-wizard .captcha-title .fa-sync-alt {
     cursor: pointer;

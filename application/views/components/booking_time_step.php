@@ -32,6 +32,8 @@ $hide_customer_timezone = boolval(setting('hide_customer_timezone', 0));
                     </div>
 
                     <div id="available-hours" class="overflow-auto my-3 pe-2" style="max-height: 250px;"></div>
+                    <?php // LNU: Custom Messages during Booking (README.md #12). ?>
+                    <div id="custom-message-time-unavailable"></div>
 
                 </div>
             </div>
