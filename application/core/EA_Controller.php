@@ -111,22 +111,54 @@ class EA_Controller extends CI_Controller
      */
     private function configure_language()
     {
-        $session_language = session('language');
-        $query_language = request('language');
         $available_languages = config('available_languages');
+        $language_codes = config('language_codes');
 
-        // Priority: session > query param > default (english)
-        $language = null;
+        // LNU: Booking Language with URL Parameter (README.md #13) - either 'language' or 'lang' as a GET query
+        // param (matched here via $this->input->get() specifically, not the POST-merged request() helper, so
+        // this can't collide with an unrelated POST body field of the same name on some other endpoint), given
+        // as a full language name (eg. 'swedish') or a short code (eg. 'sv') resolved via $language_codes. When
+        // present and valid, it always takes priority over whatever's already in session (someone visiting via
+        // a fresh language-specific link is a more current signal of intent than a stale session value) and is
+        // persisted to session - not just applied to this one request - so it also carries over to later
+        // requests in the same visit that don't carry the parameter themselves, eg. the booking confirmation
+        // page and its email after a successful booking. The URL is then redirected to (GET requests only, so
+        // this can't hijack a POST-based AJAX endpoint expecting a JSON response) with the parameter stripped,
+        // so it can't linger and re-apply on a later reload, fighting with a subsequent session-based language
+        // change (eg. via the language switcher button).
+        $query_language = $this->input->get('language') ?? $this->input->get('lang');
 
-        if ($session_language && in_array($session_language, $available_languages)) {
-            $language = $session_language;
-        } elseif ($query_language && in_array($query_language, $available_languages)) {
+        if ($query_language !== null) {
+            $query_language = $language_codes[$query_language] ?? $query_language;
+        }
+
+        if ($query_language !== null && in_array($query_language, $available_languages, true)) {
+            if (session('language') !== $query_language) {
+                session(['language' => $query_language]);
+            }
+
             $language = $query_language;
+
+            if (strtoupper($this->input->method()) === 'GET') {
+                $remaining_params = $this->input->get();
+
+                unset($remaining_params['language'], $remaining_params['lang']);
+
+                $redirect_url =
+                    current_url() . (!empty($remaining_params) ? '?' . http_build_query($remaining_params) : '');
+
+                redirect($redirect_url, 'refresh');
+
+                return;
+            }
+        } else {
+            $session_language = session('language');
+            $language = $session_language && in_array($session_language, $available_languages, true)
+                ? $session_language
+                : null;
         }
 
         if ($language) {
-            $language_codes = config('language_codes');
-
             config([
                 'language' => $language,
                 'language_code' => array_search($language, $language_codes) ?: 'en',
