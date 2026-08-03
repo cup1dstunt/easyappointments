@@ -29,6 +29,7 @@ App.Pages.Providers = (function () {
     const $isPrivate = $('#is-private');
     const $notes = $('#notes');
     const $language = $('#language');
+    const $color = $('#color');
     const $timezone = $('#timezone');
     const $ldapDn = $('#ldap-dn');
     const $username = $('#username');
@@ -98,6 +99,7 @@ App.Pages.Providers = (function () {
                 .prop('disabled', false);
             $('#providers input:checkbox').prop('disabled', false);
             workingPlanManager.timepickers(false);
+            App.Components.ColorSelection.enable($color);
         });
 
         /**
@@ -126,6 +128,7 @@ App.Pages.Providers = (function () {
             const companyWorkingPlan = JSON.parse(vars('company_working_plan'));
             workingPlanManager.setup(companyWorkingPlan);
             workingPlanManager.timepickers(false);
+            App.Components.ColorSelection.enable($color);
         });
 
         /**
@@ -149,6 +152,7 @@ App.Pages.Providers = (function () {
                 .prop('disabled', false);
             $('#providers input:checkbox').prop('disabled', false);
             workingPlanManager.timepickers(false);
+            App.Components.ColorSelection.enable($color);
         });
 
         /**
@@ -199,6 +203,7 @@ App.Pages.Providers = (function () {
                 is_private: Number($isPrivate.prop('checked')),
                 notes: $notes.val(),
                 language: $language.val(),
+                color: App.Components.ColorSelection.getColor($color),
                 timezone: $timezone.val(),
                 ldap_dn: $ldapDn.val(),
                 settings: {
@@ -413,6 +418,8 @@ App.Pages.Providers = (function () {
         $('#providers .working-plan tbody').empty();
         $('#providers .breaks tbody').empty();
         $('#providers .working-plan-exceptions tbody').empty();
+
+        App.Components.ColorSelection.disable($color);
     }
 
     /**
@@ -434,6 +441,7 @@ App.Pages.Providers = (function () {
         $isPrivate.prop('checked', provider.is_private);
         $notes.val(provider.notes);
         $language.val(provider.language);
+        App.Components.ColorSelection.setColor($color, provider.color);
         $timezone.val(provider.timezone);
         $ldapDn.val(provider.ldap_dn);
 

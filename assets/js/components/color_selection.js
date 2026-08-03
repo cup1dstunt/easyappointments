@@ -40,12 +40,52 @@ App.Components.ColorSelection = (function () {
     }
 
     /**
+     * Remove any dynamically added color option (see setColor()) from a previous call, so at most one can ever
+     * be present at a time.
+     *
+     * LNU: Provider Colour in Appointments (README.md #10).
+     *
+     * @param {jQuery} $target Container element ".color-selection" selector.
+     */
+    function removeDynamicColorSelectionOption($target) {
+        $target.find('.color-selection-option.dynamic-color').remove();
+    }
+
+    /**
+     * Add a dynamic color option for a color that isn't one of the available options, so it doesn't get lost
+     * (rather than falling back to "no colour", which would silently overwrite it on the next save if the admin
+     * doesn't touch the picker). Removed again by removeDynamicColorSelectionOption() on the next
+     * setColor()/disable() call.
+     *
+     * LNU: Provider Colour in Appointments (README.md #10).
+     *
+     * @param {jQuery} $target Container element ".color-selection" selector.
+     * @param {String} color Color value.
+     */
+    function addDynamicColorSelectionOption($target, color) {
+        if (!$target.find('.color-selection-option.selected').length && color) {
+            const $colorSelectionOption = $('<button/>', {
+                'type': 'button',
+                'class': 'color-selection-option dynamic-color selected',
+                'data-value': color,
+                'html': [$('<i/>', {'class': 'fas fa-check'})],
+            });
+
+            $target.append($colorSelectionOption);
+
+            $colorSelectionOption.css('background-color', color);
+        }
+    }
+
+    /**
      * Set target color.
      *
      * @param {jQuery} $target Container element ".color-selection" selector.
      * @param {String} color Color value.
      */
     function setColor($target, color) {
+        removeDynamicColorSelectionOption($target);
+
         $target
             .find('.color-selection-option')
             .removeClass('selected')
@@ -57,6 +97,8 @@ App.Components.ColorSelection = (function () {
                     return false;
                 }
             });
+
+        addDynamicColorSelectionOption($target, color);
     }
 
     /**
@@ -65,6 +107,7 @@ App.Components.ColorSelection = (function () {
      * @param {jQuery} $target
      */
     function disable($target) {
+        removeDynamicColorSelectionOption($target);
         $target.find('.color-selection-option').prop('disabled', true).removeClass('selected');
         $target.find('.color-selection-option:first').addClass('selected');
     }

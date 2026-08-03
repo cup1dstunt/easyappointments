@@ -145,7 +145,10 @@ $hide_for_providers = $is_provider ? 'd-none' : '';
             </div>
 
             <div class="mb-3">
-                <?php component('color_selection', ['attributes' => 'id="color"']); ?>
+                <?php component('color_selection', [
+                    'attributes' => 'id="color"',
+                    'custom_colors' => config('service_colors'),
+                ]); ?>
             </div>
 
             <div>

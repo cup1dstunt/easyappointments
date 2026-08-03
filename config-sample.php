@@ -105,4 +105,21 @@ class Config
     // the customer booking limits (Settings > Business Logic), eg. for testing.
     //
     // const TEST_EMAIL_ADDRESSES = 'test@example.com;qa@example.com';
+
+    // Provider Colour in Appointments (Optional)
+    // ------------------------------------------------------------------------
+    // The list of colors selectable for a provider's calendar-marking color,
+    // shown under Users > Providers. A "no colour" option is always shown in
+    // addition to this list (and is the default for new providers), so this
+    // list only needs to contain real colors.
+    //
+    // const PROVIDER_COLORS = ['#000000', '#bb3333', '#33bb33', '#3333bb', '#bb33bb', '#bbbb33', '#33bbbb'];
+    //
+    // The lists of colors selectable for a service's or an appointment's own
+    // color, shown under Services and in the appointment editing modal
+    // respectively. Both default to the same pastel palette, distinct from
+    // the provider color list above.
+    //
+    // const SERVICE_COLORS = ['#b2d3ec', '#d2dcfd', '#b0e4e9', '#a8ecd2', '#c6e6c2', '#e9e4b8', '#f5d8b7', '#f7d7d4', '#f0baba', '#f0d9ff', '#f5f3f3'];
+    // const APPOINTMENT_COLORS = ['#b2d3ec', '#d2dcfd', '#b0e4e9', '#a8ecd2', '#c6e6c2', '#e9e4b8', '#f5d8b7', '#f7d7d4', '#f0baba', '#f0d9ff', '#f5f3f3'];
 }

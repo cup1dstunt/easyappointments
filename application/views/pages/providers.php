@@ -225,6 +225,14 @@ $edit_button_class = $is_provider ? 'btn btn-primary' : 'btn btn-outline-seconda
                             </div>
 
                             <div class="mb-3">
+                                <?php component('color_selection', [
+                                    'attributes' => 'id="color"',
+                                    'custom_colors' => config('provider_colors'),
+                                    'allow_no_color' => true,
+                                ]); ?>
+                            </div>
+
+                            <div class="mb-3">
                                 <label class="form-label" for="timezone">
                                     <?= lang('timezone') ?>
                                     <span class="text-danger" hidden>*</span>

@@ -117,7 +117,10 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <?php component('color_selection', ['attributes' => 'id="appointment-color"']); ?>
+                                    <?php component('color_selection', [
+                                        'attributes' => 'id="appointment-color"',
+                                        'custom_colors' => config('appointment_colors'),
+                                    ]); ?>
                                 </div>
 
                                 <div class="mb-3">

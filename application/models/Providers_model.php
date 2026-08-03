@@ -864,6 +864,7 @@ class Providers_model extends EA_Model
             'ldapDn' => $provider['ldap_dn'],
             'timezone' => $provider['timezone'],
             'language' => $provider['language'],
+            'color' => $provider['color'],
         ];
 
         if (array_key_exists('services', $provider)) {
@@ -974,6 +975,10 @@ class Providers_model extends EA_Model
 
         if (array_key_exists('language', $provider)) {
             $decoded_resource['language'] = $provider['language'];
+        }
+
+        if (array_key_exists('color', $provider)) {
+            $decoded_resource['color'] = $provider['color'];
         }
 
         if (array_key_exists('services', $provider)) {

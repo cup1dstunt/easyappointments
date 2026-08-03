@@ -470,6 +470,25 @@ App.Utils.CalendarDefaultView = (function () {
     }
 
     /**
+     * Mark an appointment event with a vertical border in the provider's assigned color, so appointments can be
+     * visually distinguished by provider when viewing multiple providers at once.
+     *
+     * LNU: Provider Colour in Appointments (README.md #10).
+     *
+     * @param {Object} arg - FullCalendar eventDidMount info.
+     */
+    function onEventDidMount(arg) {
+        const appointment = arg.event.extendedProps.data;
+        const color = appointment?.provider?.color;
+
+        if (color) {
+            arg.el.style['padding-right'] = '2px';
+            arg.el.style['border-right-width'] = '10px';
+            arg.el.style['border-right-color'] = color;
+        }
+    }
+
+    /**
      * Handle calendar event resize.
      *
      * @param {Object} info - FullCalendar event info.
@@ -1378,6 +1397,7 @@ App.Utils.CalendarDefaultView = (function () {
             datesSet: onDatesSet,
             dateClick: onDateClick,
             eventClick: onEventClick,
+            eventDidMount: onEventDidMount,
             eventResize: onEventResize,
             eventDrop: onEventDrop,
             select: onSelect,

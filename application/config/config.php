@@ -503,6 +503,51 @@ $config['attached_files_allowed_types'] = defined('Config::ATTACHED_FILES_ALLOWE
 $config['attached_files_allowed_types_hint'] = defined('Config::ATTACHED_FILES_ALLOWED_TYPES_HINT') ? Config::ATTACHED_FILES_ALLOWED_TYPES_HINT : 'attached_files_user_allowed_types_hint';
 $config['default_book_advance_timeout_unit'] = defined('Config::DEFAULT_BOOK_ADVANCE_TIMEOUT_UNIT') ? Config::DEFAULT_BOOK_ADVANCE_TIMEOUT_UNIT : 'minutes';
 $config['test_email_addresses'] = defined('Config::TEST_EMAIL_ADDRESSES') ? Config::TEST_EMAIL_ADDRESSES : '';
+$config['provider_colors'] = defined('Config::PROVIDER_COLORS')
+    ? Config::PROVIDER_COLORS
+    : [
+        '#000000',
+        '#bb3333',
+        '#33bb33',
+        '#3333bb',
+        '#bb33bb',
+        '#bbbb33',
+        '#33bbbb',
+        '#ff8800',
+        '#008080',
+        '#8b4513',
+        '#ffffff',
+    ];
+$config['service_colors'] = defined('Config::SERVICE_COLORS')
+    ? Config::SERVICE_COLORS
+    : [
+        '#b2d3ec',
+        '#d2dcfd',
+        '#b0e4e9',
+        '#a8ecd2',
+        '#c6e6c2',
+        '#e9e4b8',
+        '#f5d8b7',
+        '#f7d7d4',
+        '#f0baba',
+        '#f0d9ff',
+        '#f5f3f3',
+    ];
+$config['appointment_colors'] = defined('Config::APPOINTMENT_COLORS')
+    ? Config::APPOINTMENT_COLORS
+    : [
+        '#b2d3ec',
+        '#d2dcfd',
+        '#b0e4e9',
+        '#a8ecd2',
+        '#c6e6c2',
+        '#e9e4b8',
+        '#f5d8b7',
+        '#f7d7d4',
+        '#f0baba',
+        '#f0d9ff',
+        '#f5f3f3',
+    ];
 
 /* End of file config.php */
 /* Location: ./application/config/config.php */
