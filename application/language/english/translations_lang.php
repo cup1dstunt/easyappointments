@@ -666,4 +666,6 @@ $lang['new_availability_title'] = 'New Availability';
 $lang['availability_saved'] = 'Availability saved successfully.';
 $lang['provider_extended_backend_permissions'] = 'Extended Backend Permissions for Providers';
 $lang['provider_extended_backend_permissions_hint'] = 'When enabled, providers can also view and edit each other\'s bookings in the calendar, view and edit Customers and Services, as well as their own Account (including the schedule).';
+$lang['current_language_services_first'] = 'Services in Current Language Shown First';
+$lang['current_language_services_first_hint'] = 'When enabled, services with a category name matching the current language are displayed first, in the service/provider selection step in the booking wizard.';
 // End

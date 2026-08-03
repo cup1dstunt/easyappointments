@@ -38,14 +38,33 @@ $hide_provider_selection = boolval(setting('display_any_provider', 0)) && boolva
                         if ($has_category) {
                             $grouped_services = [];
 
-                            foreach ($available_services as $service) {
-                                if (!empty($service['service_category_id'])) {
-                                    if (!isset($grouped_services[$service['service_category_name']])) {
-                                        $grouped_services[$service['service_category_name']] = [];
-                                    }
+                            $categorized_services = array_values(
+                                array_filter(
+                                    $available_services,
+                                    fn($service) => !empty($service['service_category_id']),
+                                ),
+                            );
 
-                                    $grouped_services[$service['service_category_name']][] = $service;
+                            // LNU: Services in Current Language First (README.md #11) - services whose category
+                            // name matches the current language are moved to the front, keeping the rest in
+                            // their original relative order (PHP's usort() has been stable since 8.0).
+                            if (setting('current_language_services_first', 0)) {
+                                $current_language = strtolower(session('language') ?? config('language'));
+
+                                usort($categorized_services, function ($a, $b) use ($current_language) {
+                                    $a_matches = strtolower($a['service_category_name']) === $current_language;
+                                    $b_matches = strtolower($b['service_category_name']) === $current_language;
+
+                                    return $b_matches <=> $a_matches;
+                                });
+                            }
+
+                            foreach ($categorized_services as $service) {
+                                if (!isset($grouped_services[$service['service_category_name']])) {
+                                    $grouped_services[$service['service_category_name']] = [];
                                 }
+
+                                $grouped_services[$service['service_category_name']][] = $service;
                             }
 
                             // We need the uncategorized services at the end of the list, so we will use another

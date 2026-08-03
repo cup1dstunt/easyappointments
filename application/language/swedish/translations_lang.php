@@ -666,4 +666,6 @@ $lang['new_availability_title'] = 'Ny tillgänglig period';
 $lang['availability_saved'] = 'Tillgänglig period sparad.';
 $lang['provider_extended_backend_permissions'] = 'Utökade behörigheter i adminvyn för utförare';
 $lang['provider_extended_backend_permissions_hint'] = 'När denna är aktiverad kan utförare även visa och redigera varandras bokningar i kalendern, visa och redigera Kunder och Tjänster, samt sitt eget Konto (inklusive schemat).';
+$lang['current_language_services_first'] = 'Tjänster i användarens språk visas först';
+$lang['current_language_services_first_hint'] = 'När denna är aktiverad visas tjänster med kategorinamn som matchar det aktuella språket först, i steget för val av tjänst/utförare i bokningen.';
 // End
