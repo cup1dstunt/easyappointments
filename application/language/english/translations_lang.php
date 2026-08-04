@@ -309,6 +309,9 @@ $lang['privacy_policy_content'] = 'Privacy Policy Content';
 $lang['website_using_cookies_to_ensure_best_experience'] = 'This website uses cookies to ensure you get the best experience on our website.';
 $lang['read_and_agree_to_terms_and_conditions'] = 'I have read and agree to the {$link}Terms & Conditions{/$link}.';
 $lang['read_and_agree_to_privacy_policy'] = 'I have read and agree to the {$link}Privacy Policy{/$link}.';
+$lang['terms_and_conditions_accepted'] = 'I have read and agree to the Terms & Conditions.';
+$lang['terms_and_conditions_required'] = 'Please read and accept the Terms & Conditions before continuing.';
+$lang['terms_and_conditions_page_content'] = '<p>Add your terms and conditions text here.</p>';
 $lang['delete_personal_information_hint'] = 'Remove all your appointments and personal information from the system.';
 $lang['delete_personal_information'] = 'Delete Personal Information';
 $lang['delete_personal_information_prompt'] = 'Are you sure that you want to delete your personal information? This action cannot be undone.';
@@ -681,5 +684,5 @@ $lang['booking_custom_message_easyappointments_link_text'] = 'Return to the Easy
 $lang['booking_info_single_column'] = 'Single Column Layout for Info and Confirmation Steps';
 $lang['booking_info_single_column_hint'] = 'When enabled, the customer information and confirmation steps of the booking wizard are always displayed in a single column. The fields are never split into two columns.';
 $lang['booking_step_order_enabled'] = 'Custom Booking Step Order';
-$lang['booking_step_order_hint'] = 'When enabled, the order of the booking steps can be changed. List the step names (service, time, info, confirmation) in the preferred order, separated by ">". The default order is "service>time>info>confirmation". All four steps must be included exactly once, with "service" before "time" and "confirmation" always as the last step. An incorrect value in this field is ignored and the default order is used instead. Additional steps can be added here if and when such steps are implemented.';
+$lang['booking_step_order_hint'] = 'When enabled, the order of the booking steps can be changed. List the step names (service, time, info, confirmation) in the preferred order, separated by ">". The default order is "service>time>info>confirmation". All four steps must be included exactly once, with "service" before "time" and "confirmation" always as the last step. An optional "terms" step can be included to show the terms and conditions as its own step. An incorrect value in this field is ignored and the default order is used instead.';
 // End

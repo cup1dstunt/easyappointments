@@ -295,8 +295,9 @@ class Booking extends EA_Controller
         }
 
         // LNU: Configurable order for booking wizard steps - see resolve_booking_step_order()
-        // (booking_helper.php) for the validation this goes through; shared with booking_header.php, which
-        // renders the step indicator from this same setting.
+        // (booking_helper.php) for the validation this goes through, including the optional "terms" (LNU:
+        // Terms & Conditions Step) 5th step name; shared with booking_header.php, which renders the step
+        // indicator from this same setting.
         $step_order = resolve_booking_step_order();
 
         script_vars([

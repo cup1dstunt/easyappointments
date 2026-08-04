@@ -8,8 +8,9 @@
 $hide_provider_selection = boolval(setting('display_any_provider', 0)) && boolval(setting('hide_provider_selection', 0));
 
 // LNU: Configurable order for booking wizard steps - see resolve_booking_step_order() (booking_helper.php)
-// for the validation this goes through; shared with Booking.php, which passes this same setting through as
-// the "booking_step_order" script var.
+// for the validation this goes through, including the optional "terms" (LNU: Terms & Conditions Step) 5th
+// step name; shared with Booking.php, which passes this same setting through as the "booking_step_order"
+// script var.
 $step_order = resolve_booking_step_order();
 
 $step_labels = [
@@ -17,6 +18,7 @@ $step_labels = [
     'time' => lang('appointment_date_and_time'),
     'info' => lang('customer_information'),
     'confirmation' => lang('appointment_confirmation'),
+    'terms' => lang('terms_and_conditions'),
 ];
 ?>
 

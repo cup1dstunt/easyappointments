@@ -630,6 +630,24 @@ App.Pages.Booking = (function () {
                 }
             }
 
+            // LNU: Terms & Conditions Step - the customer must accept the terms before continuing. Only
+            // reachable if "terms" is actually included in booking_step_order (getStepIndexForStepName()
+            // returns 0 otherwise, which currentStepIndex can never match).
+            const termsStepIndex = getStepIndexForStepName('terms');
+
+            if (currentStepIndex === termsStepIndex) {
+                const $acceptToTermsPage = $('#accept-to-terms-page-checkbox');
+
+                $acceptToTermsPage.removeClass('is-invalid');
+                $('#terms-form-message').text('');
+
+                if (!$acceptToTermsPage.prop('checked')) {
+                    $acceptToTermsPage.addClass('is-invalid');
+                    $('#terms-form-message').text(lang('terms_and_conditions_required'));
+                    return;
+                }
+            }
+
             // Display the next step tab (uses jquery animation effect).
             currentStepIndex = currentStepIndex + 1;
 
