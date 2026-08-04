@@ -645,6 +645,34 @@ $max_appt_custom_fields = config('max_appt_custom_fields', 5);
                                         </div>
                                     </div>
 
+                                    <div class="mb-3 setting-group">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="booking-step-order-enabled"
+                                                   data-field="booking_step_order_enabled">
+                                            <label class="form-check-label" for="booking-step-order-enabled">
+                                                <?= lang('booking_step_order_enabled') ?>
+                                            </label>
+                                        </div>
+
+                                        <div class="subsettings">
+                                            <div class="input-group">
+                                                <input type="text" id="booking-step-order" class="form-control"
+                                                       data-field="booking_step_order">
+                                                <button type="button" id="reset-booking-step-order"
+                                                        class="btn btn-outline-secondary"
+                                                        data-default-value="<?= e(config('default_booking_step_order')) ?>">
+                                                    <?= lang('reset') ?>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-text text-muted">
+                                            <small>
+                                                <?= lang('booking_step_order_hint') ?>
+                                            </small>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                         </div>

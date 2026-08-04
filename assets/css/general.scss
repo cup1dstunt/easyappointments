@@ -621,6 +621,12 @@ li.language {
     line-height: 2.4rem;
 }
 
+/* LNU: Configurable order for booking wizard steps - its subsetting is a full-width text field (plus a
+   reset button), not one of the compact col-3 fields the rule above targets. */
+.subsettings .input-group .form-control {
+    width: auto;
+}
+
 /* LNU: Support for Attached Files (README.md #2). */
 #attach-file-button {
     cursor: pointer;

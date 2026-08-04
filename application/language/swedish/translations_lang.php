@@ -680,4 +680,6 @@ $lang['booking_custom_message_easyappointments_link'] = 'https://easyappointment
 $lang['booking_custom_message_easyappointments_link_text'] = 'Return to the Easy!Appointments Home Page';
 $lang['booking_info_single_column'] = 'Single Column Layout for Info and Confirmation Steps';
 $lang['booking_info_single_column_hint'] = 'When enabled, the customer information and confirmation steps of the booking wizard are always displayed in a single column. The fields are never split into two columns.';
+$lang['booking_step_order_enabled'] = 'Anpassad ordning för bokningssteg';
+$lang['booking_step_order_hint'] = 'När denna är aktiverad kan ordningen på bokningsstegen ändras. Ange stegnamnen (service, time, info, confirmation) i önskad ordning, separerade med ">". Standardordningen är "service>time>info>confirmation". Alla fyra steg måste anges exakt en gång, med "service" före "time", och "confirmation" alltid sist. Ett valfritt "terms"-steg kan läggas till för att visa användarvillkoren som ett eget steg. Ett felaktigt värde i detta fält ignoreras och standardordningen används istället.';
 // End

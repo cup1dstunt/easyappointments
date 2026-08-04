@@ -122,4 +122,16 @@ class Config
     //
     // const SERVICE_COLORS = ['#b2d3ec', '#d2dcfd', '#b0e4e9', '#a8ecd2', '#c6e6c2', '#e9e4b8', '#f5d8b7', '#f7d7d4', '#f0baba', '#f0d9ff', '#f5f3f3'];
     // const APPOINTMENT_COLORS = ['#b2d3ec', '#d2dcfd', '#b0e4e9', '#a8ecd2', '#c6e6c2', '#e9e4b8', '#f5d8b7', '#f7d7d4', '#f0baba', '#f0d9ff', '#f5f3f3'];
+
+    // Configurable Order for Booking Wizard Steps (Optional)
+    // ------------------------------------------------------------------------
+    // The default order of the booking wizard's steps, used to seed the
+    // "Booking Step Order" setting (Settings > Booking) the first time the
+    // migration runs, and as the fallback if that setting is ever left in an
+    // invalid state - after that, change the active order via the admin UI
+    // instead. A '>'-separated list of step names: service, time, info,
+    // confirmation. All four must be present, "confirmation" must be last,
+    // and "service" must come before "time".
+    //
+    // const DEFAULT_BOOKING_STEP_ORDER = 'service>time>info>confirmation';
 }

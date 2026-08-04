@@ -548,6 +548,9 @@ $config['appointment_colors'] = defined('Config::APPOINTMENT_COLORS')
         '#f0d9ff',
         '#f5f3f3',
     ];
+$config['default_booking_step_order'] = defined('Config::DEFAULT_BOOKING_STEP_ORDER')
+    ? Config::DEFAULT_BOOKING_STEP_ORDER
+    : 'service>time>info>confirmation';
 
 /* End of file config.php */
 /* Location: ./application/config/config.php */

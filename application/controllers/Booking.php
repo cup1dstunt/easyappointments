@@ -294,6 +294,11 @@ class Booking extends EA_Controller
             $customer = null;
         }
 
+        // LNU: Configurable order for booking wizard steps - see resolve_booking_step_order()
+        // (booking_helper.php) for the validation this goes through; shared with booking_header.php, which
+        // renders the step indicator from this same setting.
+        $step_order = resolve_booking_step_order();
+
         script_vars([
             'manage_mode' => $manage_mode,
             'available_services' => $available_services,
@@ -311,6 +316,8 @@ class Booking extends EA_Controller
             'custom_message_time_unavailable' => setting('booking_custom_message_time_unavailable', ''),
             // LNU: Booking info can use single column always.
             'booking_info_single_column' => setting('booking_info_single_column', 0),
+            // LNU: Configurable order for booking wizard steps.
+            'booking_step_order' => implode('>', $step_order),
             'future_booking_limit' => setting('future_booking_limit'),
             'appointment_data' => $appointment,
             'provider_data' => $provider ? filter_sensitive_user_data($provider) : null,

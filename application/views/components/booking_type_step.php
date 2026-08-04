@@ -8,7 +8,7 @@
 $hide_provider_selection = boolval(setting('display_any_provider', 0)) && boolval(setting('hide_provider_selection', 0));
 ?>
 
-<div id="wizard-frame-1" class="wizard-frame p-3 p-md-4" style="visibility: hidden;">
+<div id="wizard-frame-1" class="wizard-frame p-3 p-md-4" style="display:none;" data-step="service">
     <div class="frame-container py-3" style="min-height: 500px;">
         <h2 class="frame-title fw-light text-center mb-4 text-muted mt-md-5">
             <?= $hide_provider_selection ? lang('select_service') : lang('service_and_provider') ?>
@@ -138,10 +138,11 @@ $hide_provider_selection = boolval(setting('display_any_provider', 0)) && boolva
     </div>
 
     <div class="command-buttons text-center my-3 mx-auto d-md-flex justify-content-md-between">
-        <span>&nbsp;</span>
-
-        <button type="button" id="button-next-1" class="btn button-next btn-dark" style="min-width: 120px; margin-right: 10px;"
-                data-step_index="1">
+        <button type="button" id="button-back-1" class="btn button-back btn-outline-secondary" style="min-width: 120px; margin-right: 10px;">
+            <i class="fas fa-chevron-left me-2"></i>
+            <?= lang('back') ?>
+        </button>
+        <button type="button" id="button-next-1" class="btn button-next btn-dark" style="min-width: 120px; margin-right: 10px;">
             <?= lang('next') ?>
             <i class="fas fa-chevron-right ms-2"></i>
         </button>

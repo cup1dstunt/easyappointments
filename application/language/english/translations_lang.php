@@ -680,4 +680,6 @@ $lang['booking_custom_message_easyappointments_link'] = 'https://easyappointment
 $lang['booking_custom_message_easyappointments_link_text'] = 'Return to the Easy!Appointments Home Page';
 $lang['booking_info_single_column'] = 'Single Column Layout for Info and Confirmation Steps';
 $lang['booking_info_single_column_hint'] = 'When enabled, the customer information and confirmation steps of the booking wizard are always displayed in a single column. The fields are never split into two columns.';
+$lang['booking_step_order_enabled'] = 'Custom Booking Step Order';
+$lang['booking_step_order_hint'] = 'When enabled, the order of the booking steps can be changed. List the step names (service, time, info, confirmation) in the preferred order, separated by ">". The default order is "service>time>info>confirmation". All four steps must be included exactly once, with "service" before "time" and "confirmation" always as the last step. An incorrect value in this field is ignored and the default order is used instead. Additional steps can be added here if and when such steps are implemented.';
 // End
