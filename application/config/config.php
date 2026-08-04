@@ -490,5 +490,14 @@ $config['proxy_ips'] = '';
 */
 $config['rate_limiting'] = true;
 
+/*
+|--------------------------------------------------------------------------
+| Additional configuration by toekaa-lnu
+|--------------------------------------------------------------------------
+*/
+$config['default_booking_step_order'] = defined('Config::DEFAULT_BOOKING_STEP_ORDER')
+    ? Config::DEFAULT_BOOKING_STEP_ORDER
+    : 'service>time>info>confirmation';
+
 /* End of file config.php */
 /* Location: ./application/config/config.php */

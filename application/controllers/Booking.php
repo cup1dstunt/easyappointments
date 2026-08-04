@@ -293,6 +293,11 @@ class Booking extends EA_Controller
             $customer = null;
         }
 
+        // LNU: Configurable order for booking wizard steps - see resolve_booking_step_order()
+        // (booking_helper.php) for the validation this goes through; shared with booking_header.php, which
+        // renders the step indicator from this same setting.
+        $step_order = resolve_booking_step_order();
+
         script_vars([
             'manage_mode' => $manage_mode,
             'available_services' => $available_services,
@@ -302,6 +307,8 @@ class Booking extends EA_Controller
             'first_weekday' => $first_weekday,
             'display_cookie_notice' => $display_cookie_notice,
             'display_any_provider' => setting('display_any_provider'),
+            // LNU: Configurable order for booking wizard steps.
+            'booking_step_order' => implode('>', $step_order),
             'future_booking_limit' => setting('future_booking_limit'),
             'appointment_data' => $appointment,
             'provider_data' => $provider ? filter_sensitive_user_data($provider) : null,

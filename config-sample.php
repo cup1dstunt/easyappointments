@@ -59,4 +59,15 @@ class Config
     // ------------------------------------------------------------------------
     // Settings related to the Lnu features
 
+    // Configurable Order for Booking Wizard Steps (Optional)
+    // ------------------------------------------------------------------------
+    // The default order of the booking wizard's steps, used to seed the
+    // "Booking Step Order" setting (Settings > Booking) the first time the
+    // migration runs, and as the fallback if that setting is ever left in an
+    // invalid state - after that, change the active order via the admin UI
+    // instead. A '>'-separated list of step names: service, time, info,
+    // confirmation. All four must be present, "confirmation" must be last,
+    // and "service" must come before "time".
+    //
+    // const DEFAULT_BOOKING_STEP_ORDER = 'service>time>info>confirmation';
 }

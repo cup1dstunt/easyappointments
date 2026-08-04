@@ -574,4 +574,6 @@ $lang['about_app_premium'] = 'Vi erbjuder heltäckande tjänster för egen-hosta
 $lang['go_premium'] = 'Bli Premium';
 $lang['notify_users_on_create_question'] = 'Vill du skicka en avisering om det nya mötet till kunden?';
 $lang['notify_users_on_delete_question'] = 'Vill du skicka en avisering om avbokningen till kunden?';
+$lang['booking_step_order_enabled'] = 'Anpassad ordning för bokningssteg';
+$lang['booking_step_order_hint'] = 'När denna är aktiverad kan ordningen på bokningsstegen ändras. Ange stegnamnen (service, time, info, confirmation) i önskad ordning, separerade med ">". Standardordningen är "service>time>info>confirmation". Alla fyra steg måste anges exakt en gång, med "service" före "time", och "confirmation" alltid sist. Ett valfritt "terms"-steg kan läggas till för att visa användarvillkoren som ett eget steg. Ett felaktigt värde i detta fält ignoreras och standardordningen används istället.';
 // End

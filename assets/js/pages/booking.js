@@ -53,6 +53,89 @@ App.Pages.Booking = (function () {
     let manageMode = vars('manage_mode') || false;
 
     /**
+     * LNU: Configurable order for booking wizard steps - the 1-based position (within stepOrder) of the step
+     * currently on screen. Tracked as state here (rather than read from the clicked button, as the fixed-order
+     * implementation used to do), since a step's position is no longer implied by which button was clicked.
+     *
+     * @type {Number}
+     */
+    let currentStepIndex = 1;
+
+    /**
+     * LNU: Configurable order for booking wizard steps - the step names in the order the customer moves
+     * through them, eg. ['service', 'time', 'info', 'confirmation']. Booking.php has already validated this
+     * (falling back to the default if invalid), so it's trusted as-is here. Mutated (not just read) when the
+     * service step is auto-skipped, since 'service' is then removed from it entirely - see initialize().
+     *
+     * @type {String[]}
+     */
+    let stepOrder = vars('booking_step_order').split('>');
+
+    /**
+     * LNU: Configurable order for booking wizard steps - the wizard-frame element id showing the step at the
+     * given 1-based position in stepOrder.
+     *
+     * @param {Number} stepIndex
+     *
+     * @returns {String}
+     */
+    function getWizardFrameForStepIndex(stepIndex) {
+        return getWizardFrameForStepName(stepOrder[stepIndex - 1]);
+    }
+
+    /**
+     * LNU: Configurable order for booking wizard steps - the wizard-frame element id for the given step name,
+     * looked up via each wizard-frame's own data-step attribute (rather than a hardcoded name-to-id mapping),
+     * so the frames themselves stay the single source of truth for which one represents which step.
+     *
+     * @param {String} stepName
+     *
+     * @returns {String}
+     */
+    function getWizardFrameForStepName(stepName) {
+        return $(`.wizard-frame[data-step="${stepName}"]`).attr('id');
+    }
+
+    /**
+     * LNU: Configurable order for booking wizard steps - the step marker element showing the step at the given
+     * 1-based position in stepOrder. Looked up by name (like getWizardFrameForStepIndex()) rather than by its
+     * numeric "step-N" id, since that id reflects the step's original, unfiltered position from
+     * booking_header.php and no longer matches stepIndex once the service step has been removed from
+     * stepOrder (see the service/provider auto-skip in initialize()).
+     *
+     * @param {Number} stepIndex
+     *
+     * @returns {jQuery}
+     */
+    function getStepMarkerForStepIndex(stepIndex) {
+        return getStepMarkerForStepName(stepOrder[stepIndex - 1]);
+    }
+
+    /**
+     * LNU: Configurable order for booking wizard steps - the step marker element for the given step name,
+     * looked up via each marker's own data-step attribute.
+     *
+     * @param {String} stepName
+     *
+     * @returns {jQuery}
+     */
+    function getStepMarkerForStepName(stepName) {
+        return $(`.book-step[data-step="${stepName}"]`);
+    }
+
+    /**
+     * LNU: Configurable order for booking wizard steps - the 1-based position of the given step name within
+     * stepOrder.
+     *
+     * @param {String} stepName
+     *
+     * @returns {Number}
+     */
+    function getStepIndexForStepName(stepName) {
+        return stepOrder.indexOf(stepName) + 1;
+    }
+
+    /**
      * Detect the month step.
      *
      * @param previousDateTimeMoment
@@ -189,7 +272,9 @@ App.Pages.Booking = (function () {
         if (manageMode) {
             applyAppointmentData(vars('appointment_data'), vars('provider_data'), vars('customer_data'));
 
-            $('#wizard-frame-1')
+            const wizardFrame = getWizardFrameForStepIndex(currentStepIndex);
+
+            $(`#${wizardFrame}`)
                 .css({
                     'visibility': 'visible',
                     'display': 'none',
@@ -235,30 +320,48 @@ App.Pages.Booking = (function () {
                     $selectProvider.val(vars('available_providers')[0].id).trigger('change');
                 }
 
-                $('.active-step').removeClass('active-step');
-                $('#step-2').addClass('active-step');
-                $('#wizard-frame-1').hide();
-                $('#wizard-frame-2').fadeIn();
-
-                $selectService.closest('.wizard-frame').find('.button-next').trigger('click');
-
-                $('#step-1').hide().removeClass('d-inline-block');
-
-                $(document).find('.button-back:first').css('visibility', 'hidden');
+                getStepMarkerForStepName('service').hide().removeClass('d-inline-block');
 
                 $('#steps .book-step:visible').each((index, bookStepEl) =>
                     $(bookStepEl)
                         .find('strong')
                         .text(index + 1),
                 );
-            } else {
-                $('#wizard-frame-1')
-                    .css({
-                        'visibility': 'visible',
-                        'display': 'none',
-                    })
-                    .fadeIn();
+
+                stepOrder = stepOrder.filter((step) => step !== 'service');
             }
+
+            const wizardFrame = getWizardFrameForStepIndex(currentStepIndex);
+
+            $(`#${wizardFrame}`)
+                .css({
+                    'visibility': 'visible',
+                    'display': 'none',
+                })
+                .fadeIn();
+
+            // LNU: Configurable order for booking wizard steps - if skipping the service step above (or the
+            // configured order itself) made "time" the first step actually shown, fetch its unavailable dates
+            // and available hours ahead of time, same as the "next" button handler does when transitioning into
+            // the time step normally.
+            if (stepOrder[currentStepIndex - 1] === 'time') {
+                const todayMoment = moment();
+
+                App.Utils.UI.setDateTimePickerValue($selectDate, todayMoment.toDate());
+
+                App.Http.Booking.getUnavailableDates(
+                    $selectProvider.val(),
+                    $selectService.val(),
+                    todayMoment.format('YYYY-MM-DD'),
+                );
+            }
+
+            // Hide the back button on whichever step the customer actually lands on first (the configured first
+            // step, or the next one if it was auto-skipped above).
+            $(document)
+                .find(`#${getWizardFrameForStepIndex(currentStepIndex)}`)
+                .find('.button-back')
+                .css('visibility', 'hidden');
 
             prefillFromQueryParam('#first-name', 'first_name');
             prefillFromQueryParam('#last-name', 'last_name');
@@ -271,6 +374,13 @@ App.Pages.Booking = (function () {
             // Initialize remember me after prefilling from query params
             initializeRememberMe();
         }
+
+        // LNU: Configurable order for booking wizard steps - booking_header.php no longer bakes in which step
+        // marker starts active, since that might not be stepOrder's first entry once the service step is
+        // auto-skipped above; mark whichever step is actually shown first (currentStepIndex is always 1 here,
+        // in both the manage mode and regular branches above) active instead.
+        $('.book-step').removeClass('active-step');
+        getStepMarkerForStepIndex(currentStepIndex).addClass('active-step');
     }
 
     function prefillFromQueryParam(field, param) {
@@ -416,26 +526,20 @@ App.Pages.Booking = (function () {
         $('.button-next').on('click', (event) => {
             const $target = $(event.currentTarget);
 
-            // If we are on the first step and there is no provider selected do not continue with the next step.
-            if ($target.attr('data-step_index') === '1' && !$selectProvider.val()) {
+            // LNU: Configurable order for booking wizard steps - each step is now identified by name rather
+            // than a fixed position, so the checks below compare currentStepIndex against where that step
+            // actually falls in the configured order, instead of a hardcoded data-step_index value.
+            const serviceStepIndex = getStepIndexForStepName('service');
+            const timeStepIndex = getStepIndexForStepName('time');
+            const infoStepIndex = getStepIndexForStepName('info');
+
+            // If we are on the service step and there is no provider selected do not continue with the next step.
+            if (currentStepIndex === serviceStepIndex && !$selectProvider.val()) {
                 return;
             }
 
-            // If we are on the first step, fetch unavailable dates and available hours for step 2.
-            if ($target.attr('data-step_index') === '1') {
-                const todayMoment = moment();
-
-                App.Utils.UI.setDateTimePickerValue($selectDate, todayMoment.toDate());
-
-                App.Http.Booking.getUnavailableDates(
-                    $selectProvider.val(),
-                    $selectService.val(),
-                    todayMoment.format('YYYY-MM-DD'),
-                );
-            }
-
-            // If we are on the 2nd tab then the user should have an appointment hour selected.
-            if ($target.attr('data-step_index') === '2') {
+            // If we are on the time step then the user should have an appointment hour selected.
+            if (currentStepIndex === timeStepIndex) {
                 if (!$('.selected-hour').length) {
                     if (!$('#select-hour-prompt').length) {
                         $('<div/>', {
@@ -448,9 +552,9 @@ App.Pages.Booking = (function () {
                 }
             }
 
-            // If we are on the 3rd tab then we will need to validate the user's input before proceeding to the next
-            // step.
-            if ($target.attr('data-step_index') === '3') {
+            // If we are on the info step then we will need to validate the user's input before proceeding to the
+            // next step.
+            if (currentStepIndex === infoStepIndex) {
                 if (!App.Pages.Booking.validateCustomerForm()) {
                     return; // Validation failed, do not continue.
                 } else {
@@ -464,17 +568,32 @@ App.Pages.Booking = (function () {
             }
 
             // Display the next step tab (uses jquery animation effect).
-            const nextTabIndex = parseInt($target.attr('data-step_index')) + 1;
+            currentStepIndex = currentStepIndex + 1;
+
+            // If we are entering the time step, fetch unavailable dates and available hours ahead of time.
+            if (currentStepIndex === timeStepIndex) {
+                const todayMoment = moment();
+
+                App.Utils.UI.setDateTimePickerValue($selectDate, todayMoment.toDate());
+
+                App.Http.Booking.getUnavailableDates(
+                    $selectProvider.val(),
+                    $selectService.val(),
+                    todayMoment.format('YYYY-MM-DD'),
+                );
+            }
+
+            const wizardFrame = getWizardFrameForStepIndex(currentStepIndex);
 
             // Update step indicator immediately
             $('.active-step').removeClass('active-step');
-            $('#step-' + nextTabIndex).addClass('active-step');
+            getStepMarkerForStepIndex(currentStepIndex).addClass('active-step');
 
             $target
                 .parents()
                 .eq(1)
                 .fadeOut(() => {
-                    $('#wizard-frame-' + nextTabIndex).fadeIn();
+                    $(`#${wizardFrame}`).fadeIn();
                 });
 
             // Scroll to the top of the page. On a small screen, especially on a mobile device, this is very useful.
@@ -491,17 +610,19 @@ App.Pages.Booking = (function () {
          * book wizard.
          */
         $('.button-back').on('click', (event) => {
-            const prevTabIndex = parseInt($(event.currentTarget).attr('data-step_index')) - 1;
+            currentStepIndex = currentStepIndex - 1;
+
+            const wizardFrame = getWizardFrameForStepIndex(currentStepIndex);
 
             // Update step indicator immediately
             $('.active-step').removeClass('active-step');
-            $('#step-' + prevTabIndex).addClass('active-step');
+            getStepMarkerForStepIndex(currentStepIndex).addClass('active-step');
 
             $(event.currentTarget)
                 .parents()
                 .eq(1)
                 .fadeOut(() => {
-                    $('#wizard-frame-' + prevTabIndex).fadeIn();
+                    $(`#${wizardFrame}`).fadeIn();
                 });
         });
 

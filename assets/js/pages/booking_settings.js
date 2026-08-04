@@ -19,6 +19,8 @@ App.Pages.BookingSettings = (function () {
     const $saveSettings = $('#save-settings');
     const $disableBooking = $('#disable-booking');
     const $disableBookingMessage = $('#disable-booking-message');
+    const $bookingStepOrder = $('#booking-step-order');
+    const $resetBookingStepOrder = $('#reset-booking-step-order');
 
     /**
      * Check if the form has invalid values.
@@ -198,7 +200,7 @@ App.Pages.BookingSettings = (function () {
 
         const enabled = $formCheckInput.prop('checked');
 
-        $subSettings.find('input, select').prop('disabled', !enabled);
+        $subSettings.find('input, select, button').prop('disabled', !enabled);
 
         if (animate) {
             enabled ? $subSettings.slideDown() : $subSettings.slideUp();
@@ -261,6 +263,13 @@ App.Pages.BookingSettings = (function () {
     }
 
     /**
+     * LNU: Configurable order for booking wizard steps - restore the field to the configured default value.
+     */
+    function onResetBookingStepOrderClick() {
+        $bookingStepOrder.val($resetBookingStepOrder.data('default-value'));
+    }
+
+    /**
      * Initialize the module.
      */
     function initialize() {
@@ -269,6 +278,8 @@ App.Pages.BookingSettings = (function () {
         $saveSettings.on('click', onSaveSettingsClick);
 
         $disableBooking.on('click', onDisableBookingClick);
+
+        $resetBookingStepOrder.on('click', onResetBookingStepOrderClick);
 
         $bookingSettings
             .on('click', '.display-switch', onDisplaySwitchClick)
