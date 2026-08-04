@@ -180,6 +180,7 @@ App.Pages.Booking = (function () {
         App.Utils.AttachedFiles.initialize(null, []);
 
         optimizeContactInfoDisplay();
+        optimizeConfirmationDisplay();
 
         const serviceOptionCount = $selectService.find('option').length;
 
@@ -303,20 +304,31 @@ App.Pages.Booking = (function () {
         // If a column has only one control shown then move the control to the other column.
 
         const $firstCol = $('#wizard-frame-3 .field-col:first');
-        const $firstColInputs = $firstCol.find('.form-input');
+        const $firstColInputs = $firstCol.children();
         const $secondCol = $('#wizard-frame-3 .field-col:last');
-        const $secondColInputs = $secondCol.find('.form-input');
+        const $secondColInputs = $secondCol.children();
 
         if ($firstColInputs.length === 1 && $secondColInputs.length > 1) {
             $firstColInputs.toArray().forEach((controlEl) => {
-                $(controlEl).parent().insertBefore($secondColInputs.first().parent());
+                $(controlEl).insertBefore($secondColInputs.first());
             });
         }
 
-        if ($secondColInputs.length === 1 && $firstColInputs.length > 1) {
-            $secondColInputs.toArray().forEach((controlEl) => {
-                $(controlEl).parent().insertAfter($firstColInputs.last().parent());
-            });
+        // LNU: Booking info can use single column always - when enabled, every second-column child is moved
+        // into the first column, not just a single leftover one; reversed first so each insertAfter() (which
+        // always targets the same original last-of-first-column anchor) doesn't flip their relative order.
+        // Operating on all children (not just .form-input elements) also sweeps up the "remember me" checkbox,
+        // which uses .form-check-input (Bootstrap's checkbox styling class) instead of .form-input.
+        if (
+            ($secondColInputs.length === 1 && $firstColInputs.length > 1) ||
+            Boolean(Number(vars('booking_info_single_column')))
+        ) {
+            $secondColInputs
+                .toArray()
+                .reverse()
+                .forEach((controlEl) => {
+                    $(controlEl).insertAfter($firstColInputs.last());
+                });
         }
 
         // Hide columns that do not have any controls displayed.
@@ -328,8 +340,32 @@ App.Pages.Booking = (function () {
 
             if (!$fieldCol.find('.form-input').length) {
                 $fieldCol.hide();
+
+                // LNU: Booking info can use single column always - the surviving column would otherwise stay
+                // constrained to half-width (col-lg-6); widen it now that it's the only visible column.
+                $fieldCols.removeClass('col-lg-6').addClass('col-md-8');
             }
         });
+    }
+
+    /**
+     * Force the confirmation step's appointment/customer details into a single column, if enabled.
+     *
+     * LNU: Booking info can use single column always.
+     */
+    function optimizeConfirmationDisplay() {
+        if (!Boolean(Number(vars('booking_info_single_column')))) {
+            return;
+        }
+
+        const $frameContent = $('#appointment-details').closest('.frame-content');
+
+        $frameContent.removeClass('row');
+
+        $frameContent
+            .find('.col-lg-6')
+            .removeClass('col-lg-6 text-md-end mb-2 mb-md-0')
+            .addClass('text-md-start mb-5');
     }
 
     /**

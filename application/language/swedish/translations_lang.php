@@ -678,4 +678,6 @@ $lang['booking_custom_message_special_teacher'] = 'Har du läs- och skrivsvårig
 $lang['booking_custom_message_no_available_slots'] = 'Finns inga lediga tider är vi fullbokade och kan inte ta fler handledningar i närtid. I perioder kan handledning behöva bokas flera veckor i förväg. Nya tider för kommande veckor läggs ut löpande.';
 $lang['booking_custom_message_easyappointments_link'] = 'https://easyappointments.org/';
 $lang['booking_custom_message_easyappointments_link_text'] = 'Return to the Easy!Appointments Home Page';
+$lang['booking_info_single_column'] = 'Single Column Layout for Info and Confirmation Steps';
+$lang['booking_info_single_column_hint'] = 'When enabled, the customer information and confirmation steps of the booking wizard are always displayed in a single column. The fields are never split into two columns.';
 // End

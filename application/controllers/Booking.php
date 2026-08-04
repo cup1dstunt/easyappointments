@@ -309,6 +309,8 @@ class Booking extends EA_Controller
             // LNU: Custom Messages during Booking (README.md #12).
             'custom_messages_enabled' => setting('booking_custom_messages_enabled', 0),
             'custom_message_time_unavailable' => setting('booking_custom_message_time_unavailable', ''),
+            // LNU: Booking info can use single column always.
+            'booking_info_single_column' => setting('booking_info_single_column', 0),
             'future_booking_limit' => setting('future_booking_limit'),
             'appointment_data' => $appointment,
             'provider_data' => $provider ? filter_sensitive_user_data($provider) : null,

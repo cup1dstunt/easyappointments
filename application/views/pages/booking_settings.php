@@ -629,6 +629,22 @@ $max_appt_custom_fields = config('max_appt_custom_fields', 5);
                                         </div>
                                     </div>
 
+                                    <div class="mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="booking-info-single-column"
+                                                   data-field="booking_info_single_column">
+                                            <label class="form-check-label" for="booking-info-single-column">
+                                                <?= lang('booking_info_single_column') ?>
+                                            </label>
+                                        </div>
+
+                                        <div class="form-text text-muted">
+                                            <small>
+                                                <?= lang('booking_info_single_column_hint') ?>
+                                            </small>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                         </div>

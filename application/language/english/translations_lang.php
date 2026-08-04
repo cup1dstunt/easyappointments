@@ -678,4 +678,6 @@ $lang['booking_custom_message_special_teacher'] = 'If you have difficulties to r
 $lang['booking_custom_message_no_available_slots'] = 'If you can\'t find any available time slots, we are fully booked and cannot handle additional requests. Sometimes, bookings need to be made several weeks in advance. New time slots for the coming weeks are being added continuously.';
 $lang['booking_custom_message_easyappointments_link'] = 'https://easyappointments.org/';
 $lang['booking_custom_message_easyappointments_link_text'] = 'Return to the Easy!Appointments Home Page';
+$lang['booking_info_single_column'] = 'Single Column Layout for Info and Confirmation Steps';
+$lang['booking_info_single_column_hint'] = 'When enabled, the customer information and confirmation steps of the booking wizard are always displayed in a single column. The fields are never split into two columns.';
 // End
