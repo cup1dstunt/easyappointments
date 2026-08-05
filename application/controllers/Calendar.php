@@ -239,6 +239,12 @@ class Calendar extends EA_Controller
             'default_language' => setting('default_language'),
             'default_timezone' => setting('default_timezone'),
             'provider_extended_backend_permissions' => setting('provider_extended_backend_permissions'),
+            // LNU: Calendar Display Settings.
+            'calendar_slot_min_time' => setting('calendar_slot_min_time', '00:00:00'),
+            'calendar_slot_max_time' => setting('calendar_slot_max_time', '23:59:59'),
+            'calendar_hide_weekends' => setting('calendar_hide_weekends', 0),
+            'calendar_timegrid_slot_height' => setting('calendar_timegrid_slot_height', '1em'),
+            'calendar_scroll_time' => setting('calendar_scroll_time', '07:00:00'),
         ]);
 
         html_vars([

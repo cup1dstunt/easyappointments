@@ -685,4 +685,14 @@ $lang['booking_info_single_column'] = 'Single Column Layout for Info and Confirm
 $lang['booking_info_single_column_hint'] = 'When enabled, the customer information and confirmation steps of the booking wizard are always displayed in a single column. The fields are never split into two columns.';
 $lang['booking_step_order_enabled'] = 'Custom Booking Step Order';
 $lang['booking_step_order_hint'] = 'When enabled, the order of the booking steps can be changed. List the step names (service, time, info, confirmation) in the preferred order, separated by ">". The default order is "service>time>info>confirmation". All four steps must be included exactly once, with "service" before "time" and "confirmation" always as the last step. An optional "terms" step can be included to show the terms and conditions as its own step. An incorrect value in this field is ignored and the default order is used instead.';
+$lang['calendar_slot_min_time'] = 'Calendar Start Time';
+$lang['calendar_slot_min_time_hint'] = 'The earliest time shown in the calendar\'s day and week views. Narrowing this (together with the end time) lets the whole working day fit on screen without scrolling.';
+$lang['calendar_slot_max_time'] = 'Calendar End Time';
+$lang['calendar_slot_max_time_hint'] = 'The latest time shown in the calendar\'s day and week views.';
+$lang['calendar_hide_weekends'] = 'Hide Weekends in Calendar';
+$lang['calendar_hide_weekends_hint'] = 'When enabled, Saturday and Sunday columns are hidden from the calendar\'s week view.';
+$lang['calendar_timegrid_slot_height'] = 'Calendar Time Slot Height';
+$lang['calendar_timegrid_slot_height_hint'] = 'The height of each time slot row in the calendar\'s day and week views, as a CSS length value (eg. "1em", "20px"). Smaller values fit more of the day on screen at once.';
+$lang['calendar_scroll_time'] = 'Calendar Scroll Position';
+$lang['calendar_scroll_time_hint'] = 'The time the calendar\'s day and week views initially scroll to when opened.';
 // End

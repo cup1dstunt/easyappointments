@@ -252,6 +252,21 @@ body .modal.full-screen .modal-push {
     font-size: 11px;
 }
 
+// LNU: Calendar Display Settings - row height is set from the "calendar_timegrid_slot_height" setting via a
+// CSS custom property (see calendar_default_view.js/calendar_table_view.js), not a fixed value here. Kept
+// theme-agnostic (not in a theme file) since it's a general calendar preference, not LNU brand styling.
+.fc .fc-timegrid-slot {
+    height: var(--calendar-timegrid-slot-height, 1em) !important;
+    line-height: var(--calendar-timegrid-slot-height, 1em) !important;
+    border-bottom: 0 !important;
+}
+
+.fc .fc-timegrid-slot.fc-scrollgrid-shrink {
+    height: var(--calendar-timegrid-slot-height, 1em) !important;
+    line-height: var(--calendar-timegrid-slot-height, 1em) !important;
+    border-bottom: 0 !important;
+}
+
 #calendar .fc-time-grid-event.fc-short .fc-title {
     font-size: 0.7em;
 }

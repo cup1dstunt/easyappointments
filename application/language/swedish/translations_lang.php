@@ -685,4 +685,14 @@ $lang['booking_info_single_column'] = 'Single Column Layout for Info and Confirm
 $lang['booking_info_single_column_hint'] = 'When enabled, the customer information and confirmation steps of the booking wizard are always displayed in a single column. The fields are never split into two columns.';
 $lang['booking_step_order_enabled'] = 'Anpassad ordning för bokningssteg';
 $lang['booking_step_order_hint'] = 'När denna är aktiverad kan ordningen på bokningsstegen ändras. Ange stegnamnen (service, time, info, confirmation) i önskad ordning, separerade med ">". Standardordningen är "service>time>info>confirmation". Alla fyra steg måste anges exakt en gång, med "service" före "time", och "confirmation" alltid sist. Ett valfritt "terms"-steg kan läggas till för att visa användarvillkoren som ett eget steg. Ett felaktigt värde i detta fält ignoreras och standardordningen används istället.';
+$lang['calendar_slot_min_time'] = 'Kalenderns starttid';
+$lang['calendar_slot_min_time_hint'] = 'Den tidigaste tiden som visas i kalenderns dag- och veckovyer. Genom att begränsa denna (tillsammans med sluttiden) får hela arbetsdagen plats på skärmen utan att behöva skrolla.';
+$lang['calendar_slot_max_time'] = 'Kalenderns sluttid';
+$lang['calendar_slot_max_time_hint'] = 'Den senaste tiden som visas i kalenderns dag- och veckovyer.';
+$lang['calendar_hide_weekends'] = 'Dölj helger i kalendern';
+$lang['calendar_hide_weekends_hint'] = 'När denna är aktiverad döljs kolumnerna för lördag och söndag i kalenderns veckovy.';
+$lang['calendar_timegrid_slot_height'] = 'Radhöjd för kalenderns tidsintervall';
+$lang['calendar_timegrid_slot_height_hint'] = 'Höjden på varje tidsintervallrad i kalenderns dag- och veckovyer, angivet som ett CSS-längdvärde (t.ex. "1em", "20px"). Mindre värden får plats med mer av dagen på skärmen samtidigt.';
+$lang['calendar_scroll_time'] = 'Kalenderns startposition';
+$lang['calendar_scroll_time_hint'] = 'Tiden som kalenderns dag- och veckovyer initialt skrollar till när de öppnas.';
 // End

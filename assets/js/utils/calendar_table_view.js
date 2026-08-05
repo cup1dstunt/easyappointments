@@ -1488,7 +1488,11 @@ App.Utils.CalendarTableView = (function () {
             firstDay: firstWeekdayNumber,
             slotDuration: '00:15:00',
             snapDuration: '00:15:00',
-            scrollTime: '07:00:00',
+            scrollTime: vars('calendar_scroll_time'),
+            // LNU: Calendar Display Settings - lets an admin narrow the visible time range and hide weekends.
+            slotMinTime: vars('calendar_slot_min_time'),
+            slotMaxTime: vars('calendar_slot_max_time'),
+            weekends: !Number(vars('calendar_hide_weekends')),
             slotLabelInterval: '01:00',
             eventTimeFormat: timeFormat,
             eventTextColor: '#333',
@@ -1685,6 +1689,13 @@ App.Utils.CalendarTableView = (function () {
      * Initialize the calendar page.
      */
     function initialize() {
+        // LNU: Calendar Display Settings - row height is a CSS custom property (see backend.scss), set here
+        // from the setting rather than hardcoded, so it can be adjusted without a code change.
+        document.documentElement.style.setProperty(
+            '--calendar-timegrid-slot-height',
+            vars('calendar_timegrid_slot_height'),
+        );
+
         createHeader();
         const startDate = moment().toDate();
 
