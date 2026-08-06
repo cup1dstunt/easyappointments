@@ -38,7 +38,11 @@ if (!function_exists('lang')) {
         /** @var EA_Controller $CI */
         $CI = get_instance();
 
-        $result = $CI->lang->line($line);
+        // LNU: don't log an error for every miss - lang() is also used to resolve admin-set settings values
+        // (company name, legal content, etc.) that are usually literal text rather than a translation key,
+        // which would otherwise log an error on every single one. Matches the same false already passed
+        // explicitly at the other two lang->line() call sites (booking_type_step.php, booking_confirmation.php).
+        $result = $CI->lang->line($line, false);
 
         if ($for !== '') {
             $result = '<label for="' . $for . '"' . _stringify_attributes($attributes) . '>' . $result . '</label>';
