@@ -189,6 +189,10 @@ if (!function_exists('pure_html')) {
     {
         $config = HTMLPurifier_Config::createDefault();
 
+        // Use an absolute path (via FCPATH) rather than a relative one - a relative path depends on PHP's
+        // current working directory at request time, which isn't guaranteed to be the app root.
+        $config->set('Cache.SerializerPath', storage_path('cache'));
+
         $purifier = new HTMLPurifier($config);
 
         return $purifier->purify($markup);
