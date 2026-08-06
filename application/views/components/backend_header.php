@@ -3,7 +3,6 @@
  * Local variables.
  *
  * @var string $active_menu
- * @var string $company_logo
  */
 
 // LNU: Extended Backend Permissions for Providers (README.md #9). can() alone can't tell whether the setting
@@ -16,9 +15,11 @@ $account_url = $provider_has_extended_permissions ? site_url('providers') : site
 
 <nav id="header" class="navbar navbar-expand-md navbar-dark bg-primary p-0">
     <div id="header-logo" class="navbar-brand p-1 lh-1">
-        <img src="<?= base_url(
+        <?php // LNU: Company Logo Everywhere - use the configured company logo if set, falling back to the
+        // stock logo otherwise. ?>
+        <img src="<?= setting('company_logo') ?: base_url(
             'assets/img/logo.png',
-        ) ?>" alt="logo" class="float-start me-2" style="width: 45px; height: 45px;">
+        ) ?>" alt="logo" class="float-start me-2" style="max-width: 220px; max-height: 45px;">
         <h6 class="mb-1 mt-1 fw-bold text-white" style="font-size: 15px;">EASY!APPOINTMENTS</h6>
         <small class="d-block text-white-50" style="font-size: 12px;">Online Appointment Scheduler</small>
     </div>

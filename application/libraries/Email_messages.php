@@ -302,7 +302,21 @@ class Email_messages
             $php_mailer->AltBody = $plain_text;
         }
 
-        $php_mailer->addEmbeddedImage(FCPATH . 'assets/img/logo.png', 'logo.png', 'logo.png', 'base64', 'image/png');
+        // LNU: Company Logo Everywhere - embed the configured company logo (a base64 data URI) if one is set,
+        // falling back to the stock logo otherwise, so installs that haven't set a custom logo are unaffected.
+        $company_logo_data_uri = setting('company_logo');
+
+        if ($company_logo_data_uri && preg_match('/^data:([^;]+);base64,(.+)$/', $company_logo_data_uri, $matches)) {
+            $php_mailer->addStringEmbeddedImage(
+                base64_decode($matches[2]),
+                'logo.png',
+                'logo.png',
+                'base64',
+                $matches[1],
+            );
+        } elseif (file_exists(FCPATH . 'assets/img/logo.png')) {
+            $php_mailer->addEmbeddedImage(FCPATH . 'assets/img/logo.png', 'logo.png', 'logo.png', 'base64', 'image/png');
+        }
 
         return $php_mailer;
     }
