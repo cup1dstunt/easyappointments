@@ -604,7 +604,9 @@ class Google_sync
                 $appointment_start_instance->format('Ymd\THis\Z') .
                 '/' .
                 $appointment_end_instance->format('Ymd\THis\Z'),
-            'location' => setting('company_name'),
+            // LNU: Settings Text Translatability - company_name may be set to a translation key instead of
+            // literal text, resolved here via lang()'s existing fallback-to-literal behavior.
+            'location' => lang(setting('company_name')),
             'details' => 'View/Change Appointment: ' . site_url('booking/reschedule/' . $appointment['hash']),
         ];
 

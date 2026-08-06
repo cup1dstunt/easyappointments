@@ -17,14 +17,24 @@ if (!function_exists('lang')) {
      *
      * Fetches a language variable and optionally outputs a form label
      *
-     * @param string $line The language line.
+     * @param string|null $line The language line. LNU: accepts null (treated as '') even though the type hint
+     *                          reads as optional-nullable rather than required - lang() is routinely called as
+     *                          lang(setting(...)) to resolve settings that may be a translation key or literal
+     *                          text (see the Settings Text Translatability call sites across the app), and a
+     *                          setting that's legitimately unset/missing yields null, not an empty string. This
+     *                          used to be a hard TypeError instead - found live on a production install where
+     *                          "legal_notice_url" had never been seeded, taking down the entire booking page.
      * @param string $for The "for" value (id of the form element).
      * @param array $attributes Any additional HTML attributes.
      *
      * @return string
      */
-    function lang(string $line, string $for = '', array $attributes = []): string
+    function lang(?string $line, string $for = '', array $attributes = []): string
     {
+        if ($line === null) {
+            return '';
+        }
+
         /** @var EA_Controller $CI */
         $CI = get_instance();
 

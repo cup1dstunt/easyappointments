@@ -130,7 +130,9 @@ class Booking extends EA_Controller
             return;
         }
 
-        $company_name = setting('company_name');
+        // LNU: Settings Text Translatability - company_name may be set to a translation key instead of
+        // literal text, resolved here via lang()'s existing fallback-to-literal behavior.
+        $company_name = lang(setting('company_name'));
         $company_logo = setting('company_logo');
         $company_color = setting('company_color');
         $disable_booking = setting('disable_booking');
@@ -139,7 +141,9 @@ class Booking extends EA_Controller
         $matomo_analytics_site_id = setting('matomo_analytics_site_id');
 
         if ($disable_booking) {
-            $disable_booking_message = setting('disable_booking_message');
+            // LNU: Settings Text Translatability - disable_booking_message may be set to a translation key
+            // instead of literal HTML, resolved here via lang()'s existing fallback-to-literal behavior.
+            $disable_booking_message = lang(setting('disable_booking_message'));
 
             html_vars([
                 'show_message' => true,
@@ -151,8 +155,11 @@ class Booking extends EA_Controller
                 'matomo_analytics_url' => $matomo_analytics_url,
                 'matomo_analytics_site_id' => $matomo_analytics_site_id,
                 'display_login_button' => setting('display_login_button'),
-                'legal_notice_url' => setting('legal_notice_url'),
-                'imprint_url' => setting('imprint_url'),
+                // LNU: Settings Text Translatability - legal_notice_url/imprint_url may each be set to a
+                // translation key instead of a literal URL, resolved here via lang()'s existing
+                // fallback-to-literal behavior.
+                'legal_notice_url' => lang(setting('legal_notice_url')),
+                'imprint_url' => lang(setting('imprint_url')),
             ]);
 
             $this->load->view('pages/booking_message');
@@ -189,18 +196,24 @@ class Booking extends EA_Controller
         $display_notes = setting('display_notes');
         $require_notes = setting('require_notes');
         $display_cookie_notice = setting('display_cookie_notice');
-        $cookie_notice_content = setting('cookie_notice_content');
+        // LNU: Settings Text Translatability - the three legal content settings below may each be set to a
+        // translation key instead of literal HTML, resolved here via lang()'s existing fallback-to-literal
+        // behavior. This also covers the cookie/terms/privacy modals (booking_layout.php), which just receive
+        // whatever string vars() hands them and run it through pure_html() - no modal-file changes needed.
+        $cookie_notice_content = lang(setting('cookie_notice_content'));
         $display_terms_and_conditions = setting('display_terms_and_conditions');
-        $terms_and_conditions_content = setting('terms_and_conditions_content');
+        $terms_and_conditions_content = lang(setting('terms_and_conditions_content'));
         $display_privacy_policy = setting('display_privacy_policy');
-        $privacy_policy_content = setting('privacy_policy_content');
+        $privacy_policy_content = lang(setting('privacy_policy_content'));
         $display_any_provider = setting('display_any_provider');
         $display_login_button = setting('display_login_button');
         $display_delete_personal_information = setting('display_delete_personal_information');
         $book_advance_timeout = setting('book_advance_timeout');
         $book_advance_timeout_unit = setting('book_advance_timeout_unit', config('default_book_advance_timeout_unit'));
-        $legal_notice_url = setting('legal_notice_url');
-        $imprint_url = setting('imprint_url');
+        // LNU: Settings Text Translatability - legal_notice_url/imprint_url may each be set to a translation
+        // key instead of a literal URL, resolved here via lang()'s existing fallback-to-literal behavior.
+        $legal_notice_url = lang(setting('legal_notice_url'));
+        $imprint_url = lang(setting('imprint_url'));
         $theme = request('theme', setting('theme', 'default'));
 
         // Sanitize theme parameter to prevent directory traversal
@@ -599,9 +612,9 @@ class Booking extends EA_Controller
             $company_color = setting('company_color');
 
             $settings = [
-                'company_name' => setting('company_name'),
-                'company_link' => setting('company_link'),
-                'company_email' => setting('company_email'),
+                'company_name' => lang(setting('company_name')),
+                'company_link' => lang(setting('company_link')),
+                'company_email' => lang(setting('company_email')),
                 'company_color' =>
                     !empty($company_color) && $company_color != DEFAULT_COMPANY_COLOR ? $company_color : null,
                 'date_format' => setting('date_format'),

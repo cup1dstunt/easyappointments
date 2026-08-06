@@ -105,9 +105,9 @@ class Google extends EA_Controller
             $company_color = setting('company_color');
 
             $settings = [
-                'company_name' => setting('company_name'),
-                'company_link' => setting('company_link'),
-                'company_email' => setting('company_email'),
+                'company_name' => lang(setting('company_name')),
+                'company_link' => lang(setting('company_link')),
+                'company_email' => lang(setting('company_email')),
                 'company_color' =>
                     !empty($company_color) && $company_color != DEFAULT_COMPANY_COLOR ? $company_color : null,
             ];

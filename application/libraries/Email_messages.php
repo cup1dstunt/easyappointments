@@ -274,9 +274,11 @@ class Email_messages
             $php_mailer->Port = config('smtp_port');
         }
 
-        $from_name = config('from_name') ?: setting('company_name');
-        $from_address = config('from_address') ?: setting('company_email');
-        $reply_to_address = config('reply_to') ?: setting('company_email');
+        // LNU: Settings Text Translatability - company_name/company_email may be set to a translation key
+        // instead of literal text, resolved here via lang()'s existing fallback-to-literal behavior.
+        $from_name = config('from_name') ?: lang(setting('company_name'));
+        $from_address = config('from_address') ?: lang(setting('company_email'));
+        $reply_to_address = config('reply_to') ?: lang(setting('company_email'));
 
         $php_mailer->setFrom($from_address, $from_name);
         $php_mailer->addReplyTo($reply_to_address);
