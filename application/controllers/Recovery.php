@@ -43,6 +43,7 @@ class Recovery extends EA_Controller
             'page_title' => lang('forgot_your_password'),
             'dest_url' => session('dest_url', site_url('backend')),
             'company_name' => $company_name,
+            'company_logo' => setting('company_logo'),
             'require_captcha' => setting('require_captcha'),
             'altcha_enabled' => setting('altcha_enabled'),
         ]);
@@ -179,6 +180,7 @@ class Recovery extends EA_Controller
                 'page_title' => lang('reset_password'),
                 'token_valid' => false,
                 'error_message' => lang('invalid_reset_token'),
+                'company_logo' => setting('company_logo'),
             ]);
 
             $this->load->view('pages/password_reset');
@@ -194,6 +196,7 @@ class Recovery extends EA_Controller
                 'page_title' => lang('reset_password'),
                 'token_valid' => false,
                 'error_message' => lang('invalid_or_expired_token'),
+                'company_logo' => setting('company_logo'),
             ]);
             $this->load->view('pages/password_reset');
             return;
@@ -204,6 +207,7 @@ class Recovery extends EA_Controller
             'token_valid' => true,
             'token' => $token,
             'company_name' => setting('company_name'),
+            'company_logo' => setting('company_logo'),
             'require_captcha' => setting('require_captcha'),
             'altcha_enabled' => setting('altcha_enabled'),
         ]);

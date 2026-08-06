@@ -406,7 +406,7 @@ $customer_address = trim((string) ($customer['address'] ?? ''));
                                     <td>
 
                                         <!-- Logo at the top center, embedded as CID -->
-                                        <img src="cid:logo.png" alt="Logo" style="display:block;max-width:67px; margin: auto auto 24px;">
+                                        <img src="cid:logo.png" alt="Logo" style="display:block;max-width:292px;max-height:67px;margin: auto auto 24px;">
 
                                         <h1 style="text-align: center;">
                                             <?= $subject ?>

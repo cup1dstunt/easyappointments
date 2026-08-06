@@ -3,8 +3,8 @@
 <?php section('content'); ?>
 
 <div class="text-center mb-4">
-    <img src="<?= asset_url('assets/img/logo.png') ?>" 
-         alt="Easy!Appointments" class="shadow mb-3" width="72" height="72">
+    <img src="<?= vars('company_logo') ?: asset_url('assets/img/logo.png') ?>"
+         alt="Easy!Appointments" class="mb-3" style="max-width:256px;max-height:72px;">
     
     <h4 class="text-primary fw-semibold mb-1">
         <?= lang('forgot_your_password') ?>
