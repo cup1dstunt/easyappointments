@@ -596,9 +596,23 @@ App.Pages.Booking = (function () {
             const timeStepIndex = getStepIndexForStepName('time');
             const infoStepIndex = getStepIndexForStepName('info');
 
-            // If we are on the service step and there is no provider selected do not continue with the next step.
-            if (currentStepIndex === serviceStepIndex && !$selectProvider.val()) {
-                return;
+            // If we are on the service step, the customer needs a service (and, unless the provider selection
+            // is hidden - README.md #3 - a provider too) selected before continuing.
+            if (currentStepIndex === serviceStepIndex) {
+                $('#service-form-message').text('');
+
+                const selectHiddenAnyProvider =
+                    Boolean(Number(vars('display_any_provider'))) && Boolean(Number(vars('hide_provider_selection')));
+
+                if (!$selectService.val()) {
+                    $('#service-form-message').text(lang('service_missing'));
+                    return;
+                }
+
+                if (!selectHiddenAnyProvider && !$selectProvider.val()) {
+                    $('#service-form-message').text(lang('provider_missing'));
+                    return;
+                }
             }
 
             // If we are on the time step then the user should have an appointment hour selected.

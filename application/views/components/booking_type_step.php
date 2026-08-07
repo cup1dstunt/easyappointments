@@ -137,6 +137,10 @@ $hide_provider_selection = boolval(setting('display_any_provider', 0)) && boolva
         <?= $custom_message_display ?>
     </div>
 
+    <div>
+        <span id="service-form-message" class="text-danger"></span>
+    </div>
+
     <div class="command-buttons text-center my-3 mx-auto d-md-flex justify-content-md-between">
         <button type="button" id="button-back-1" class="btn button-back btn-outline-secondary" style="min-width: 120px; margin-right: 10px;">
             <i class="fas fa-chevron-left me-2"></i>
