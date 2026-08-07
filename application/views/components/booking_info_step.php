@@ -156,6 +156,10 @@
         </div>
     </div>
 
+    <div>
+        <span id="form-message" class="text-danger"></span>
+    </div>
+
     <div class="command-buttons text-center my-3 mx-auto d-md-flex justify-content-md-between">
         <button type="button" id="button-back-3" class="btn button-back btn-outline-secondary" style="min-width: 120px; margin-right: 10px;">
             <i class="fas fa-chevron-left me-2"></i>
