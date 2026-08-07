@@ -1173,7 +1173,12 @@ App.Utils.CalendarDefaultView = (function () {
             events.push({
                 title: lang('not_working'),
                 start: calendarDate.clone().toDate(),
-                end: moment(dateStr + ' ' + dayPlan.start + ':00').toDate(),
+                // "HH:mm" format, not the "+ ':00'" trick used previously - dayPlan.start/end may already be
+                // "HH:mm:ss" (the raw MySQL TIME format, returned as-is by working plan exceptions fetched
+                // fresh from the server) rather than "HH:mm" (this app's own client-constructed format right
+                // after a save) - appending ":00" to the former produces a malformed 4-segment time string that
+                // only "works" via an unreliable native Date() fallback. This format tolerates both.
+                end: moment(dateStr + ' ' + dayPlan.start, 'YYYY-MM-DD HH:mm').toDate(),
                 allDay: false,
                 color: EVENT_COLORS.notWorking,
                 editable: false,
@@ -1189,7 +1194,7 @@ App.Utils.CalendarDefaultView = (function () {
         if (viewEnd > workEnd.toDate()) {
             events.push({
                 title: lang('not_working'),
-                start: moment(dateStr + ' ' + dayPlan.end + ':00').toDate(),
+                start: moment(dateStr + ' ' + dayPlan.end, 'YYYY-MM-DD HH:mm').toDate(),
                 end: calendarDate.clone().add(1, 'day').toDate(),
                 allDay: false,
                 color: EVENT_COLORS.notWorking,

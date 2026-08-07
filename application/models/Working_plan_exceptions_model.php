@@ -443,11 +443,15 @@ class Working_plan_exceptions_model extends EA_Model
      */
     public function get_by_provider(int $provider_id): array
     {
+        // Secondary sort by id - see get_all_by_provider()'s equivalent comment. This method expands ranges
+        // into a date-keyed array below, so a later-processed duplicate for the same date silently overwrites
+        // an earlier one; ordering by id at least makes that deterministic.
         $exceptions = $this->db
             ->select()
             ->from('working_plan_exceptions')
             ->where('id_users_provider', $provider_id)
             ->order_by('start_date')
+            ->order_by('id')
             ->get()
             ->result_array();
 
@@ -491,11 +495,15 @@ class Working_plan_exceptions_model extends EA_Model
      */
     public function get_all_by_provider(int $provider_id): array
     {
+        // Secondary sort by id, so that if two rows ever share the same start_date (eg. a stale duplicate from
+        // an old client-side bug), which one the client treats as authoritative for that date is at least
+        // deterministic (the most recently created one) rather than left to MySQL's unspecified tie order.
         $exceptions = $this->db
             ->select()
             ->from('working_plan_exceptions')
             ->where('id_users_provider', $provider_id)
             ->order_by('start_date')
+            ->order_by('id')
             ->get()
             ->result_array();
 
