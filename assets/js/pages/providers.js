@@ -27,6 +27,7 @@ App.Pages.Providers = (function () {
     const $state = $('#state');
     const $zipCode = $('#zip-code');
     const $isPrivate = $('#is-private');
+    const $createZoomLinks = $('#create-zoom-links');
     const $notes = $('#notes');
     const $language = $('#language');
     const $color = $('#color');
@@ -201,6 +202,7 @@ App.Pages.Providers = (function () {
                 state: $state.val(),
                 zip_code: $zipCode.val(),
                 is_private: Number($isPrivate.prop('checked')),
+                create_zoom_links: Number($createZoomLinks.prop('checked')),
                 notes: $notes.val(),
                 language: $language.val(),
                 color: App.Components.ColorSelection.getColor($color),
@@ -398,6 +400,7 @@ App.Pages.Providers = (function () {
         $providers.find('.record-details #language').val(vars('default_language'));
         $providers.find('.record-details #timezone').val(vars('default_timezone'));
         $providers.find('.record-details #is-private').prop('checked', false);
+        $providers.find('.record-details #create-zoom-links').prop('checked', false);
         $providers.find('.record-details #notifications').prop('checked', true);
         $providers.find('.add-break, .add-working-plan-exception, #reset-working-plan').prop('disabled', true);
 
@@ -439,6 +442,7 @@ App.Pages.Providers = (function () {
         $state.val(provider.state);
         $zipCode.val(provider.zip_code);
         $isPrivate.prop('checked', provider.is_private);
+        $createZoomLinks.prop('checked', provider.create_zoom_links);
         $notes.val(provider.notes);
         $language.val(provider.language);
         App.Components.ColorSelection.setColor($color, provider.color);

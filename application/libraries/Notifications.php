@@ -80,9 +80,15 @@ class Notifications
                 $subject = $manage_mode ? lang('appointment_details_changed') : lang('appointment_booked');
                 $message = $manage_mode ? '' : lang('thank_you_for_appointment');
 
+                // LNU: Zoom Meeting Links (README.md #14) - the customer must never receive the host/start
+                // link, which lets whoever holds it start and control the meeting as host. The join link
+                // (meeting_link) is unaffected and stays visible as usual.
+                $customer_appointment = $appointment;
+                unset($customer_appointment['zoom_start_link']);
+
                 try {
                     $this->CI->email_messages->send_appointment_saved(
-                        $appointment,
+                        $customer_appointment,
                         $provider,
                         $service,
                         $customer,

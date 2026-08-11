@@ -148,7 +148,7 @@ App.Utils.CalendarDefaultView = (function () {
         $appointmentsModal.find('.modal-header h3').text(lang('edit_appointment_title'));
         $appointmentsModal.find('#appointment-id').val(appointment.id);
         $appointmentsModal.find('#select-service').val(appointment.id_services).trigger('change');
-        $appointmentsModal.find('#select-provider').val(appointment.id_users_provider);
+        $appointmentsModal.find('#select-provider').val(appointment.id_users_provider).trigger('change');
 
         App.Utils.UI.setDateTimePickerValue(
             $appointmentsModal.find('#start-datetime'),
@@ -181,6 +181,7 @@ App.Utils.CalendarDefaultView = (function () {
         // Appointment fields
         $appointmentsModal.find('#appointment-location').val(appointment.location);
         $appointmentsModal.find('#appointment-meeting-link').val(appointment.meeting_link);
+        App.Components.AppointmentsModal.populateZoomInfo(appointment);
         $appointmentsModal.find('#appointment-status').val(appointment.status);
         $appointmentsModal.find('#appointment-notes').val(appointment.notes);
 

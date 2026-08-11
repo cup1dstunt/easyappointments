@@ -45,6 +45,8 @@ class Calendar extends EA_Controller
         'end_datetime',
         'location',
         'meeting_link',
+        'zoom_meeting_id',
+        'zoom_start_link',
         'notes',
         'color',
         'status',
@@ -88,6 +90,7 @@ class Calendar extends EA_Controller
         $this->load->library('webhooks_client');
         $this->load->library('permissions');
         $this->load->library('jitsi_client');
+        $this->load->library('zoom_client');
     }
 
     /**
@@ -376,6 +379,50 @@ class Calendar extends EA_Controller
                     $appointment['meeting_link'] = $this->jitsi_client->generate_link();
                 }
 
+                // LNU: Zoom Meeting Links (README.md #14) - admin-created/edited appointments also get a Zoom
+                // meeting when the provider has opted in, kept in sync with the appointment's start time
+                // whenever it moves. Defensive: silently does nothing if Zoom is not configured or the API
+                // call fails. If the provider is reassigned later, the existing meeting/links are
+                // deliberately left as-is rather than recreated - see Zoom_client's docblock for why.
+                $zoom_provider = $this->providers_model->find($appointment['id_users_provider']);
+
+                $existing_zoom_data = $manage_mode && !empty($appointment['id'])
+                    ? $this->appointments_model->find($appointment['id'])
+                    : null;
+
+                if ($zoom_provider['create_zoom_links']) {
+                    // Skip the Zoom API call entirely when a meeting already exists and the appointment's
+                    // time hasn't actually changed - most saves (notes, color, status, ...) don't need it.
+                    $zoom_needs_sync =
+                        empty($existing_zoom_data['zoom_meeting_id']) ||
+                        $existing_zoom_data['start_datetime'] !== $appointment['start_datetime'] ||
+                        $existing_zoom_data['end_datetime'] !== $appointment['end_datetime'];
+
+                    if ($zoom_needs_sync) {
+                        $zoom_service = $this->services_model->find($appointment['id_services']);
+
+                        $zoom_meeting = $this->zoom_client->sync_meeting(
+                            $appointment,
+                            lang($zoom_service['name']),
+                            $zoom_provider['timezone'],
+                            $zoom_provider['email'],
+                            $existing_zoom_data,
+                        );
+
+                        if ($zoom_meeting) {
+                            $appointment = array_merge($appointment, $zoom_meeting);
+                        }
+                    }
+                } elseif (!empty($existing_zoom_data['zoom_meeting_id'])) {
+                    // The provider doesn't have Zoom enabled (possibly a reassignment away from one who did)
+                    // - clean up rather than leave a meeting dangling on Zoom's side with stale fields in the
+                    // DB.
+                    $this->zoom_client->cancel_appointment_meeting($existing_zoom_data);
+
+                    $appointment['zoom_meeting_id'] = null;
+                    $appointment['zoom_start_link'] = null;
+                }
+
                 $this->appointments_model->only($appointment, $this->allowed_appointment_fields);
 
                 $this->appointments_model->optional($appointment, $this->optional_appointment_fields);
@@ -511,6 +558,10 @@ class Calendar extends EA_Controller
                 'date_format' => setting('date_format'),
                 'time_format' => setting('time_format'),
             ];
+
+            // LNU: Zoom Meeting Links (README.md #14) - remove the Zoom meeting, if any, before the appointment
+            // record itself is gone.
+            $this->zoom_client->cancel_appointment_meeting($appointment);
 
             // Delete appointment record from the database.
             $this->appointments_model->delete($appointment_id);

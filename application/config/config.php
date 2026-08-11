@@ -553,6 +553,9 @@ $config['appointment_colors'] = defined('Config::APPOINTMENT_COLORS')
 $config['default_booking_step_order'] = defined('Config::DEFAULT_BOOKING_STEP_ORDER')
     ? Config::DEFAULT_BOOKING_STEP_ORDER
     : 'service>time>info>confirmation';
+$config['zoom_client_id'] = defined('Config::ZOOM_CLIENT_ID') ? Config::ZOOM_CLIENT_ID : '';
+$config['zoom_client_secret'] = defined('Config::ZOOM_CLIENT_SECRET') ? Config::ZOOM_CLIENT_SECRET : '';
+$config['zoom_account_id'] = defined('Config::ZOOM_ACCOUNT_ID') ? Config::ZOOM_ACCOUNT_ID : '';
 
 /* End of file config.php */
 /* Location: ./application/config/config.php */

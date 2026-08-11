@@ -618,6 +618,11 @@ class Appointments_model extends EA_Model
             'providerId' => $appointment['id_users_provider'] !== null ? (int) $appointment['id_users_provider'] : null,
             'serviceId' => $appointment['id_services'] !== null ? (int) $appointment['id_services'] : null,
             'meetingLink' => $appointment['meeting_link'],
+            // LNU: Zoom Meeting Links (README.md #14) - only the meeting id is exposed here. The host/start
+            // link (zoom_start_link) is deliberately never included in the API resource, since it lets whoever
+            // holds it start and control the meeting as host - it is only ever shown to staff, in the backend
+            // appointment modal and in staff-facing emails.
+            'zoomMeetingId' => $appointment['zoom_meeting_id'] ?? null,
             'googleCalendarId' =>
                 $appointment['id_google_calendar'] !== null ? $appointment['id_google_calendar'] : null,
             'caldavCalendarId' =>

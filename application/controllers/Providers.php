@@ -40,6 +40,7 @@ class Providers extends EA_Controller
         'settings',
         'services',
         'color',
+        'create_zoom_links',
     ];
 
     public array $optional_provider_fields = [

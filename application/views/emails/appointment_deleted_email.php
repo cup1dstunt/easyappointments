@@ -500,7 +500,7 @@ $hide_customer_timezone = boolval(setting('hide_customer_timezone', 0));
                                                     <td class="label" style="padding: 3px;font-weight: bold;">
                                                         <?= lang('location') ?>
                                                     </td>
-                                                    <td style="padding: 3px;">
+                                                    <td style="padding: 3px;word-break: break-all;">
                                                         <?php if (str_starts_with($appointment['location'], 'http')): ?>
                                                             <a 
                                                                 href="<?= e($appointment['location']) ?>" 
@@ -519,7 +519,7 @@ $hide_customer_timezone = boolval(setting('hide_customer_timezone', 0));
                                                     <td class="label" style="padding: 3px;font-weight: bold;">
                                                         <?= lang('meeting_link') ?>
                                                     </td>
-                                                    <td style="padding: 3px;">
+                                                    <td style="padding: 3px;word-break: break-all;">
                                                         <a
                                                             href="<?= e($appointment['meeting_link']) ?>"
                                                             target="_blank">

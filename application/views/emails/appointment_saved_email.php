@@ -501,7 +501,7 @@ $hide_customer_timezone = boolval(setting('hide_customer_timezone', 0));
                                                     <td class="label" style="padding: 3px;font-weight: bold;">
                                                         <?= lang('location') ?>
                                                     </td>
-                                                    <td style="padding: 3px;">
+                                                    <td style="padding: 3px;word-break: break-all;">
                                                         <?php if (str_starts_with($appointment['location'], 'http')): ?>
                                                             <a
                                                                 href="<?= e($appointment['location']) ?>"
@@ -520,11 +520,26 @@ $hide_customer_timezone = boolval(setting('hide_customer_timezone', 0));
                                                     <td class="label" style="padding: 3px;font-weight: bold;">
                                                         <?= lang('meeting_link') ?>
                                                     </td>
-                                                    <td style="padding: 3px;">
+                                                    <td style="padding: 3px;word-break: break-all;">
                                                         <a
                                                             href="<?= e($appointment['meeting_link']) ?>"
                                                             target="_blank">
                                                             <?= e($appointment['meeting_link']) ?>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            <?php endif; ?>
+
+                                            <?php if (!empty($appointment['zoom_start_link'])): ?>
+                                                <tr>
+                                                    <td class="label" style="padding: 3px;font-weight: bold;">
+                                                        <?= lang('zoom_host_link') ?>
+                                                    </td>
+                                                    <td style="padding: 3px;word-break: break-all;">
+                                                        <a
+                                                            href="<?= e($appointment['zoom_start_link']) ?>"
+                                                            target="_blank">
+                                                            <?= e($appointment['zoom_start_link']) ?>
                                                         </a>
                                                     </td>
                                                 </tr>

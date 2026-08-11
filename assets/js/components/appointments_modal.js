@@ -37,6 +37,8 @@ App.Components.AppointmentsModal = (function () {
     const $appointmentId = $('#appointment-id');
     const $appointmentLocation = $('#appointment-location');
     const $appointmentMeetingLink = $('#appointment-meeting-link');
+    const $zoomInfoContainer = $('#zoom-info-container');
+    const $zoomHostLink = $('#zoom-host-link');
     const $appointmentStatus = $('#appointment-status');
     const $appointmentColor = $('#appointment-color');
     const $appointmentNotes = $('#appointment-notes');
@@ -66,9 +68,62 @@ App.Components.AppointmentsModal = (function () {
     }
 
     /**
+     * LNU: Zoom Meeting Links (README.md #14).
+     *
+     * Lock the generic meeting-link field whenever the selected provider has Zoom enabled, since Zoom will
+     * silently overwrite it with the meeting's join link on save.
+     */
+    function updateMeetingLinkLock() {
+        const providerId = $selectProvider.val();
+
+        const provider = vars('available_providers').find(
+            (availableProvider) => Number(availableProvider.id) === Number(providerId),
+        );
+
+        $appointmentMeetingLink.prop('readonly', Boolean(provider && provider.create_zoom_links));
+    }
+
+    /**
+     * LNU: Zoom Meeting Links (README.md #14).
+     *
+     * Show the appointment's Zoom host link, if it has one. The join link is shown by the generic meeting-link
+     * field above - only the host-only link needs its own, read-only display.
+     *
+     * @param {Object} appointment - Appointment data object.
+     */
+    function populateZoomInfo(appointment) {
+        if (!appointment.zoom_start_link) {
+            $zoomInfoContainer.addClass('d-none');
+            $zoomHostLink.val('');
+            return;
+        }
+
+        $zoomHostLink.val(appointment.zoom_start_link);
+        $zoomInfoContainer.removeClass('d-none');
+    }
+
+    /**
      * Add the component event listeners.
      */
     function addEventListeners() {
+        /**
+         * Event: Open Link Button "Click"
+         *
+         * Shared by every "open-link-button" in the modal (the meeting-link field, and the Zoom host-link
+         * display) - each is a plain text input rather than a clickable anchor (the meeting-link field needs
+         * to stay editable for Jitsi/Google Meet/manual links, and the Zoom host link would otherwise overflow
+         * the modal as one long unbroken string), so this opens whatever URL is in the button's associated
+         * input (named via "data-target") in a new tab instead.
+         */
+        $appointmentsModal.on('click', '.open-link-button', (event) => {
+            const targetId = $(event.currentTarget).data('target');
+            const url = $(`#${targetId}`).val();
+
+            if (url) {
+                window.open(url, '_blank');
+            }
+        });
+
         /**
          * Event: Manage Appointments Dialog Save Button "Click"
          *
@@ -493,6 +548,7 @@ App.Components.AppointmentsModal = (function () {
          */
         $selectProvider.on('change', () => {
             updateTimezone();
+            updateMeetingLinkLock();
         });
 
         /**
@@ -599,6 +655,9 @@ App.Components.AppointmentsModal = (function () {
         App.Utils.UI.initializeDateTimePicker($endDatetime);
         App.Utils.UI.setDateTimePickerValue($endDatetime, endDatetime);
         $appointmentsModal.find('.modal-message').removeClass('alert-danger').text('').addClass('d-none');
+
+        populateZoomInfo({});
+        updateMeetingLinkLock();
     }
 
     /**
@@ -674,5 +733,7 @@ App.Components.AppointmentsModal = (function () {
     return {
         resetModal,
         validateAppointmentForm,
+        populateZoomInfo,
+        updateMeetingLinkLock,
     };
 })();

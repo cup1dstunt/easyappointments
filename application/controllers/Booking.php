@@ -43,6 +43,8 @@ class Booking extends EA_Controller
         'end_datetime',
         'location',
         'meeting_link',
+        'zoom_meeting_id',
+        'zoom_start_link',
         'notes',
         'color',
         'status',
@@ -83,6 +85,7 @@ class Booking extends EA_Controller
         $this->load->library('availability');
         $this->load->library('webhooks_client');
         $this->load->library('jitsi_client');
+        $this->load->library('zoom_client');
     }
 
     /**
@@ -591,6 +594,46 @@ class Booking extends EA_Controller
             $appointment_status_options = json_decode($appointment_status_options_json, true) ?? [];
             $appointment['status'] = $appointment_status_options[0] ?? null;
             $appointment['end_datetime'] = $this->appointments_model->calculate_end_datetime($appointment);
+
+            // LNU: Zoom Meeting Links (README.md #14) - creates or updates the provider's Zoom meeting for this
+            // appointment. sync_meeting() is defensive: it silently returns null (leaving the appointment
+            // unchanged) if Zoom is not configured or the API call fails, so a Zoom outage never blocks booking.
+            // If the provider changes later (e.g. "any provider" re-resolving to someone else on reschedule),
+            // the existing meeting/links are deliberately left as-is rather than recreated - see Zoom_client's
+            // docblock for why.
+            $existing_zoom_data = $manage_mode && !empty($appointment['id'])
+                ? $this->appointments_model->find($appointment['id'])
+                : null;
+
+            if ($provider['create_zoom_links']) {
+                // Skip the Zoom API call entirely when a meeting already exists and the appointment's time
+                // hasn't actually changed - most edits (notes, custom fields, ...) don't need it.
+                $zoom_needs_sync =
+                    empty($existing_zoom_data['zoom_meeting_id']) ||
+                    $existing_zoom_data['start_datetime'] !== $appointment['start_datetime'] ||
+                    $existing_zoom_data['end_datetime'] !== $appointment['end_datetime'];
+
+                if ($zoom_needs_sync) {
+                    $zoom_meeting = $this->zoom_client->sync_meeting(
+                        $appointment,
+                        lang($service['name']),
+                        $provider['timezone'],
+                        $provider['email'],
+                        $existing_zoom_data,
+                    );
+
+                    if ($zoom_meeting) {
+                        $appointment = array_merge($appointment, $zoom_meeting);
+                    }
+                }
+            } elseif (!empty($existing_zoom_data['zoom_meeting_id'])) {
+                // The provider doesn't have Zoom enabled (possibly a reassignment away from one who did) -
+                // clean up rather than leave a meeting dangling on Zoom's side with stale fields in the DB.
+                $this->zoom_client->cancel_appointment_meeting($existing_zoom_data);
+
+                $appointment['zoom_meeting_id'] = null;
+                $appointment['zoom_start_link'] = null;
+            }
 
             $this->appointments_model->only($appointment, $this->allowed_appointment_fields);
 

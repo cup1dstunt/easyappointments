@@ -27,6 +27,7 @@ class Providers_model extends EA_Model
         'id' => 'integer',
         'is_private' => 'boolean',
         'id_roles' => 'integer',
+        'create_zoom_links' => 'boolean',
     ];
 
     /**
@@ -49,6 +50,7 @@ class Providers_model extends EA_Model
         'isPrivate' => 'is_private',
         'ldapDn' => 'ldap_dn',
         'roleId' => 'id_roles',
+        'createZoomLinks' => 'create_zoom_links',
     ];
 
     /**
@@ -673,6 +675,35 @@ class Providers_model extends EA_Model
     }
 
     /**
+     * LNU: Zoom Meeting Links (README.md #14).
+     *
+     * Set the "create_zoom_links" opt-in for every provider at once, so an admin does not have to click the
+     * switch individually on each provider's record. A direct bulk update, not a save()/update() loop, since
+     * those require a full provider payload (services, settings, required fields) that isn't relevant here.
+     *
+     * @param bool $enabled The value to apply to every provider.
+     */
+    public function set_create_zoom_links_for_all_providers(bool $enabled): void
+    {
+        $provider_ids = array_column(
+            $this->db
+                ->select('users.id')
+                ->from('users')
+                ->join('roles', 'roles.id = users.id_roles', 'inner')
+                ->where('roles.slug', DB_SLUG_PROVIDER)
+                ->get()
+                ->result_array(),
+            'id',
+        );
+
+        if (empty($provider_ids)) {
+            return;
+        }
+
+        $this->db->where_in('id', $provider_ids)->update('users', ['create_zoom_links' => (int) $enabled]);
+    }
+
+    /**
      * LNU: Get the ID of the provider whose closest existing appointment is furthest away from the given time,
      * among the given list of available providers (README.md #3).
      *
@@ -865,6 +896,7 @@ class Providers_model extends EA_Model
             'timezone' => $provider['timezone'],
             'language' => $provider['language'],
             'color' => $provider['color'],
+            'createZoomLinks' => (bool) $provider['create_zoom_links'],
         ];
 
         if (array_key_exists('services', $provider)) {
@@ -991,6 +1023,10 @@ class Providers_model extends EA_Model
 
         if (array_key_exists('ldapDn', $provider)) {
             $decoded_resource['ldap_dn'] = $provider['ldapDn'];
+        }
+
+        if (array_key_exists('createZoomLinks', $provider)) {
+            $decoded_resource['create_zoom_links'] = (bool) $provider['createZoomLinks'];
         }
 
         if (array_key_exists('settings', $provider)) {

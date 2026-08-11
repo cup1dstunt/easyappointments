@@ -9,6 +9,15 @@
 $is_provider = session('role_slug') === DB_SLUG_PROVIDER;
 $hide_for_providers = $is_provider ? 'hidden' : '';
 $edit_button_class = $is_provider ? 'btn btn-primary' : 'btn btn-outline-secondary';
+
+// LNU: Zoom Meeting Links (README.md #14) - the per-provider opt-in is only shown once the integration is both
+// active and fully configured. Showing it while credentials are still incomplete would let an admin enable it
+// for a provider with nothing actually happening, silently.
+$zoom_configured =
+    setting('zoom_enabled') === '1' &&
+    setting('zoom_client_id') &&
+    setting('zoom_client_secret') &&
+    setting('zoom_account_id');
 ?>
 
 <div class="container backend-page py-3" id="providers-page">
@@ -277,6 +286,21 @@ $edit_button_class = $is_provider ? 'btn btn-primary' : 'btn btn-outline-seconda
                                     <label class="form-check-label" for="notifications">
                                         <?= lang('receive_notifications') ?>
                                     </label>
+                                </div>
+
+                                <div <?= $zoom_configured ? '' : 'hidden' ?>>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="create-zoom-links">
+                                        <label class="form-check-label" for="create-zoom-links">
+                                            <?= lang('create_zoom_links') ?>
+                                        </label>
+                                    </div>
+
+                                    <div class="form-text text-muted">
+                                        <small>
+                                            <?= lang('create_zoom_links_hint') ?>
+                                        </small>
+                                    </div>
                                 </div>
                             </div>
 

@@ -134,7 +134,31 @@
                                     <label for="appointment-meeting-link" class="form-label">
                                         <?= lang('meeting_link') ?>
                                     </label>
-                                    <input id="appointment-meeting-link" class="form-control" placeholder="https://">
+                                    <div class="input-group">
+                                        <input id="appointment-meeting-link" class="form-control" placeholder="https://">
+                                        <button type="button" class="btn btn-outline-secondary open-link-button"
+                                                data-target="appointment-meeting-link"
+                                                data-tippy-content="<?= lang('open_meeting_link') ?>">
+                                            <i class="fas fa-external-link-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div id="zoom-info-container" class="mb-3 d-none">
+                                    <label for="zoom-host-link" class="form-label">
+                                        <?= lang('zoom_host_link') ?>
+                                    </label>
+                                    <div class="input-group">
+                                        <input id="zoom-host-link" class="form-control" readonly>
+                                        <button type="button" class="btn btn-outline-secondary open-link-button"
+                                                data-target="zoom-host-link"
+                                                data-tippy-content="<?= lang('open_meeting_link') ?>">
+                                            <i class="fas fa-external-link-alt"></i>
+                                        </button>
+                                    </div>
+                                    <div class="form-text text-muted">
+                                        <?= lang('zoom_host_link_hint') ?>
+                                    </div>
                                 </div>
 
                                 <div class="mb-3">

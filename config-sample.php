@@ -66,6 +66,22 @@ class Config
     // const GOOGLE_CLIENT_SECRET = '';
 
     // ------------------------------------------------------------------------
+    // ZOOM MEETING LINKS (Optional - can also be configured via UI)
+    // ------------------------------------------------------------------------
+    // These settings are optional and can be configured through the admin UI
+    // at Settings > Integrations > Zoom. If configured here, they will be
+    // used as fallback values, seeded into the settings table the first
+    // time the migration runs.
+    //
+    // Credentials come from a Server-to-Server OAuth app in the Zoom App
+    // Marketplace. Whether a specific provider actually gets Zoom links is a
+    // separate, per-provider opt-in, set under Users > Providers.
+    //
+    // const ZOOM_CLIENT_ID = '';
+    // const ZOOM_CLIENT_SECRET = '';
+    // const ZOOM_ACCOUNT_ID = '';
+
+    // ------------------------------------------------------------------------
     // LNU SETTINGS
     // ------------------------------------------------------------------------
     // Settings related to the Lnu features

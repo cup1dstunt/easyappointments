@@ -35,6 +35,7 @@ class Booking_cancellation extends EA_Controller
         $this->load->library('synchronization');
         $this->load->library('notifications');
         $this->load->library('webhooks_client');
+        $this->load->library('zoom_client');
     }
 
     /**
@@ -113,6 +114,10 @@ class Booking_cancellation extends EA_Controller
                 'date_format' => setting('date_format'),
                 'time_format' => setting('time_format'),
             ];
+
+            // LNU: Zoom Meeting Links (README.md #14) - remove the Zoom meeting, if any, before the appointment
+            // record itself is gone.
+            $this->zoom_client->cancel_appointment_meeting($appointment);
 
             $this->appointments_model->delete($appointment['id']);
 
