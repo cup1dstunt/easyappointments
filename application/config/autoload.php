@@ -70,6 +70,7 @@ $autoload['helper'] = [
     'config',
     'date',
     'debug',
+    'encryption',
     'env',
     'file',
     'html',

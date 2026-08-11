@@ -44,6 +44,17 @@ class Config
     const DB_PASSWORD = 'password';
 
     // ------------------------------------------------------------------------
+    // SECURITY SETTINGS
+    // ------------------------------------------------------------------------
+    // Used by CodeIgniter's Encryption class to encrypt values at rest that the app must later decrypt and
+    // reuse (currently: the Zoom client secret, Settings > Integrations > Zoom). Without this, CodeIgniter
+    // falls back to a key derived only from the install path and server hostname - not a real secret, since
+    // neither is normally confidential. Generate a real one with, e.g.:
+    //   php -r "echo bin2hex(random_bytes(32));"
+    //
+    // const ENCRYPTION_KEY = '';
+
+    // ------------------------------------------------------------------------
     // GOOGLE CALENDAR SYNC (Optional - can also be configured via UI)
     // ------------------------------------------------------------------------
     // These settings are optional and can be configured through the admin UI

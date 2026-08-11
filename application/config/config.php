@@ -351,14 +351,16 @@ $config['cache_path'] = __DIR__ . '/../../storage/cache/';
 | If you use the Encryption class or the Session class you
 | MUST set an encryption key.  See the user guide for info.
 |
-| IMPORTANT: For production, set a strong random key in your config.php
-| using: define('ENCRYPTION_KEY', 'your-random-32-character-string');
+| IMPORTANT: For production, set a strong random key via Config::ENCRYPTION_KEY
+| in your config.php (or, for backwards compatibility, a bare
+| define('ENCRYPTION_KEY', 'your-random-32-character-string')).
 |
 */
-$config['encryption_key'] =
-    defined('ENCRYPTION_KEY') && !empty(ENCRYPTION_KEY)
+$config['encryption_key'] = defined('Config::ENCRYPTION_KEY')
+    ? Config::ENCRYPTION_KEY
+    : (defined('ENCRYPTION_KEY') && !empty(ENCRYPTION_KEY)
         ? ENCRYPTION_KEY
-        : hash('sha256', APPPATH . (defined('DB_PASSWORD') ? DB_PASSWORD : '') . php_uname(), true);
+        : hash('sha256', APPPATH . (defined('DB_PASSWORD') ? DB_PASSWORD : '') . php_uname(), true));
 
 /*
 |--------------------------------------------------------------------------
