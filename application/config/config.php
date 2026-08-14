@@ -556,6 +556,17 @@ $config['default_booking_step_order'] = defined('Config::DEFAULT_BOOKING_STEP_OR
 $config['zoom_client_id'] = defined('Config::ZOOM_CLIENT_ID') ? Config::ZOOM_CLIENT_ID : '';
 $config['zoom_client_secret'] = defined('Config::ZOOM_CLIENT_SECRET') ? Config::ZOOM_CLIENT_SECRET : '';
 $config['zoom_account_id'] = defined('Config::ZOOM_ACCOUNT_ID') ? Config::ZOOM_ACCOUNT_ID : '';
+$config['oidc_client_id'] = defined('Config::OIDC_CLIENT_ID') ? Config::OIDC_CLIENT_ID : '';
+$config['oidc_client_secret'] = defined('Config::OIDC_CLIENT_SECRET') ? Config::OIDC_CLIENT_SECRET : '';
+$config['oidc_idp_url'] = defined('Config::OIDC_IDP_URL') ? Config::OIDC_IDP_URL : '';
+$config['oidc_booking_user_param_restrictions'] = defined('Config::OIDC_BOOKING_USER_PARAM_RESTRICTIONS')
+    ? Config::OIDC_BOOKING_USER_PARAM_RESTRICTIONS : '';
+$config['oidc_booking_user_param_disallowed_title'] = defined('Config::OIDC_BOOKING_USER_PARAM_DISALLOWED_TITLE')
+    ? Config::OIDC_BOOKING_USER_PARAM_DISALLOWED_TITLE : 'default_oidc_booking_user_param_disallowed_title';
+$config['oidc_booking_user_param_disallowed_message'] = defined('Config::OIDC_BOOKING_USER_PARAM_DISALLOWED_MESSAGE')
+    ? Config::OIDC_BOOKING_USER_PARAM_DISALLOWED_MESSAGE : 'default_oidc_booking_user_param_disallowed_message';
+$config['oidc_booking_logout_after_register'] = defined('Config::OIDC_BOOKING_LOGOUT_AFTER_REGISTER')
+    ? Config::OIDC_BOOKING_LOGOUT_AFTER_REGISTER : false;
 
 /* End of file config.php */
 /* Location: ./application/config/config.php */

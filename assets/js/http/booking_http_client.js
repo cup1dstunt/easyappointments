@@ -36,6 +36,26 @@ App.Http.Booking = (function () {
     let searchedMonthCounter = 0;
 
     /**
+     * LNU: OIDC Booking Login (README.md #15) - the customer's login session has expired. Navigates to a real
+     * page (Booking_login::session_expired()) rather than showing an in-place popup, so that by the time the
+     * customer actually reads "your session has expired", it's already true - that page performs the real
+     * IdP-side logout (if "SSO logout after booking and session expiry" is on) *before* rendering its message,
+     * rather than deferring the logout to whatever the customer does next.
+     *
+     * @param {string} reason Distinguishes what's actually being lost, read server-side to pick the right
+     *                         wording - "booking_not_saved" (registerAppointment() found out only once
+     *                         submitting) vs the default (an idle timeout with nothing submitted yet).
+     */
+    function showSessionExpiredMessage(reason) {
+        window.location.href = App.Utils.Url.siteUrl(
+            'booking_login/session_expired?reason=' +
+                encodeURIComponent(reason) +
+                '&redirect=' +
+                encodeURIComponent(window.location.href),
+        );
+    }
+
+    /**
      * Show the configured "no available hours" custom message, if the feature is enabled.
      *
      * LNU: Custom Messages during Booking (README.md #12) - customMessageId can be either a translation id or
@@ -253,6 +273,15 @@ App.Http.Booking = (function () {
             },
         })
             .done((response) => {
+                if (response.auth_required) {
+                    // The login session died before this submission reached the server - the booking was not
+                    // saved, so say so explicitly rather than silently reloading into what would otherwise
+                    // look like an unrelated, unexplained login prompt.
+                    showSessionExpiredMessage('booking_not_saved');
+
+                    return false;
+                }
+
                 if (response.captcha_verification === false) {
                     $captchaHint.text(lang('captcha_is_wrong')).fadeTo(400, 1);
 
@@ -481,6 +510,23 @@ App.Http.Booking = (function () {
         $.post(url, data).done(callback);
     }
 
+    /**
+     * LNU: Booking Authentication (README.md #15) - ping to keep the login session alive while the customer is
+     * still navigating the booking wizard. Reacting to a failed refresh here (rather than only at the final
+     * submit, in registerAppointment()) catches a dead session as early as the customer's very next click,
+     * instead of only after they've filled out the entire rest of the wizard for nothing.
+     */
+    function silentRefreshSession() {
+        $.get(App.Utils.Url.siteUrl('booking_login/silent_refresh')).done((response) => {
+            if (response.auth_required) {
+                // Nothing has been submitted yet at this point - only the in-progress form is about to be
+                // lost on reload, not a completed booking, so this gets its own, less alarming wording than
+                // registerAppointment()'s equivalent message.
+                showSessionExpiredMessage('idle');
+            }
+        });
+    }
+
     return {
         registerAppointment,
         getAvailableHours,
@@ -488,5 +534,6 @@ App.Http.Booking = (function () {
         applyPreviousUnavailableDates,
         deletePersonalInformation,
         checkCustomerBookingLimits,
+        silentRefreshSession,
     };
 })();

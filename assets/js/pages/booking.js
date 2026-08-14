@@ -394,6 +394,15 @@ App.Pages.Booking = (function () {
             initializeRememberMe();
         }
 
+        // LNU: OIDC Booking Login (README.md #15) - locks every "auth-prop"-marked field (the built-in
+        // name/email inputs, and any custom field an admin has opted into this via its own "attributes"
+        // setting) to the authenticated identity's matching property, if any (a no-op while no login is
+        // active). Takes priority over anything else that filled these fields above (query params, or the
+        // appointment's own customer record in manage mode): the customer can't book/edit under a different
+        // identity than the one they just logged in with. Applies to both branches above, so it sits after the
+        // if/else rather than inside either one.
+        prefillAndLockAuthProps();
+
         // LNU: Configurable order for booking wizard steps - booking_header.php no longer bakes in which step
         // marker starts active, since that might not be stepOrder's first entry once the service step is
         // auto-skipped above; mark whichever step is actually shown first (currentStepIndex is always 1 here,
@@ -410,6 +419,101 @@ App.Pages.Booking = (function () {
         }
 
         $target.val(App.Utils.Url.queryParam(param));
+    }
+
+    /**
+     * Find whichever element in a list has display text matching a value, ignoring case/surrounding whitespace.
+     *
+     * A custom field's own option values are synthetic translation keys (e.g. "custom_field_fruit_1"), not the
+     * option's displayed text, so an authenticated property's raw value (e.g. "banana") can only ever be
+     * matched against what's actually rendered - never the option's own value attribute.
+     *
+     * @param {Element[]} candidates
+     * @param {string} value
+     * @param {function(Element): string} getText
+     *
+     * @return {Element|undefined}
+     */
+    function findByMatchingText(candidates, value, getText) {
+        const normalizedValue = String(value).trim().toLowerCase();
+
+        return candidates.find((candidate) => getText(candidate).trim().toLowerCase() === normalizedValue);
+    }
+
+    /**
+     * LNU: OIDC Booking Login (README.md #15) - prefill and lock every "auth-prop"-marked field found on
+     * the page with the authenticated identity's matching property, if any (a no-op while no login is active).
+     * Covers both the built-in name/email inputs and any custom field an admin has opted into this via an
+     * "auth-prop" attribute in its own "attributes" setting (see components/custom_fields.php) - neither this
+     * function nor the backend needs to know in advance which fields (if any) are marked this way.
+     */
+    function prefillAndLockAuthProps() {
+        const authUserProps = vars('auth_user_props') || {};
+        const processedGroupContainers = new Set();
+
+        $('[auth-prop]').each((index, field) => {
+            const $field = $(field);
+            const value = authUserProps[$field.attr('auth-prop')];
+
+            if (!value) {
+                return;
+            }
+
+            if ($field.is(':radio, :checkbox')) {
+                // A checkbox/radio-group custom field (components/custom_fields.php) echoes its "attributes"
+                // (so also "auth-prop") onto every individual option input, not once - several iterations of
+                // this loop land on the very same group. The group's real value lives in a hidden sibling
+                // input, synced into each option's checked state via App.Utils.CustomFields.splitGroupValues()
+                // (see that file) - and locking means disabling every option input directly, since checkbox/
+                // radio inputs ignore the "readonly" attribute entirely.
+                const groupContainer = $field.closest('.custom-field-container, .appt-custom-field-container')[0];
+
+                if (!groupContainer || processedGroupContainers.has(groupContainer) || !App.Utils.CustomFields) {
+                    return;
+                }
+
+                processedGroupContainers.add(groupContainer);
+
+                const $optionInputs = $(groupContainer).find(
+                    '.form-input-group input[type="radio"], .form-input-group input[type="checkbox"]',
+                );
+
+                const matchedInput = findByMatchingText(
+                    $optionInputs.toArray(),
+                    value,
+                    (input) => $(`label[for="${input.id}"]`).text(),
+                );
+
+                if (matchedInput) {
+                    $(groupContainer)
+                        .find('.form-input[type="hidden"]')
+                        .val(matchedInput.value);
+
+                    App.Utils.CustomFields.splitGroupValues(groupContainer);
+                }
+
+                $optionInputs.prop('disabled', true);
+
+                return;
+            }
+
+            if ($field.is('select')) {
+                const matchedOption = findByMatchingText($field.find('option').toArray(), value, (option) =>
+                    $(option).text(),
+                );
+
+                if (matchedOption) {
+                    $field.val(matchedOption.value);
+                }
+
+                $field.prop('disabled', true);
+
+                return;
+            }
+
+            // A plain input/textarea has no equivalent mismatch - its own value already is its displayed text.
+            $field.val(value).prop('readOnly', true);
+        });
     }
 
     /**
@@ -587,6 +691,13 @@ App.Pages.Booking = (function () {
          * Some special tasks might be performed, depending on the current wizard step.
          */
         $('.button-next').on('click', (event) => {
+            // LNU: OIDC Booking Login (README.md #15) - keep the login session alive while the customer is
+            // still navigating the wizard, so a long-lived visit doesn't leave the session stale by the time
+            // they reach the info step or submit.
+            if (vars('auth_refresh_supported')) {
+                App.Http.Booking.silentRefreshSession();
+            }
+
             const $target = $(event.currentTarget);
 
             // LNU: Configurable order for booking wizard steps - each step is now identified by name rather
@@ -713,6 +824,11 @@ App.Pages.Booking = (function () {
          * book wizard.
          */
         $('.button-back').on('click', (event) => {
+            // LNU: OIDC Booking Login (README.md #15) - see the ".button-next" handler above.
+            if (vars('auth_refresh_supported')) {
+                App.Http.Booking.silentRefreshSession();
+            }
+
             currentStepIndex = currentStepIndex - 1;
 
             const wizardFrame = getWizardFrameForStepIndex(currentStepIndex);
@@ -826,6 +942,13 @@ App.Pages.Booking = (function () {
          * @param {jQuery.Event} event
          */
         $bookAppointmentSubmit.on('click', () => {
+            // LNU: OIDC Booking Login (README.md #15) - deliberately NOT calling silentRefreshSession() here
+            // like the ".button-next"/".button-back" handlers do: registerAppointment()'s own request already
+            // gets its own fresh check server-side (Booking::register() -> get_authenticated_email() ->
+            // validate_session(), which attempts its own refresh internally if needed), so an extra parallel
+            // ping here would just race it - whichever of the two unrelated AJAX responses happened to come
+            // back first would decide which "session expired" message the customer sees, unpredictably.
+
             const $acceptToTermsAndConditions = $('#accept-to-terms-and-conditions');
 
             $acceptToTermsAndConditions.removeClass('is-invalid');

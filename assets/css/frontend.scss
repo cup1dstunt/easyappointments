@@ -68,6 +68,14 @@
     background-color: var(--bs-secondary-bg);
 }
 
+/* LNU: OIDC Booking Login (README.md #15) - fields prefilled from the authenticated identity and locked
+   for editing (booking.js's prefillAndLockAuthProps()). A <select> gets Bootstrap's own default disabled
+   background already; a readonly <input>/<textarea> gets none by default, hence this rule. */
+#book-appointment-wizard input[readonly],
+#book-appointment-wizard textarea[readonly] {
+    background-color: var(--bs-secondary-bg) !important;
+}
+
 /* Captcha refresh icon hover effect */
 #book-appointment-wizard .captcha-title .fa-sync-alt {
     cursor: pointer;

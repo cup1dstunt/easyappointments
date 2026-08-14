@@ -36,7 +36,7 @@
                                 <span class="text-danger">*</span>
                             <?php endif; ?>
                         </label>
-                        <input type="text" id="first-name"
+                        <input type="text" id="first-name" auth-prop="first_name"
                                class="<?= $require_first_name ? 'required' : '' ?> form-control form-input" maxlength="100"/>
                     </div>
                 <?php endif; ?>
@@ -49,7 +49,7 @@
                                 <span class="text-danger">*</span>
                             <?php endif; ?>
                         </label>
-                        <input type="text" id="last-name"
+                        <input type="text" id="last-name" auth-prop="last_name"
                                class="<?= $require_last_name ? 'required' : '' ?> form-control form-input" maxlength="120"/>
                     </div>
                 <?php endif; ?>
@@ -62,7 +62,7 @@
                                 <span class="text-danger">*</span>
                             <?php endif; ?>
                         </label>
-                        <input type="text" id="email"
+                        <input type="text" id="email" auth-prop="email"
                                class="<?= $require_email ? 'required' : '' ?> form-control form-input" maxlength="120"/>
                     </div>
                 <?php endif; ?>

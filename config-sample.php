@@ -82,6 +82,40 @@ class Config
     // const ZOOM_ACCOUNT_ID = '';
 
     // ------------------------------------------------------------------------
+    // OIDC BOOKING LOGIN (Optional - can also be configured via UI)
+    // ------------------------------------------------------------------------
+    // These settings are optional and can be configured through the admin UI
+    // at Settings > Integrations > OIDC. If configured here, they
+    // will be used as fallback values, seeded into the settings table the
+    // first time the migration runs.
+    //
+    // Gates the entire public booking wizard behind a login with an external
+    // identity provider. Currently only booking login is supported.
+    //
+    // const OIDC_ENABLED_BOOKING = false;
+    // const OIDC_CLIENT_ID = '';
+    // const OIDC_CLIENT_SECRET = '';
+    // const OIDC_IDP_URL = ''; // Identity provider's base/issuer URL.
+    //
+    // Semicolon-separated list of "claim=value1|value2" rules, e.g.
+    // "affiliation=student|employee;department=ub|it" - all rules must pass
+    // (AND) for a customer to be let through. Leave empty to allow anyone who
+    // can log in.
+    //
+    // const OIDC_BOOKING_USER_PARAM_RESTRICTIONS = '';
+    //
+    // Shown to a customer who logs in successfully but does not meet the
+    // restrictions above - each can be a translation key or literal text.
+    //
+    // const OIDC_BOOKING_USER_PARAM_DISALLOWED_TITLE = 'default_oidc_booking_user_param_disallowed_title';
+    // const OIDC_BOOKING_USER_PARAM_DISALLOWED_MESSAGE = 'default_oidc_booking_user_param_disallowed_message';
+    //
+    // Automatically log the customer out after they complete a booking or
+    // edit an existing one.
+    //
+    // const OIDC_BOOKING_LOGOUT_AFTER_REGISTER = false;
+
+    // ------------------------------------------------------------------------
     // LNU SETTINGS
     // ------------------------------------------------------------------------
     // Settings related to the Lnu features

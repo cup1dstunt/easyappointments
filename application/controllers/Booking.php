@@ -86,6 +86,7 @@ class Booking extends EA_Controller
         $this->load->library('webhooks_client');
         $this->load->library('jitsi_client');
         $this->load->library('zoom_client');
+        $this->load->library('booking_login_client');
     }
 
     /**
@@ -167,6 +168,45 @@ class Booking extends EA_Controller
 
             $this->load->view('pages/booking_message');
 
+            return;
+        }
+
+        // LNU: OIDC Booking Login (README.md #15) - gates the entire booking wizard behind a login when
+        // active; the customer never sees the wizard until this passes. enforce_gate() is a no-op returning
+        // 'ok' when no method is active - see Booking_login_client/Oidc_client for the actual orchestration
+        // (redirecting to the IdP, the reauth-loop breaker, validating claims).
+        $auth_result = $this->booking_login_client->enforce_gate(html_vars('appointment_hash'));
+
+        if ($auth_result['outcome'] !== 'ok') {
+            $is_server_error = $auth_result['outcome'] === 'login_server_error';
+
+            html_vars([
+                'show_message' => true,
+                'page_title' => lang('page_title') . ' ' . e($company_name),
+                'message_title' => $is_server_error
+                    ? lang('login_server_error')
+                    : lang(setting('oidc_booking_user_param_disallowed_title')),
+                'message_text' => $is_server_error
+                    ? lang('login_server_error_message')
+                    : lang(setting('oidc_booking_user_param_disallowed_message')),
+                'message_icon' => base_url('assets/img/error.png'),
+                'google_analytics_code' => $google_analytics_code,
+                'matomo_analytics_url' => $matomo_analytics_url,
+                'matomo_analytics_site_id' => $matomo_analytics_site_id,
+                // Not the generic footer link (setting('display_login_button')) - that one points to the
+                // *backend* login, which is meaningless here (this is a booking-login failure, not a missing
+                // backend session). A link back to this same page is the actual way forward: it re-runs
+                // enforce_gate(), letting the customer retry (e.g. after being logged out on a restrictions
+                // failure above) instead of getting stuck on a dead-end message.
+                'display_login_button' => false,
+                // LNU: preserve query params (eg. "service"/"provider") on the retry link too - current_url()
+                // never includes the query string in this CodeIgniter version.
+                'retry_url' =>
+                    current_url() .
+                    (!empty($this->input->get()) ? '?' . http_build_query($this->input->get()) : ''),
+            ]);
+
+            $this->load->view('pages/booking_message');
             return;
         }
 
@@ -297,6 +337,33 @@ class Booking extends EA_Controller
                 return;
             }
             $customer = $this->customers_model->find($appointment['id_users_customer']);
+
+            // LNU: OIDC Booking Login (README.md #15) - a logged-in customer may only view/reschedule their
+            // own appointment, never someone else's just because they know (or guessed) the hash. Compared
+            // case-insensitively - the IdP's email claim isn't reliably cased consistently between logins.
+            if (
+                $this->booking_login_client->is_enabled()
+                && mb_strtolower((string) $customer['email']) !== mb_strtolower((string) ($auth_result['email'] ?? ''))
+            ) {
+                html_vars([
+                    'show_message' => true,
+                    'page_title' => lang('page_title') . ' ' . $company_name,
+                    'message_title' => lang('appointment_belongs_to_other_user'),
+                    'message_text' => lang('appointment_belongs_to_other_user_message'),
+                    'message_icon' => base_url('assets/img/error.png'),
+                    'google_analytics_code' => $google_analytics_code,
+                    'matomo_analytics_url' => $matomo_analytics_url,
+                    'matomo_analytics_site_id' => $matomo_analytics_site_id,
+                    'display_login_button' => $display_login_button,
+                    'legal_notice_url' => $legal_notice_url,
+                    'imprint_url' => $imprint_url,
+                ]);
+
+                $this->load->view('pages/booking_message');
+
+                return;
+            }
+
             $this->customers_model->only($customer, $this->allowed_customer_fields);
             $customer_token = md5(uniqid(mt_rand(), true));
 
@@ -336,6 +403,14 @@ class Booking extends EA_Controller
             // LNU: Configurable order for booking wizard steps.
             'booking_step_order' => implode('>', $step_order),
             'future_booking_limit' => setting('future_booking_limit'),
+            // LNU: OIDC Booking Login (README.md #15) - keyed by whatever an "auth-prop" attribute on a
+            // customer-info field names (booking.js prefills/locks any such field it finds a matching, truthy
+            // value for) - e.g. the built-in name/email fields use "given_name"/"family_name"/"email" (OIDC's
+            // own standard claim names), and a custom field can reference any other property (e.g.
+            // "affiliation") the same way, via an "auth-prop" attribute in its own "attributes" setting - see
+            // components/custom_fields.php. No declaration needed here for either case.
+            'auth_user_props' => $this->booking_login_client->get_user_props(),
+            'auth_refresh_supported' => $this->booking_login_client->is_enabled(),
             'appointment_data' => $appointment,
             'provider_data' => $provider ? filter_sensitive_user_data($provider) : null,
             'customer_data' => $customer,
@@ -469,6 +544,39 @@ class Booking extends EA_Controller
 
             if (!array_key_exists('phone_number', $customer)) {
                 $customer['phone_number'] = '';
+            }
+
+            // LNU: OIDC Booking Login (README.md #15) - a login is required for every submission (not just
+            // the page render gated by index()), otherwise this endpoint itself would be a bypass of the whole
+            // gate. On an edit, the customer must additionally be the appointment's owner (looked up fresh,
+            // never trusted from the client). Either way, the submitted email is never trusted - it's always
+            // overwritten with the verified identity's own email: on a new booking, a logged-in customer could
+            // otherwise still submit a booking attributed to an arbitrary address; on an edit, they could
+            // otherwise smuggle in a change to the customer's own email, e.g. silently reassigning the
+            // appointment to a different, already-existing customer record via the exists() check below.
+            if ($this->booking_login_client->is_enabled()) {
+                $authenticated_email = $this->booking_login_client->get_authenticated_email();
+
+                if ($authenticated_email === null) {
+                    // Same shape as the captcha_verification/altcha_verification failures below - a plain
+                    // abort() would render an HTML error page, which the frontend can't do anything useful
+                    // with. This tells it plainly to reload, which re-triggers the login gate.
+                    json_response(['auth_required' => true]);
+
+                    return;
+                }
+
+                if ($manage_mode) {
+                    $existing_appointment = $this->appointments_model->find($appointment['id']);
+                    $existing_customer = $this->customers_model->find($existing_appointment['id_users_customer']);
+
+                    // Case-insensitive - same reasoning as the ownership check in index()/reschedule() above.
+                    if (mb_strtolower((string) $existing_customer['email']) !== mb_strtolower((string) $authenticated_email)) {
+                        throw new RuntimeException(lang('appointment_belongs_to_other_user_message'));
+                    }
+                }
+
+                $customer['email'] = $authenticated_email;
             }
 
             // LNU: Enforce the customer booking limits (README.md #7). This is the authoritative check - the
