@@ -576,4 +576,7 @@ $lang['notify_users_on_create_question'] = 'Vill du skicka en avisering om det n
 $lang['notify_users_on_delete_question'] = 'Vill du skicka en avisering om avbokningen till kunden?';
 $lang['booking_step_order_enabled'] = 'Anpassad ordning för bokningssteg';
 $lang['booking_step_order_hint'] = 'När denna är aktiverad kan ordningen på bokningsstegen ändras. Ange stegnamnen (service, time, info, confirmation) i önskad ordning, separerade med ">". Standardordningen är "service>time>info>confirmation". Alla fyra steg måste anges exakt en gång, med "service" före "time", och "confirmation" alltid sist. Ett valfritt "terms"-steg kan läggas till för att visa användarvillkoren som ett eget steg. Ett felaktigt värde i detta fält ignoreras och standardordningen används istället.';
+$lang['booking_email_note'] = 'Anteckning för bokningsmail';
+$lang['booking_email_note_placeholder'] = 'Här kan du lägga till en valfri anteckning till kunden som bokar en tid hos dig. Om den anges läggs den till i bekräftelsemejlet för bokningen.';
+$lang['booking_email_note_to_customer'] = 'En anteckning från din utförare';
 // End

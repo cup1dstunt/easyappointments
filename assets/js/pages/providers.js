@@ -28,6 +28,7 @@ App.Pages.Providers = (function () {
     const $zipCode = $('#zip-code');
     const $isPrivate = $('#is-private');
     const $notes = $('#notes');
+    const $bookingEmailNote = $('#booking-email-note');
     const $language = $('#language');
     const $timezone = $('#timezone');
     const $ldapDn = $('#ldap-dn');
@@ -198,6 +199,7 @@ App.Pages.Providers = (function () {
                 zip_code: $zipCode.val(),
                 is_private: Number($isPrivate.prop('checked')),
                 notes: $notes.val(),
+                booking_email_note: $bookingEmailNote.val(),
                 language: $language.val(),
                 timezone: $timezone.val(),
                 ldap_dn: $ldapDn.val(),
@@ -433,6 +435,7 @@ App.Pages.Providers = (function () {
         $zipCode.val(provider.zip_code);
         $isPrivate.prop('checked', provider.is_private);
         $notes.val(provider.notes);
+        $bookingEmailNote.val(provider.booking_email_note);
         $language.val(provider.language);
         $timezone.val(provider.timezone);
         $ldapDn.val(provider.ldap_dn);

@@ -576,4 +576,7 @@ $lang['notify_users_on_create_question'] = 'Would you like to send out a notific
 $lang['notify_users_on_delete_question'] = 'Would you like to send out a notification about this change?';
 $lang['booking_step_order_enabled'] = 'Custom Booking Step Order';
 $lang['booking_step_order_hint'] = 'When enabled, the order of the booking steps can be changed. List the step names (service, time, info, confirmation) in the preferred order, separated by ">". The default order is "service>time>info>confirmation". All four steps must be included exactly once, with "service" before "time" and "confirmation" always as the last step. An incorrect value in this field is ignored and the default order is used instead. Additional steps can be added here if and when such steps are implemented.';
+$lang['booking_email_note'] = 'Booking Email Note';
+$lang['booking_email_note_placeholder'] = 'Here you can add an optional note to the customer booking an appointment with you. If set, it is added to the confirmation email for the booking.';
+$lang['booking_email_note_to_customer'] = 'A note from your provider';
 // End

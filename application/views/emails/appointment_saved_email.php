@@ -529,6 +529,17 @@ $customer_address = trim((string) ($customer['address'] ?? ''));
                                                     </td>
                                                 </tr>
                                             <?php endif; ?>
+
+                                            <?php if (!empty($provider['booking_email_note'])): ?>
+                                                <tr>
+                                                    <td class="label" style="padding: 3px;font-weight: bold;">
+                                                        <?= lang('booking_email_note_to_customer') ?>
+                                                    </td>
+                                                    <td style="padding: 3px;">
+                                                        <?= e(lang($provider['booking_email_note'])) ?>
+                                                    </td>
+                                                </tr>
+                                            <?php endif; ?>
                                         </table>
 
                                         <br>

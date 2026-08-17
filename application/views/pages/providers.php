@@ -161,6 +161,14 @@
                                 <textarea id="notes" class="form-control" rows="3" disabled></textarea>
                             </div>
 
+                            <div class="mb-3">
+                                <label class="form-label" for="booking-email-note">
+                                    <?= lang('booking_email_note') ?>
+                                </label>
+                                <textarea id="booking-email-note" placeholder="<?= lang('booking_email_note_placeholder') ?>"
+                                          class="form-control" rows="5" disabled></textarea>
+                            </div>
+
                         </div>
                         <div class="settings col-12 col-lg-6">
                             <div class="mb-3">
