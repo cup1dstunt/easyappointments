@@ -556,6 +556,17 @@ $hide_customer_timezone = boolval(setting('hide_customer_timezone', 0));
                                                 </tr>
                                             <?php endif; ?>
 
+                                            <?php if (!empty($provider['booking_email_note'])): ?>
+                                                <tr>
+                                                    <td class="label" style="padding: 3px;font-weight: bold;">
+                                                        <?= lang('booking_email_note_to_customer') ?>
+                                                    </td>
+                                                    <td style="padding: 3px;">
+                                                        <?= e(lang($provider['booking_email_note'])) ?>
+                                                    </td>
+                                                </tr>
+                                            <?php endif; ?>
+
                                             <?php for ($i = 1; $i <= $max_appt_custom_fields; $i++): ?>
                                                 <?php if (intval(setting('display_appt_custom_field_' . $i)) === 1): ?>
                                                     <?php $label_data = setting('label_appt_custom_field_' . $i, 'appt_custom_field'); ?>

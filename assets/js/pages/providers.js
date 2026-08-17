@@ -29,6 +29,7 @@ App.Pages.Providers = (function () {
     const $isPrivate = $('#is-private');
     const $createZoomLinks = $('#create-zoom-links');
     const $notes = $('#notes');
+    const $bookingEmailNote = $('#booking-email-note');
     const $language = $('#language');
     const $color = $('#color');
     const $timezone = $('#timezone');
@@ -204,6 +205,7 @@ App.Pages.Providers = (function () {
                 is_private: Number($isPrivate.prop('checked')),
                 create_zoom_links: Number($createZoomLinks.prop('checked')),
                 notes: $notes.val(),
+                booking_email_note: $bookingEmailNote.val(),
                 language: $language.val(),
                 color: App.Components.ColorSelection.getColor($color),
                 timezone: $timezone.val(),
@@ -444,6 +446,7 @@ App.Pages.Providers = (function () {
         $isPrivate.prop('checked', provider.is_private);
         $createZoomLinks.prop('checked', provider.create_zoom_links);
         $notes.val(provider.notes);
+        $bookingEmailNote.val(provider.booking_email_note);
         $language.val(provider.language);
         App.Components.ColorSelection.setColor($color, provider.color);
         $timezone.val(provider.timezone);

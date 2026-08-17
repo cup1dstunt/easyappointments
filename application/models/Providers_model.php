@@ -47,6 +47,7 @@ class Providers_model extends EA_Model
         'timezone' => 'timezone',
         'language' => 'language',
         'notes' => 'notes',
+        'bookingEmailNote' => 'booking_email_note',
         'isPrivate' => 'is_private',
         'ldapDn' => 'ldap_dn',
         'roleId' => 'id_roles',
@@ -791,6 +792,7 @@ class Providers_model extends EA_Model
             ->or_like('state', $keyword)
             ->or_like('zip_code', $keyword)
             ->or_like('notes', $keyword)
+            ->or_like('booking_email_note', $keyword)
             ->group_end()
             ->limit($limit)
             ->offset($offset)
@@ -891,6 +893,7 @@ class Providers_model extends EA_Model
             'state' => $provider['state'],
             'zip' => $provider['zip_code'],
             'notes' => $provider['notes'],
+            'bookingEmailNote' => $provider['booking_email_note'],
             'isPrivate' => $provider['is_private'],
             'ldapDn' => $provider['ldap_dn'],
             'timezone' => $provider['timezone'],
@@ -999,6 +1002,10 @@ class Providers_model extends EA_Model
 
         if (array_key_exists('notes', $provider)) {
             $decoded_resource['notes'] = $provider['notes'];
+        }
+
+        if (array_key_exists('bookingEmailNote', $provider)) {
+            $decoded_resource['booking_email_note'] = $provider['bookingEmailNote'];
         }
 
         if (array_key_exists('timezone', $provider)) {
