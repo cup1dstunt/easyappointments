@@ -117,7 +117,7 @@ class EA_Controller extends CI_Controller
         // LNU: Booking Language with URL Parameter (README.md #13) - either 'language' or 'lang' as a GET query
         // param (matched here via $this->input->get() specifically, not the POST-merged request() helper, so
         // this can't collide with an unrelated POST body field of the same name on some other endpoint), given
-        // as a full language name (eg. 'swedish') or a short code (eg. 'sv') resolved via $language_codes. When
+        // as a full language name (eg. 'svenska') or a short code (eg. 'sv') resolved via $language_codes. When
         // present and valid, it always takes priority over whatever's already in session (someone visiting via
         // a fresh language-specific link is a more current signal of intent than a stale session value) and is
         // persisted to session - not just applied to this one request - so it also carries over to later
