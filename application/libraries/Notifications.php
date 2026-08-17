@@ -44,6 +44,25 @@ class Notifications
     }
 
     /**
+     * Switch the active language for the notification currently being built.
+     *
+     * LNU: Language Replacements (README.md #17) - apply_language_replacements() is otherwise only called once,
+     * from EA_Controller::configure_language(), for the requesting user's own session language. Every switch to
+     * a recipient's own language here (customer, provider, admin, secretary can each differ) bypassed it
+     * entirely, so "~word~" markers were left unsubstituted in every notification email.
+     *
+     * @param string $language
+     */
+    private function set_language(string $language): void
+    {
+        config(['language' => $language]);
+
+        $this->CI->lang->load('translations');
+
+        apply_language_replacements($this->CI->lang->language);
+    }
+
+    /**
      * Send the required notifications, related to an appointment creation/modification.
      *
      * @param array $appointment Appointment data.
@@ -75,8 +94,7 @@ class Notifications
                 !empty($customer['email']) && filter_var(setting('customer_notifications'), FILTER_VALIDATE_BOOLEAN);
 
             if ($send_customer === true) {
-                config(['language' => $customer['language']]);
-                $this->CI->lang->load('translations');
+                $this->set_language($customer['language']);
                 $subject = $manage_mode ? lang('appointment_details_changed') : lang('appointment_booked');
                 $message = $manage_mode ? '' : lang('thank_you_for_appointment');
 
@@ -112,8 +130,7 @@ class Notifications
             );
 
             if ($send_provider === true) {
-                config(['language' => $provider['language']]);
-                $this->CI->lang->load('translations');
+                $this->set_language($provider['language']);
                 $subject = $manage_mode ? lang('appointment_details_changed') : lang('appointment_added_to_your_plan');
                 $message = $manage_mode ? '' : lang('appointment_link_description');
 
@@ -144,8 +161,7 @@ class Notifications
                     continue;
                 }
 
-                config(['language' => $admin['language']]);
-                $this->CI->lang->load('translations');
+                $this->set_language($admin['language']);
                 $subject = $manage_mode ? lang('appointment_details_changed') : lang('appointment_added_to_your_plan');
                 $message = $manage_mode ? '' : lang('appointment_link_description');
 
@@ -180,8 +196,7 @@ class Notifications
                     continue;
                 }
 
-                config(['language' => $secretary['language']]);
-                $this->CI->lang->load('translations');
+                $this->set_language($secretary['language']);
                 $subject = $manage_mode ? lang('appointment_details_changed') : lang('appointment_added_to_your_plan');
                 $message = $manage_mode ? '' : lang('appointment_link_description');
 
@@ -206,8 +221,7 @@ class Notifications
         } catch (Throwable $e) {
             $this->log_exception($e, 'appointment-saved (general exception)', $appointment['id'] ?? null);
         } finally {
-            config(['language' => $current_language ?? 'english']);
-            $this->CI->lang->load('translations');
+            $this->set_language($current_language ?? 'english');
         }
     }
 
@@ -238,8 +252,7 @@ class Notifications
             );
 
             if ($send_provider === true) {
-                config(['language' => $provider['language']]);
-                $this->CI->lang->load('translations');
+                $this->set_language($provider['language']);
 
                 try {
                     $this->CI->email_messages->send_appointment_deleted(
@@ -262,8 +275,7 @@ class Notifications
                 !empty($customer['email']) && filter_var(setting('customer_notifications'), FILTER_VALIDATE_BOOLEAN);
 
             if ($send_customer === true) {
-                config(['language' => $customer['language']]);
-                $this->CI->lang->load('translations');
+                $this->set_language($customer['language']);
 
                 try {
                     $this->CI->email_messages->send_appointment_deleted(
@@ -289,8 +301,7 @@ class Notifications
                     continue;
                 }
 
-                config(['language' => $admin['language']]);
-                $this->CI->lang->load('translations');
+                $this->set_language($admin['language']);
 
                 try {
                     $this->CI->email_messages->send_appointment_deleted(
@@ -320,8 +331,7 @@ class Notifications
                     continue;
                 }
 
-                config(['language' => $secretary['language']]);
-                $this->CI->lang->load('translations');
+                $this->set_language($secretary['language']);
 
                 try {
                     $this->CI->email_messages->send_appointment_deleted(
@@ -348,8 +358,7 @@ class Notifications
             );
             log_message('error', $e->getTraceAsString());
         } finally {
-            config(['language' => $current_language ?? 'english']);
-            $this->CI->lang->load('translations');
+            $this->set_language($current_language ?? 'english');
         }
     }
 

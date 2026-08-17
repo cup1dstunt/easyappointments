@@ -339,7 +339,7 @@ $lang['require_phone_number_hint'] = 'När detta är aktiverat är telefonnummer
 $lang['check_spam_folder'] = 'Kontrollera skräpposten om du inte har fått mejlet inom några minuter.';
 $lang['api_token_hint'] = 'Ställ in en säkerhets-token för att ge åtkomst till Easy!Appointments API via token-autentisering.';
 $lang['timezone'] = 'Tidszon';
-$lang['overwrite_existing_working_plans'] = 'Detta kommer att ersätta befintliga utförarescheman. Är du säker på att du vill fortsätta?';
+$lang['overwrite_existing_working_plans'] = 'Detta kommer att ersätta befintliga utförarscheman. Är du säker på att du vill fortsätta?';
 $lang['working_plans_got_updated'] = 'Alla scheman uppdaterades.';
 $lang['apply_to_all_providers'] = 'Använd för alla utförare';
 $lang['display_any_provider'] = 'Visa alternativ för valfri utförare';
@@ -477,6 +477,9 @@ $lang['default_timezone'] = 'Standardtidszon';
 $lang['default_timezone_hint'] = 'Ställ in den tidszon som ska användas som standard för nya bokningar';
 $lang['default_language'] = 'Standardspråk';
 $lang['default_language_hint'] = 'Ställ in det språk som ska användas som standard för nya bokningar';
+$lang['language_replacements'] = 'Språkersättningar';
+$lang['language_replacements_hint'] = 'Ersätt specifika ord varsomhelst de förekommer som hela ord i systemet. Konfigurera ersättningar här som en semikolon-separerad lista med "ord=ersättning"-par, t.ex. "provider=tutor;providers=tutors" ersätter "provider" med "tutor" överallt i systemet. Ursprungligt skiftläge bevaras. För att lämna en viss fras orörd trots att den innehåller ett ersatt ord, lägg till den i samma lista med "!" framför, t.ex. "!identity provider" så att "provider" i "identity provider" inte ersätts.';
+$lang['language_replacements_placeholder'] = 't.ex. provider=tutor;customer=student;!identity provider;';
 $lang['sync_method_prompt'] = 'Vilken synkroniseringsmetod vill du använda?';
 $lang['caldav_server'] = 'CalDAV-server';
 $lang['caldav_connection_info_prompt'] = 'Vänligen ange anslutningsinformationen för målkalendern.';

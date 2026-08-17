@@ -166,6 +166,14 @@ class EA_Controller extends CI_Controller
         }
 
         $this->lang->load('translations');
+
+        // LNU: Configurable Terminology (README.md #17) - mutates the just-loaded array in place, so both
+        // lang() (reads via $this->lang->line()) and the JS-side lang() (dumped from this same array by
+        // js_lang_script.php) see already-substituted text, with no separate client-side logic needed. Guarded
+        // the same way as configure_timezone() - the settings table doesn't exist yet before installation.
+        if ($this->db->table_exists('settings')) {
+            apply_language_replacements($this->lang->language);
+        }
     }
 
     /**

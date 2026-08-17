@@ -213,6 +213,19 @@
                                 </div>
 
                                 <div class="mb-3">
+                                    <label class="form-label" for="language-replacements">
+                                        <?= lang('language_replacements') ?>
+                                    </label>
+                                    <input type="text" class="form-control" id="language-replacements"
+                                           data-field="language_replacements" placeholder="<?= lang('language_replacements_placeholder') ?>">
+                                    <div class="form-text text-muted">
+                                        <small>
+                                            <?= lang('language_replacements_hint') ?>
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
                                     <label class="form-label" for="default-timezone">
                                         <?= lang('default_timezone') ?>
                                         <span class="text-danger" hidden>*</span>

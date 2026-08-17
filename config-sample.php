@@ -195,4 +195,15 @@ class Config
     // and "service" must come before "time".
     //
     // const DEFAULT_BOOKING_STEP_ORDER = 'service>time>info>confirmation';
+
+    // Configurable Terminology (Optional)
+    // ------------------------------------------------------------------------
+    // Used only the first time the migration runs, to seed the "Language
+    // Replacements" setting - after that, change it via the admin UI instead.
+    // A ';'-separated list of 'word=replacement' pairs - every occurrence of
+    // "word" as a whole word, in any language, is replaced. Prefix an entry
+    // with '!' instead to list a phrase that should be left untouched even
+    // though it contains a replaced word, e.g. '!identity provider'.
+    //
+    // const LANGUAGE_REPLACEMENTS = 'provider=tutor;providers=tutors;customer=student;customers=students;utförare=handledare;utförarens=handledarens;utföraren=handledaren;utförar=handledar;kund=student;kunden=studenten;kunder=studenter;';
 }

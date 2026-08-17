@@ -51,3 +51,109 @@ if (!function_exists('lang')) {
         return $result ?: $line;
     }
 }
+
+if (!function_exists('apply_language_replacements')) {
+    /**
+     * LNU: Language Replacements (README.md #17).
+     *
+     * Substitutes configured words wherever they occur as whole words in the currently loaded translation
+     * lines (setting "language_replacements" - semicolon-separated entries, each either a "word=replacement"
+     * pair or, prefixed with "!", an exception phrase to leave untouched even though it contains a configured
+     * word, e.g. "provider=handledare;!identity provider;!internet provider;"). One shared mapping across
+     * every language - a configured word is already a specific word in a specific language, e.g. "customer"
+     * vs "kund", so a collision between two languages needing different replacements for the same spelling
+     * isn't expected in practice.
+     *
+     * Word-boundary matching matters for two reasons: it's what makes an exception phrase like "!identity
+     * provider" work (the phrase is matched and left alone before the bare "provider" rule gets a chance to
+     * match inside it), and it's what stops a short configured word from matching inside an unrelated longer
+     * word by accident - Swedish "kund" ("customer") must not match inside "kunde" ("could"). The flip side is
+     * that a compound word written as a single word, e.g. Swedish "kunduppgifter" ("customer data"), is NOT
+     * caught by a "kund" rule and needs its own explicit "kunduppgifter=studentuppgifter" entry.
+     *
+     * Capitalization follows the matched word, not the configured replacement: matching "Customer" capitalizes
+     * whatever "customer" is mapped to, so a single lowercase mapping entry covers both cases.
+     *
+     * Called once per request, right after $this->lang->load(), so both server-rendered lang() calls and the
+     * JS-side lang() (populated from the same array by js_lang_script.php) see already-substituted text - no
+     * separate client-side substitution logic needed.
+     *
+     * @param array $language_lines The currently loaded language array ($this->lang->language), by reference.
+     */
+    function apply_language_replacements(array &$language_lines): void
+    {
+        $replacements = [];
+        $exception_phrases = [];
+
+        foreach (array_filter(array_map('trim', explode(';', (string) setting('language_replacements', '')))) as $entry) {
+            if (str_starts_with($entry, '!')) {
+                $phrase = trim(substr($entry, 1));
+
+                if ($phrase !== '') {
+                    $exception_phrases[] = $phrase;
+                }
+
+                continue;
+            }
+
+            if (!str_contains($entry, '=')) {
+                continue;
+            }
+
+            [$word, $replacement] = explode('=', $entry, 2);
+
+            $word = mb_strtolower(trim($word));
+
+            if ($word !== '') {
+                $replacements[$word] = trim($replacement);
+            }
+        }
+
+        if (!$replacements) {
+            return;
+        }
+
+        $pattern_parts = [];
+
+        foreach ($exception_phrases as $phrase) {
+            $pattern_parts[] = '\b' . preg_quote($phrase, '/') . '\b';
+        }
+
+        foreach (array_keys($replacements) as $word) {
+            $pattern_parts[] = '\b' . preg_quote($word, '/') . '\b';
+        }
+
+        $pattern = '/' . implode('|', $pattern_parts) . '/ui';
+
+        $exception_lookup = array_flip(array_map('mb_strtolower', $exception_phrases));
+
+        foreach ($language_lines as $key => $value) {
+            if (!is_string($value)) {
+                continue;
+            }
+
+            $language_lines[$key] = preg_replace_callback(
+                $pattern,
+                static function (array $matches) use ($replacements, $exception_lookup) {
+                    $matched = $matches[0];
+                    $lower = mb_strtolower($matched);
+
+                    if (isset($exception_lookup[$lower])) {
+                        return $matched;
+                    }
+
+                    $replacement = $replacements[$lower] ?? $matched;
+
+                    $first_char = mb_substr($matched, 0, 1);
+
+                    if ($first_char === mb_strtoupper($first_char) && $first_char !== mb_strtolower($first_char)) {
+                        $replacement = mb_strtoupper(mb_substr($replacement, 0, 1)) . mb_substr($replacement, 1);
+                    }
+
+                    return $replacement;
+                },
+                $value,
+            );
+        }
+    }
+}

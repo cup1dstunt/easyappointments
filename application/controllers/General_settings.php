@@ -116,6 +116,8 @@ class General_settings extends EA_Controller
         'calendar_hide_weekends',
         'calendar_timegrid_slot_height',
         'calendar_scroll_time',
+        // LNU: Configurable Terminology (README.md #17).
+        'language_replacements',
     ];
 
     /**
