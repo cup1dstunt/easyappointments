@@ -5,7 +5,7 @@ $lang['service_and_provider'] = 'Välj tjänst och utförare';
 $lang['select_service'] = 'Välj tjänst';
 $lang['select_provider'] = 'Välj utförare';
 $lang['duration'] = 'Längd';
-$lang['minutes'] = 'Minuter';
+$lang['minutes'] = 'minuter';
 $lang['price'] = 'Pris';
 $lang['back'] = 'Tillbaka';
 $lang['appointment_date_and_time'] = 'Välj datum och tid';
@@ -166,7 +166,7 @@ $lang['sunday'] = 'Söndag';
 $lang['breaks'] = 'Rast';
 $lang['add_breaks_during_each_day'] = 'Lägg till dagliga raster. Inga bokningar kan göras under rasttid.';
 $lang['day'] = 'Dag';
-$lang['days'] = 'Dagar';
+$lang['days'] = 'dagar';
 $lang['actions'] = 'Aktivera';
 $lang['reset_working_plan_hint'] = 'Återställ schemat till standardinställningar';
 $lang['company_name'] = 'Företagets namn';
@@ -732,12 +732,12 @@ $lang['booking_custom_message_service_page'] = 'Meddelande på tjänst/utförarv
 $lang['booking_custom_message_time_unavailable'] = 'Meddelande för otillgänglighet av datum/tid';
 $lang['booking_custom_message_confirm_link'] = 'Länk på bekräftelsesidan';
 $lang['booking_custom_message_confirm_link_text'] = 'Länktext på bekräftelsesidan';
-$lang['booking_custom_message_special_teacher'] = 'Har du läs- och skrivsvårigheter kan du få handledning anpassad för dina behov. Kontakta speciallärare <a href="mailto:anna.nord@lnu.se">Anna Nord</a> för mer info.';
+$lang['booking_custom_message_special_teacher'] = 'Har du läs- och skrivsvårigheter kan du få handledning anpassad för dina behov. Kontakta speciallärare <a href="mailto:jane@example.org">Jane Doe</a> för mer info.';
 $lang['booking_custom_message_no_available_slots'] = 'Finns inga lediga tider är vi fullbokade och kan inte ta fler handledningar i närtid. I perioder kan handledning behöva bokas flera veckor i förväg. Nya tider för kommande veckor läggs ut löpande.';
 $lang['booking_custom_message_easyappointments_link'] = 'https://easyappointments.org/';
 $lang['booking_custom_message_easyappointments_link_text'] = 'Return to the Easy!Appointments Home Page';
-$lang['booking_info_single_column'] = 'Single Column Layout for Info and Confirmation Steps';
-$lang['booking_info_single_column_hint'] = 'When enabled, the customer information and confirmation steps of the booking wizard are always displayed in a single column. The fields are never split into two columns.';
+$lang['booking_info_single_column'] = 'Enkolumnslayout för info- och bekräftelsesteg';
+$lang['booking_info_single_column_hint'] = 'När denna är aktiverad visas kundinformations- och bekräftelsestegen i bokningsguiden alltid i bara en kolumn. Fälten delas aldrig upp i två kolumner.';
 $lang['booking_step_order_enabled'] = 'Anpassad ordning för bokningssteg';
 $lang['booking_step_order_hint'] = 'När denna är aktiverad kan ordningen på bokningsstegen ändras. Ange stegnamnen (service, time, info, confirmation) i önskad ordning, separerade med ">". Standardordningen är "service>time>info>confirmation". Alla fyra steg måste anges exakt en gång, med "service" före "time", och "confirmation" alltid sist. Ett valfritt "terms"-steg kan läggas till för att visa användarvillkoren som ett eget steg. Ett felaktigt värde i detta fält ignoreras och standardordningen används istället.';
 $lang['calendar_slot_min_time'] = 'Kalenderns starttid';
@@ -750,4 +750,100 @@ $lang['calendar_timegrid_slot_height'] = 'Radhöjd för kalenderns tidsintervall
 $lang['calendar_timegrid_slot_height_hint'] = 'Höjden på varje tidsintervallrad i kalenderns dag- och veckovyer, angivet som ett CSS-längdvärde (t.ex. "1em", "20px"). Mindre värden får plats med mer av dagen på skärmen samtidigt.';
 $lang['calendar_scroll_time'] = 'Kalenderns startposition';
 $lang['calendar_scroll_time_hint'] = 'Tiden som kalenderns dag- och veckovyer initialt skrollar till när de öppnas.';
+$lang['unaccepted_email'] = 'E-postadressen måste ha formatet ';
+$lang['booking_fail_title_1'] = 'Bokningen misslyckades';
+$lang['booking_fail_title_2'] = 'Tyvärr kunde bokningen inte genomföras.';
+$lang['lnu_term'] = 'Termin';
+$lang['lnu_participants'] = 'Antal deltagare';
+$lang['lnu_program_or_course'] = 'Program eller kurs';
+$lang['lnu_required_help'] = "Önskad hjälp";
+$lang['lnu_required_help_placeholder'] = "Beskriv dina önskemål så detaljerat som möjligt. Tänk på att vi kan läsa endast några sidor av din text.";
+$lang['lnu_institution'] = 'Institution';
+$lang['lnu_institution_prompt'] = 'Välj din institution...';
+$lang['lnu_institution_1'] = 'Biologi och miljö (FHL)';
+$lang['lnu_institution_2'] = 'Byggteknik (FTK)';
+$lang['lnu_institution_3'] = 'Byggd miljö och energiteknik (FTK)';
+$lang['lnu_institution_4'] = 'Kemi och biomedicin (FHL)';
+$lang['lnu_institution_5'] = 'Datavetenskap och medieteknik (FTK)';
+$lang['lnu_institution_6'] = 'Kriminologi och polisiärt arbete (FSV)';
+$lang['lnu_institution_7'] = 'Kulturvetenskaper (FKH)';
+$lang['lnu_institution_8'] = 'Design (FKH)';
+$lang['lnu_institution_9'] = 'Nationalekonomi och statistik (EHK)';
+$lang['lnu_institution_10'] = 'Pedagogik (FSV)';
+$lang['lnu_institution_11'] = 'Film och litteratur (FKH)';
+$lang['lnu_institution_12'] = 'Fojo Medieinstitut (FKH)';
+$lang['lnu_institution_13'] = 'Skog och träteknik (FTK)';
+$lang['lnu_institution_14'] = 'Hälso- och vårdvetenskap (FHL)';
+$lang['lnu_institution_15'] = 'Informatik (FTK)';
+$lang['lnu_institution_16'] = 'Sjöfartshögskolan (FTK)';
+$lang['lnu_institution_17'] = 'Språk (FKH)';
+$lang['lnu_institution_18'] = 'Rättsvetenskap (FSV)';
+$lang['lnu_institution_19'] = 'Management (EHK)';
+$lang['lnu_institution_20'] = 'Marknadsföring och turismvetenskap (EHK)';
+$lang['lnu_institution_21'] = 'Matematik and fysik (FTK)';
+$lang['lnu_institution_22'] = 'Maskinteknik (FTK)';
+$lang['lnu_institution_23'] = 'Medier och journalistik (FKH)';
+$lang['lnu_institution_24'] = 'Medicin och optometri (FHL)';
+$lang['lnu_institution_25'] = 'Musik och bild (FKH)';
+$lang['lnu_institution_26'] = 'Statsvetenskap (FSV)';
+$lang['lnu_institution_27'] = 'Psykologi (FHL)';
+$lang['lnu_institution_28'] = 'Samhällsstudier (FSV)';
+$lang['lnu_institution_29'] = 'Socialt arbete (FSV)';
+$lang['lnu_institution_30'] = 'Idrottsvetenskap (FSV)';
+$lang['lnu_institution_31'] = 'Svenska språket (FKH)';
+$lang['lnu_institution_last'] = "Annat/Vet ej";
+$lang['private_email'] = "Min privata e-postadress är";
+$lang['personal_id'] = "Mitt personnummer är (12 siffror)";
+$lang['personal_id_placeholder'] = "YYYYMMDD-XXXX";
+$lang['program_course'] = "Jag studerar på program/kurs";
+$lang['computer_type'] = "Jag använder mig av";
+$lang['computer_type_1'] = "PC/Windows";
+$lang['computer_type_2'] = "Mac";
+$lang['computer_type_3'] = "Chromebook";
+$lang['study_location'] = "Min studieort är";
+$lang['study_location_1'] = "Kalmar";
+$lang['study_location_2'] = "Växjö";
+$lang['granted_pedagogical_support'] = "Jag har beviljats pedagogiskt stöd via samordnare (Nais)";
+$lang['granted_pedagogical_support_1'] = "Ja";
+$lang['granted_pedagogical_support_2'] = "Nej";
+$lang['talking_books_apply_reason'] = "Anledning till att jag ansöker om talboksstöd";
+$lang['talking_books_other_info'] = "Jag har följande övrig information";
+$lang['booking_message'] = 'Bokningsmeddelande';
+$lang['booking_message_placeholder'] = 'Här kan du skriva ett valfritt meddelande till kunden som bokar ett möte med dig. Om ifyllt, läggs meddelandet till i bekräftelsemejlet för bokningen.';
+$lang['lnu_university'] = 'Linnéuniversitet';
+$lang['lnu_privacy_policy'] = '<p>Information om användare, bokningar och uppladdade filer sparas under pågående termin för att kunna genomföra de bokade handledningarna.</p><p>All information och alla filer raderas efter varje avslutad termin.</p><p>Mer information om hur personuppgifter hanteras inom Linnéuniversitetet hittar du <a href="https://www.lnu.se/mot-linneuniversitetet/kontakta-och-besoka/personuppgifter/">här</a>.</p>';
+$lang['academic_skills_instruction'] = 'Texthandledare';
+$lang['academic_skills_instruction_email'] = 'texthandledare@lnu.se';
+$lang['academic_skills_instruction_link'] = 'https://www.lnu.se/ub/om-biblioteket/studieverkstaden/';
+$lang['academic_skills_instruction_link_text'] = 'Tillbaka till hemsidan för Texthandledare';
+$lang['academic_skills_instruction_message_special_teacher'] = 'Har du läs- och skrivsvårigheter kan du få handledning anpassad för dina behov. Kontakta speciallärare <a href="mailto:anna.nord@lnu.se">Anna Nord</a> för mer info.';
+$lang['academic_skills_instruction_terms'] = "
+<ul>
+<li>Du kan boka max. tre handledningar per termin.</li>
+<li>En handledning måste bokas minst 3 veckodagar innan.</li>
+<li>En handledning kan inte ombokas eller avbokas mindre än 1 veckodag före mötet.</li>
+<li>Vi läser endast några sidor av texten, så välj ut de delar du känner störst behov av att diskutera med oss.</li>
+<li>Får du inget bekräftelsemail har din bokning inte gått igenom. Gör då en ny bokning</li>
+</ul>
+";
+$lang['talking_book_support'] = 'Talboksstöd';
+$lang['talking_book_support_email'] = 'talbok.ub@lnu.se';
+$lang['talking_book_support_link'] = 'https://www.lnu.se/student/stod-och-service/studera-med-funktionsnedsattning/talboksstod/';
+$lang['talking_book_support_link_text'] = 'Tillbaka till hemsidan för Talboksstöd';
+$lang['talking_books_support_oidc_booking_user_param_disallowed_title'] = 'Talboksstöd ej tillgängligt';
+$lang['talking_books_support_oidc_booking_user_param_disallowed_message'] = 'Tack för att du är intresserad av vårt talboksstöd! Tyvärr är den här tjänsten endast tillgänglig för studenter på Linnéuniversitetet.';
+$lang['talking_book_support_terms'] = "
+<h4>Vem kan få konto?</h4>
+<p>Om du har en funktionsnedsättning som gör det svårt att läsa text kan du få tillgång till Legimus.</p>
+<p>Exempel på funktionsnedsättningar som kan göra det svårt att läsa tryckt text är:</p>
+<ul>
+<li>Läs- och skrivsvårigheter, dyslexi</li>
+<li>Synnedsättning (som inte kan korrigeras med glasögon)</li>
+<li>Rörelsenedsättning som till exempel gör det svårt att hålla en bok</li>
+<li>Neuropsykiatrisk funktionsnedsättning, som autism och adhd</li>
+<li>Hörselnedsättning</li>
+<li>Tillfällig funktionsnedsättning, till exempel på grund av skada eller sjukdom</li>
+</ul>
+<p>Att ha en funktionsnedsättning räcker inte för att ha rätt till konto i Legimus. Det måste finnas ett samband mellan funktionsnedsättningen och svårigheten att läsa.</p>
+";
 // End

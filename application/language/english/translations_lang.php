@@ -5,7 +5,7 @@ $lang['service_and_provider'] = 'Service & Provider';
 $lang['select_service'] = 'Select Service';
 $lang['select_provider'] = 'Select Provider';
 $lang['duration'] = 'Duration';
-$lang['minutes'] = 'Minutes';
+$lang['minutes'] = 'minutes';
 $lang['price'] = 'Price';
 $lang['back'] = 'Back';
 $lang['appointment_date_and_time'] = 'Appointment Date & Time';
@@ -166,7 +166,7 @@ $lang['sunday'] = 'Sunday';
 $lang['breaks'] = 'Breaks';
 $lang['add_breaks_during_each_day'] = 'Add the working breaks during each day. During breaks the provider will not accept any appointments.';
 $lang['day'] = 'Day';
-$lang['days'] = 'Days';
+$lang['days'] = 'days';
 $lang['actions'] = 'Actions';
 $lang['reset_working_plan_hint'] = 'Reset the working plan back to the default values.';
 $lang['company_name'] = 'Company Name';
@@ -750,4 +750,100 @@ $lang['calendar_timegrid_slot_height'] = 'Calendar Time Slot Height';
 $lang['calendar_timegrid_slot_height_hint'] = 'The height of each time slot row in the calendar\'s day and week views, as a CSS length value (eg. "1em", "20px"). Smaller values fit more of the day on screen at once.';
 $lang['calendar_scroll_time'] = 'Calendar Scroll Position';
 $lang['calendar_scroll_time_hint'] = 'The time the calendar\'s day and week views initially scroll to when opened.';
+$lang['unaccepted_email'] = 'The e-mail address must have the format ';
+$lang['booking_fail_title_1'] = 'Booking failed';
+$lang['booking_fail_title_2'] = 'Unfortunately the booking could not be completed.';
+$lang['lnu_term'] = 'Term';
+$lang['lnu_participants'] = 'Number of Participants';
+$lang['lnu_program_or_course'] = 'Program or Course';
+$lang['lnu_required_help'] = "Required help";
+$lang['lnu_required_help_placeholder'] = "Describe your needs in as much detail as possible. Keep in mind that we are able to read just a few pages of your text.";
+$lang['lnu_institution'] = 'Institution';
+$lang['lnu_institution_prompt'] = 'Choose your Institution...';
+$lang['lnu_institution_1'] = 'Biology and Environmental Science (FHLS)';
+$lang['lnu_institution_2'] = 'Building Technology (FT)';
+$lang['lnu_institution_3'] = 'Built Environment and Energy Technology (FT)';
+$lang['lnu_institution_4'] = 'Chemistry and Biomedical Sciences (FHLS)';
+$lang['lnu_institution_5'] = 'Computer Science and Media Technology (FT)';
+$lang['lnu_institution_6'] = 'Criminology and Police Work (FSS)';
+$lang['lnu_institution_7'] = 'Cultural Sciences (FAH)';
+$lang['lnu_institution_8'] = 'Design (FAH)';
+$lang['lnu_institution_9'] = 'Economics and Statistics (SBE)';
+$lang['lnu_institution_10'] = 'Education (FSS)';
+$lang['lnu_institution_11'] = 'Film and Literature (FAH)';
+$lang['lnu_institution_12'] = 'Fojo Media Institute (FAH)';
+$lang['lnu_institution_13'] = 'Forestry and Wood Technology (FT)';
+$lang['lnu_institution_14'] = 'Health and Caring Sciences (FHLS)';
+$lang['lnu_institution_15'] = 'Informatics (FT)';
+$lang['lnu_institution_16'] = 'Kalmar Maritime Academy (FT)';
+$lang['lnu_institution_17'] = 'Languages (FAH)';
+$lang['lnu_institution_18'] = 'Law (FSS)';
+$lang['lnu_institution_19'] = 'Management (SBE)';
+$lang['lnu_institution_20'] = 'Marketing and Tourism Studies (SBE)';
+$lang['lnu_institution_21'] = 'Mathematics and Physics (FT)';
+$lang['lnu_institution_22'] = 'Mechanical Engineering (FT)';
+$lang['lnu_institution_23'] = 'Media and Journalism (FAH)';
+$lang['lnu_institution_24'] = 'Medicine and Optometry (FHLS)';
+$lang['lnu_institution_25'] = 'Music and Art (FAH)';
+$lang['lnu_institution_26'] = 'Political Science (FSS)';
+$lang['lnu_institution_27'] = 'Psychology (FHLS)';
+$lang['lnu_institution_28'] = 'Social Studies (FSS)';
+$lang['lnu_institution_29'] = 'Social Work (FSS)';
+$lang['lnu_institution_30'] = 'Sport Science (FSS)';
+$lang['lnu_institution_31'] = 'Swedish Language (FAH)';
+$lang['lnu_institution_last'] = "Other/Don't know";
+$lang['private_email'] = "My private e-mail address is";
+$lang['personal_id'] = "My personal identity number is (12 digits)";
+$lang['personal_id_placeholder'] = "YYYYMMDD-XXXX";
+$lang['program_course'] = "I study in this program/course";
+$lang['computer_type'] = "I'm using";
+$lang['computer_type_1'] = "PC/Windows";
+$lang['computer_type_2'] = "Mac";
+$lang['computer_type_3'] = "Chromebook";
+$lang['study_location'] = "My campus is";
+$lang['study_location_1'] = "Kalmar";
+$lang['study_location_2'] = "Växjö";
+$lang['granted_pedagogical_support'] = "I've received pedagogical support via coordinator (Nais)";
+$lang['granted_pedagogical_support_1'] = "Yes";
+$lang['granted_pedagogical_support_2'] = "No";
+$lang['talking_books_apply_reason'] = "Reason why I am applying for talking books";
+$lang['talking_books_other_info'] = "I have the following additional information";
+$lang['booking_message'] = 'Booking message';
+$lang['booking_message_placeholder'] = 'Here you can add an optional message to the customer booking an appointment with you. If set, the message is added to the confirmation mail for the booking.';
+$lang['lnu_university'] = 'Linnaeus University';
+$lang['lnu_privacy_policy'] = '<p>Information about users, appointments and uploaded files are stored during the ongoing semester in order to be able to carry out the booked tutoring sessions.</p><p>All information and all uploaded files are deleted after every finished semester.</p><p>More information about how personal data is processed in Linnaus University can be found <a href="https://www.lnu.se/en/meet-linnaeus-university/contact-and-visit-us/personal-data/">here</a>.</p>';
+$lang['academic_skills_instruction'] = 'Academic Skills Instruction';
+$lang['academic_skills_instruction_email'] = 'texthandledare@lnu.se';
+$lang['academic_skills_instruction_link'] = 'https://www.lnu.se/en/library/about-the-library/academic-skills-centre/';
+$lang['academic_skills_instruction_link_text'] = 'Back to the homepage of the Academic Skills Centre';
+$lang['academic_skills_instruction_message_special_teacher'] = '';
+$lang['academic_skills_instruction_terms'] = "
+<ul>
+<li>You can book max. three appointments per term.</li>
+<li>An appointment must be booked at least 3 weekdays in advance.</li>
+<li>An appointment cannot be rebooked or cancelled within 1 weekday before the meeting.</li>
+<li>We read only a few pages of the text, so choose which parts you wish to discuss with us.</li>
+<li>If you do not receive a confirmation e-mail, your booking was unsuccessful. If so, please make a new booking.</li>
+</ul>
+";
+$lang['talking_book_support'] = 'Talking book support';
+$lang['talking_book_support_email'] = 'talbok.ub@lnu.se';
+$lang['talking_book_support_link'] = 'https://www.lnu.se/en/student/service-and-support/studying-with-disability/reading-disability/';
+$lang['talking_book_support_link_text'] = 'Back to the homepage of the Talking Book Support';
+$lang['talking_books_support_oidc_booking_user_param_disallowed_title'] = 'Talking Books Support not available';
+$lang['talking_books_support_oidc_booking_user_param_disallowed_message'] = 'Thank you for your interest in our talking books support! Unfortunately this service is only available for students at Linnaeus University.';
+$lang['talking_book_support_terms'] = "
+<h4>Who can get an account?</h4>
+<p>If you have a disability that makes it difficult to read text, you can get access to Legimus.</p>
+<p>Examples of disabilities that can make it difficult to read printed text are:</p>
+<ul>
+<li>Reading and writing difficulties, dyslexia</li>
+<li>Visual impairment (that cannot be corrected with glasses)</li>
+<li>Motor impairment that makes it difficult, for example, to hold a book</li>
+<li>Neurodevelopmental disability, such as autism and ADHD</li>
+<li>Hearing impairment</li>
+<li>Temporary disability, for example due to injury or illness</li>
+</ul>
+<p>Having a disability is not enough to be entitled to an account in Legimus. There must be a connection between the disability and the difficulty in reading.</p>
+";
 // End
