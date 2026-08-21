@@ -28,6 +28,7 @@ class Providers_model extends EA_Model
         'is_private' => 'boolean',
         'id_roles' => 'integer',
         'create_zoom_links' => 'boolean',
+        'max_appointments_per_day' => 'integer',
     ];
 
     /**
@@ -52,6 +53,7 @@ class Providers_model extends EA_Model
         'ldapDn' => 'ldap_dn',
         'roleId' => 'id_roles',
         'createZoomLinks' => 'create_zoom_links',
+        'maxAppointmentsPerDay' => 'max_appointments_per_day',
     ];
 
     /**
@@ -900,6 +902,7 @@ class Providers_model extends EA_Model
             'language' => $provider['language'],
             'color' => $provider['color'],
             'createZoomLinks' => (bool) $provider['create_zoom_links'],
+            'maxAppointmentsPerDay' => (int) $provider['max_appointments_per_day'],
         ];
 
         if (array_key_exists('services', $provider)) {
@@ -1034,6 +1037,10 @@ class Providers_model extends EA_Model
 
         if (array_key_exists('createZoomLinks', $provider)) {
             $decoded_resource['create_zoom_links'] = (bool) $provider['createZoomLinks'];
+        }
+
+        if (array_key_exists('maxAppointmentsPerDay', $provider)) {
+            $decoded_resource['max_appointments_per_day'] = (int) $provider['maxAppointmentsPerDay'];
         }
 
         if (array_key_exists('settings', $provider)) {

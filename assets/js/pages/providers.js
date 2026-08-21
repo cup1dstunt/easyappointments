@@ -28,6 +28,7 @@ App.Pages.Providers = (function () {
     const $zipCode = $('#zip-code');
     const $isPrivate = $('#is-private');
     const $createZoomLinks = $('#create-zoom-links');
+    const $maxAppointmentsPerDay = $('#max-appointments-per-day');
     const $notes = $('#notes');
     const $bookingEmailNote = $('#booking-email-note');
     const $language = $('#language');
@@ -204,6 +205,7 @@ App.Pages.Providers = (function () {
                 zip_code: $zipCode.val(),
                 is_private: Number($isPrivate.prop('checked')),
                 create_zoom_links: Number($createZoomLinks.prop('checked')),
+                max_appointments_per_day: Number($maxAppointmentsPerDay.val()) || 0,
                 notes: $notes.val(),
                 booking_email_note: $bookingEmailNote.val(),
                 language: $language.val(),
@@ -445,6 +447,7 @@ App.Pages.Providers = (function () {
         $zipCode.val(provider.zip_code);
         $isPrivate.prop('checked', provider.is_private);
         $createZoomLinks.prop('checked', provider.create_zoom_links);
+        $maxAppointmentsPerDay.val(provider.max_appointments_per_day);
         $notes.val(provider.notes);
         $bookingEmailNote.val(provider.booking_email_note);
         $language.val(provider.language);

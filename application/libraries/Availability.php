@@ -67,6 +67,10 @@ class Availability
             return [];
         }
 
+        if ($this->has_reached_provider_daily_booking_limit($date, $provider, $exclude_appointment_id)) {
+            return [];
+        }
+
         if ($service['attendants_number'] > 1) {
             $available_hours = $this->consider_multiple_attendants($date, $service, $provider, $exclude_appointment_id);
         } else {
@@ -663,5 +667,42 @@ class Availability
         }
 
         return $threshold > $selected_date_time ? $available_hours : [];
+    }
+
+    /**
+     * LNU: Check whether a provider has already reached the maximum number of appointments allowed on a given day.
+     *
+     * Controlled by the provider's own "max_appointments_per_day" value (0 = no limit).
+     *
+     * @param string $date Selected date (Y-m-d).
+     * @param array $provider Provider data.
+     * @param int|null $exclude_appointment_id Exclude an appointment from the count (e.g. when editing/rescheduling).
+     *
+     * @return bool
+     */
+    protected function has_reached_provider_daily_booking_limit(
+        string $date,
+        array $provider,
+        ?int $exclude_appointment_id = null,
+    ): bool {
+        $max_appointments_per_day = (int) ($provider['max_appointments_per_day'] ?? 0);
+        $max_appointments_per_day = max(0, $max_appointments_per_day);
+
+        if ($max_appointments_per_day === 0) {
+            return false;
+        }
+
+        $where = [
+            'id_users_provider' => (int) $provider['id'],
+            'DATE(start_datetime)' => $date,
+        ];
+
+        if ($exclude_appointment_id) {
+            $where['id !='] = (int) $exclude_appointment_id;
+        }
+
+        $appointment_count = count($this->CI->appointments_model->get($where));
+
+        return $appointment_count >= $max_appointments_per_day;
     }
 }

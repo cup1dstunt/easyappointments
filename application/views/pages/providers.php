@@ -310,6 +310,19 @@ $zoom_configured =
                                         </small>
                                     </div>
                                 </div>
+
+                                <div class="mt-3">
+                                    <label for="max-appointments-per-day" class="form-label">
+                                        <?= lang('max_provider_appointments_per_day') ?>
+                                    </label>
+                                    <input id="max-appointments-per-day" class="form-control" type="number" min="0">
+
+                                    <div class="form-text text-muted">
+                                        <small>
+                                            <?= lang('max_provider_appointments_per_day_hint') ?>
+                                        </small>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="d-flex justify-content-between align-items-center mb-3">
