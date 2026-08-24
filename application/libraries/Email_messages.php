@@ -62,6 +62,8 @@ class Email_messages
      * @param string $recipient_email Recipient email address.
      * @param string $ics_stream ICS file contents.
      * @param string|null $timezone Custom timezone.
+     * @param bool $reply_to_customer LNU: Reply-To Customer for Provider Email - set the Reply-To address to the
+     * customer instead of the default, so the recipient can reply directly to the customer.
      *
      * @throws DateInvalidTimeZoneException
      * @throws DateMalformedStringException
@@ -79,6 +81,7 @@ class Email_messages
         string $recipient_email,
         string $ics_stream,
         ?string $timezone = null,
+        bool $reply_to_customer = false,
     ): void {
         $appointment_timezone = new DateTimeZone($provider['timezone']);
 
@@ -112,7 +115,15 @@ class Email_messages
             true,
         );
 
-        $php_mailer = $this->get_php_mailer($recipient_email, $subject, $html);
+        $reply_to_email = null;
+        $reply_to_name = null;
+
+        if ($reply_to_customer && !empty($customer['email'])) {
+            $reply_to_email = $customer['email'];
+            $reply_to_name = trim($customer['first_name'] . ' ' . $customer['last_name']);
+        }
+
+        $php_mailer = $this->get_php_mailer($recipient_email, $subject, $html, $reply_to_email, $reply_to_name);
 
         $php_mailer->addStringAttachment($ics_stream, 'invitation.ics', PHPMailer::ENCODING_BASE64, 'text/calendar');
 
@@ -254,6 +265,8 @@ class Email_messages
         ?string $recipient_email = null,
         ?string $subject = null,
         ?string $html = null,
+        ?string $reply_to_email = null,
+        ?string $reply_to_name = null,
     ): PHPMailer {
         $php_mailer = new PHPMailer(true);
 
@@ -272,10 +285,17 @@ class Email_messages
 
         $from_name = config('from_name') ?: setting('company_name');
         $from_address = config('from_address') ?: setting('company_email');
-        $reply_to_address = config('reply_to') ?: setting('company_email');
 
         $php_mailer->setFrom($from_address, $from_name);
-        $php_mailer->addReplyTo($reply_to_address);
+
+        // LNU: Reply-To Customer for Provider Email - lets a specific call override the default reply-to
+        // address (e.g. the provider's copy of the appointment email replying straight to the customer).
+        if ($reply_to_email) {
+            $php_mailer->addReplyTo($reply_to_email, (string) $reply_to_name);
+        } else {
+            $reply_to_address = config('reply_to') ?: setting('company_email');
+            $php_mailer->addReplyTo($reply_to_address);
+        }
 
         if ($recipient_email) {
             $php_mailer->addAddress($recipient_email);
