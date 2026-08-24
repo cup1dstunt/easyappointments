@@ -363,6 +363,22 @@ $max_appt_custom_fields = config('max_appt_custom_fields', 5);
 
                                     <div class="mb-3">
                                         <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="reply-to-customer-for-provider-email"
+                                                   data-field="reply_to_customer_for_provider_email">
+                                            <label class="form-check-label" for="reply-to-customer-for-provider-email">
+                                                <?= lang('reply_to_customer_for_provider_email') ?>
+                                            </label>
+                                        </div>
+
+                                        <div class="form-text text-muted">
+                                            <small>
+                                                <?= lang('reply_to_customer_for_provider_email_hint') ?>
+                                            </small>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <div class="form-check form-switch">
                                             <input class="form-check-input" type="checkbox" id="limit-customer-access"
                                                    data-field="limit_customer_access">
                                             <label class="form-check-label" for="limit-customer-access">

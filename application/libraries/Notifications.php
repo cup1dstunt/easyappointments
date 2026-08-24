@@ -134,6 +134,12 @@ class Notifications
                 $subject = $manage_mode ? lang('appointment_details_changed') : lang('appointment_added_to_your_plan');
                 $message = $manage_mode ? '' : lang('appointment_link_description');
 
+                // LNU: Reply-To Customer for Provider Email - lets the provider reply directly to the customer.
+                $reply_to_customer = filter_var(
+                    setting('reply_to_customer_for_provider_email'),
+                    FILTER_VALIDATE_BOOLEAN,
+                );
+
                 try {
                     $this->CI->email_messages->send_appointment_saved(
                         $appointment,
@@ -147,6 +153,7 @@ class Notifications
                         $provider['email'],
                         $ics_stream,
                         $provider['timezone'],
+                        $reply_to_customer,
                     );
                 } catch (Throwable $e) {
                     $this->log_exception($e, 'appointment-saved to provider', $appointment['id'] ?? null);
