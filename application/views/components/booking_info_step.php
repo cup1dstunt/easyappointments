@@ -36,8 +36,8 @@
                                 <span class="text-danger">*</span>
                             <?php endif; ?>
                         </label>
-                        <input type="text" id="first-name" auth-prop="first_name"
-                               class="<?= $require_first_name ? 'required' : '' ?> form-control form-input" maxlength="100"/>
+                        <input type="text" id="first-name"
+                               class="<?= $require_first_name ? 'required' : '' ?> form-control" maxlength="100"/>
                     </div>
                 <?php endif; ?>
 
@@ -49,8 +49,8 @@
                                 <span class="text-danger">*</span>
                             <?php endif; ?>
                         </label>
-                        <input type="text" id="last-name" auth-prop="last_name"
-                               class="<?= $require_last_name ? 'required' : '' ?> form-control form-input" maxlength="120"/>
+                        <input type="text" id="last-name"
+                               class="<?= $require_last_name ? 'required' : '' ?> form-control" maxlength="120"/>
                     </div>
                 <?php endif; ?>
 
@@ -62,8 +62,8 @@
                                 <span class="text-danger">*</span>
                             <?php endif; ?>
                         </label>
-                        <input type="text" id="email" auth-prop="email"
-                               class="<?= $require_email ? 'required' : '' ?> form-control form-input" maxlength="120"/>
+                        <input type="text" id="email"
+                               class="<?= $require_email ? 'required' : '' ?> form-control" maxlength="120"/>
                     </div>
                 <?php endif; ?>
 
@@ -76,11 +76,11 @@
                             <?php endif; ?>
                         </label>
                         <input type="text" id="phone-number" maxlength="60"
-                               class="<?= $require_phone_number ? 'required' : '' ?> form-control form-input"/>
+                               class="<?= $require_phone_number ? 'required' : '' ?> form-control"/>
                     </div>
                 <?php endif; ?>
 
-                <?php component('custom_fields', ['disabled' => false, 'fieldset' => 'customer']); ?>
+                <?php component('custom_fields'); ?>
 
             </div>
 
@@ -93,7 +93,7 @@
                                 <span class="text-danger">*</span>
                             <?php endif; ?>
                         </label>
-                        <input type="text" id="address" class="<?= $require_address ? 'required' : '' ?> form-control form-input"
+                        <input type="text" id="address" class="<?= $require_address ? 'required' : '' ?> form-control"
                                maxlength="120"/>
                     </div>
                 <?php endif; ?>
@@ -105,7 +105,7 @@
                                 <span class="text-danger">*</span>
                             <?php endif; ?>
                         </label>
-                        <input type="text" id="city" class="<?= $require_city ? 'required' : '' ?> form-control form-input"
+                        <input type="text" id="city" class="<?= $require_city ? 'required' : '' ?> form-control"
                                maxlength="120"/>
                     </div>
                 <?php endif; ?>
@@ -117,7 +117,7 @@
                                 <span class="text-danger">*</span>
                             <?php endif; ?>
                         </label>
-                        <input type="text" id="zip-code" class="<?= $require_zip_code ? 'required' : '' ?> form-control form-input"
+                        <input type="text" id="zip-code" class="<?= $require_zip_code ? 'required' : '' ?> form-control"
                                maxlength="120"/>
                     </div>
                 <?php endif; ?>
@@ -130,12 +130,9 @@
                             <?php endif; ?>
                         </label>
                         <textarea id="notes" maxlength="500"
-                                  class="<?= $require_notes ? 'required' : '' ?> form-control form-input" rows="1"></textarea>
+                                  class="<?= $require_notes ? 'required' : '' ?> form-control" rows="1"></textarea>
                     </div>
                 <?php endif; ?>
-
-                <?php component('custom_fields', ['disabled' => false, 'fieldset' => 'appointment']); ?>
-                <?php component('attached_files'); ?>
 
                 <?php if (!vars('manage_mode')): ?>
                 <div class="mb-3">
@@ -154,10 +151,6 @@
             </div>
 
         </div>
-    </div>
-
-    <div>
-        <span id="form-message" class="text-danger"></span>
     </div>
 
     <div class="command-buttons text-center my-3 mx-auto d-md-flex justify-content-md-between">

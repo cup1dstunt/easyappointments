@@ -52,7 +52,7 @@ class Login extends EA_Controller
             'page_title' => lang('login'),
             'base_url' => config('base_url'),
             'dest_url' => session('dest_url', site_url('calendar')),
-            'company_name' => lang(setting('company_name')),
+            'company_name' => setting('company_name'),
             'company_logo' => setting('company_logo'),
             'require_captcha' => setting('require_captcha'),
             'altcha_enabled' => setting('altcha_enabled'),

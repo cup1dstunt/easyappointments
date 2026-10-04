@@ -80,19 +80,12 @@
 
     </div>
 
-    <div class="text-center mx-auto" style="max-width: 630px;">
-        <div id="customer-booking-limits-wait">
-            <span class="spinner-border spinner-border-sm"></span> <?= lang('validating_booking') ?>
-        </div>
-        <div id="customer-booking-limits-text" class="small"></div>
-    </div>
-
     <div class="command-buttons text-center my-3 mx-auto d-md-flex justify-content-md-between">
         <button type="button" id="button-back-4" class="btn button-back btn-outline-secondary" style="min-width: 120px; margin-right: 10px;">
             <i class="fas fa-chevron-left me-2"></i>
             <?= lang('back') ?>
         </button>
-        <form id="book-appointment-form" class="d-inline-block" method="post" enctype="multipart/form-data">
+        <form id="book-appointment-form" class="d-inline-block" method="post">
             <button id="book-appointment-submit" type="button" class="btn btn-primary w-100">
                 <i class="fas fa-check-square me-2"></i>
                 <?= $manage_mode ? lang('update') : lang('confirm') ?>

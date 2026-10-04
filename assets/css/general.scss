@@ -60,24 +60,6 @@ select {
         &.selected .fa-check {
             display: block;
         }
-
-        // LNU: Provider Colour in Appointments (README.md #10) - the "no colour" swatch has no data-value, so it
-        // needs its own background/border and icon instead of relying on the inline background-color the other
-        // swatches get from their data-value.
-        &.no-color {
-            background-color: var(--bs-secondary-bg);
-            border: 1px solid var(--bs-border-color);
-            color: var(--bs-secondary-color);
-
-            .fa-ban {
-                display: none;
-                margin: auto;
-            }
-
-            &.selected .fa-ban {
-                display: block;
-            }
-        }
     }
 }
 
@@ -625,17 +607,4 @@ li.language {
    reset button), not one of the compact col-3 fields the rule above targets. */
 .subsettings .input-group .form-control {
     width: auto;
-}
-
-/* LNU: Support for Attached Files (README.md #2). */
-#attach-file-button {
-    cursor: pointer;
-    margin-top: 10px;
-    margin-bottom: 10px;
-}
-
-.discard-file-button {
-    cursor: pointer;
-    margin-left: 10px;
-    vertical-align: middle;
 }

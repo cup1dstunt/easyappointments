@@ -35,7 +35,6 @@ class Booking_cancellation extends EA_Controller
         $this->load->library('synchronization');
         $this->load->library('notifications');
         $this->load->library('webhooks_client');
-        $this->load->library('zoom_client');
     }
 
     /**
@@ -106,22 +105,16 @@ class Booking_cancellation extends EA_Controller
             $company_color = setting('company_color');
 
             $settings = [
-                'company_name' => lang(setting('company_name')),
-                'company_email' => lang(setting('company_email')),
-                'company_link' => lang(setting('company_link')),
+                'company_name' => setting('company_name'),
+                'company_email' => setting('company_email'),
+                'company_link' => setting('company_link'),
                 'company_color' =>
                     !empty($company_color) && $company_color != DEFAULT_COMPANY_COLOR ? $company_color : null,
                 'date_format' => setting('date_format'),
                 'time_format' => setting('time_format'),
             ];
 
-            // LNU: Zoom Meeting Links (README.md #14) - remove the Zoom meeting, if any, before the appointment
-            // record itself is gone.
-            $this->zoom_client->cancel_appointment_meeting($appointment);
-
             $this->appointments_model->delete($appointment['id']);
-
-            $this->appointments_model->delete_attached_files((int) $appointment['id']);
 
             $this->synchronization->sync_appointment_deleted($appointment, $provider);
 

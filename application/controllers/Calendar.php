@@ -33,6 +33,11 @@ class Calendar extends EA_Controller
         'timezone',
         'language',
         'notes',
+        'custom_field_1',
+        'custom_field_2',
+        'custom_field_3',
+        'custom_field_4',
+        'custom_field_5',
     ];
 
     public array $optional_customer_fields = [
@@ -45,8 +50,6 @@ class Calendar extends EA_Controller
         'end_datetime',
         'location',
         'meeting_link',
-        'zoom_meeting_id',
-        'zoom_start_link',
         'notes',
         'color',
         'status',
@@ -67,13 +70,6 @@ class Calendar extends EA_Controller
     {
         parent::__construct();
 
-        for ($i = 1; $i <= config('max_custom_fields', 5); $i++) {
-            array_push($this->allowed_customer_fields, 'custom_field_' . $i);
-        }
-        for ($i = 1; $i <= config('max_appt_custom_fields', 5); $i++) {
-            array_push($this->allowed_appointment_fields, 'appt_custom_field_' . $i);
-        }
-
         $this->load->model('appointments_model');
         $this->load->model('unavailabilities_model');
         $this->load->model('blocked_periods_model');
@@ -90,7 +86,6 @@ class Calendar extends EA_Controller
         $this->load->library('webhooks_client');
         $this->load->library('permissions');
         $this->load->library('jitsi_client');
-        $this->load->library('zoom_client');
     }
 
     /**
@@ -155,10 +150,6 @@ class Calendar extends EA_Controller
                 $edit_appointment = $occurrences[0];
 
                 $this->appointments_model->load($edit_appointment, ['customer']);
-
-                $edit_appointment['attached_file_names'] = $this->appointments_model->get_attached_files(
-                    (int) $edit_appointment['id'],
-                );
             }
         }
 
@@ -166,8 +157,7 @@ class Calendar extends EA_Controller
 
         $available_providers = $this->providers_model->get_available_providers();
 
-        // LNU: Extended Backend Permissions for Providers (README.md #9).
-        if ($role_slug === DB_SLUG_PROVIDER && !setting('provider_extended_backend_permissions')) {
+        if ($role_slug === DB_SLUG_PROVIDER) {
             $available_providers = array_values(
                 array_filter($available_providers, function ($available_provider) use ($user_id) {
                     return (int) $available_provider['id'] === (int) $user_id;
@@ -241,13 +231,6 @@ class Calendar extends EA_Controller
             'customers' => $customers,
             'default_language' => setting('default_language'),
             'default_timezone' => setting('default_timezone'),
-            'provider_extended_backend_permissions' => setting('provider_extended_backend_permissions'),
-            // LNU: Calendar Display Settings.
-            'calendar_slot_min_time' => setting('calendar_slot_min_time', '00:00:00'),
-            'calendar_slot_max_time' => setting('calendar_slot_max_time', '23:59:59'),
-            'calendar_hide_weekends' => setting('calendar_hide_weekends', 0),
-            'calendar_timegrid_slot_height' => setting('calendar_timegrid_slot_height', '1em'),
-            'calendar_scroll_time' => setting('calendar_scroll_time', '07:00:00'),
         ]);
 
         html_vars([
@@ -284,26 +267,18 @@ class Calendar extends EA_Controller
         try {
             method('post');
 
-            check('customer_data', 'string|null');
-            check('appointment_data', 'string');
+            check('customer_data', 'array|null');
+            check('appointment_data', 'array');
             check('notify_users', 'bool|null');
             check('force_save', 'bool|null');
-            check('discarded_file_names', 'string|null');
 
-            // appointment_data/customer_data arrive as JSON strings rather than natively-nested arrays,
-            // since attached files require a multipart/form-data request, which cannot carry nested fields
-            // on its own.
-            $customer_data = request('customer_data') ? json_decode(request('customer_data'), true) : null;
+            $customer_data = request('customer_data');
 
-            $appointment_data = json_decode(request('appointment_data'), true);
+            $appointment_data = request('appointment_data');
 
             $notify_users = filter_var(request('notify_users', true), FILTER_VALIDATE_BOOLEAN);
 
             $force_save = filter_var(request('force_save', false), FILTER_VALIDATE_BOOLEAN);
-
-            $discarded_file_names = request('discarded_file_names')
-                ? json_decode(request('discarded_file_names'), true)
-                : [];
 
             $this->check_event_permissions((int) $appointment_data['id_users_provider']);
 
@@ -379,69 +354,11 @@ class Calendar extends EA_Controller
                     $appointment['meeting_link'] = $this->jitsi_client->generate_link();
                 }
 
-                // LNU: Zoom Meeting Links (README.md #14) - admin-created/edited appointments also get a Zoom
-                // meeting when the provider has opted in, kept in sync with the appointment's start time
-                // whenever it moves. Defensive: silently does nothing if Zoom is not configured or the API
-                // call fails. If the provider is reassigned later, the existing meeting/links are
-                // deliberately left as-is rather than recreated - see Zoom_client's docblock for why.
-                $zoom_provider = $this->providers_model->find($appointment['id_users_provider']);
-
-                $existing_zoom_data = $manage_mode && !empty($appointment['id'])
-                    ? $this->appointments_model->find($appointment['id'])
-                    : null;
-
-                if ($zoom_provider['create_zoom_links']) {
-                    // Skip the Zoom API call entirely when a meeting already exists and the appointment's
-                    // time hasn't actually changed - most saves (notes, color, status, ...) don't need it.
-                    $zoom_needs_sync =
-                        empty($existing_zoom_data['zoom_meeting_id']) ||
-                        $existing_zoom_data['start_datetime'] !== $appointment['start_datetime'] ||
-                        $existing_zoom_data['end_datetime'] !== $appointment['end_datetime'];
-
-                    if ($zoom_needs_sync) {
-                        $zoom_service = $this->services_model->find($appointment['id_services']);
-
-                        $zoom_meeting = $this->zoom_client->sync_meeting(
-                            $appointment,
-                            lang($zoom_service['name']),
-                            $zoom_provider['timezone'],
-                            $zoom_provider['email'],
-                            $existing_zoom_data,
-                        );
-
-                        if ($zoom_meeting) {
-                            $appointment = array_merge($appointment, $zoom_meeting);
-                        }
-                    }
-                } elseif (!empty($existing_zoom_data['zoom_meeting_id'])) {
-                    // The provider doesn't have Zoom enabled (possibly a reassignment away from one who did)
-                    // - clean up rather than leave a meeting dangling on Zoom's side with stale fields in the
-                    // DB.
-                    $this->zoom_client->cancel_appointment_meeting($existing_zoom_data);
-
-                    $appointment['zoom_meeting_id'] = null;
-                    $appointment['zoom_start_link'] = null;
-                }
-
                 $this->appointments_model->only($appointment, $this->allowed_appointment_fields);
 
                 $this->appointments_model->optional($appointment, $this->optional_appointment_fields);
 
                 $appointment['id'] = $this->appointments_model->save($appointment);
-
-                if ($manage_mode && is_array($discarded_file_names)) {
-                    foreach ($discarded_file_names as $discarded_file_name) {
-                        $this->appointments_model->delete_attached_file((int) $appointment['id'], $discarded_file_name);
-                    }
-                }
-
-                $max_attached_files = boolval(setting('attached_files_supported', 0))
-                    ? (int) setting('max_attached_files', 0)
-                    : 0;
-
-                for ($i = 1; $i <= $max_attached_files; $i++) {
-                    $this->appointments_model->save_attached_file((int) $appointment['id'], 'attached_file_data_' . $i);
-                }
             }
 
             if (empty($appointment['id'])) {
@@ -456,9 +373,9 @@ class Calendar extends EA_Controller
             $company_color = setting('company_color');
 
             $settings = [
-                'company_name' => lang(setting('company_name')),
-                'company_link' => lang(setting('company_link')),
-                'company_email' => lang(setting('company_email')),
+                'company_name' => setting('company_name'),
+                'company_link' => setting('company_link'),
+                'company_email' => setting('company_email'),
                 'company_color' =>
                     !empty($company_color) && $company_color != DEFAULT_COMPANY_COLOR ? $company_color : null,
                 'date_format' => setting('date_format'),
@@ -500,12 +417,7 @@ class Calendar extends EA_Controller
             abort(403);
         }
 
-        // LNU: Extended Backend Permissions for Providers (README.md #9).
-        if (
-            $role_slug === DB_SLUG_PROVIDER &&
-            $user_id !== $provider_id &&
-            !setting('provider_extended_backend_permissions')
-        ) {
+        if ($role_slug === DB_SLUG_PROVIDER && $user_id !== $provider_id) {
             abort(403);
         }
     }
@@ -550,23 +462,17 @@ class Calendar extends EA_Controller
             $company_color = setting('company_color');
 
             $settings = [
-                'company_name' => lang(setting('company_name')),
-                'company_email' => lang(setting('company_email')),
-                'company_link' => lang(setting('company_link')),
+                'company_name' => setting('company_name'),
+                'company_email' => setting('company_email'),
+                'company_link' => setting('company_link'),
                 'company_color' =>
                     !empty($company_color) && $company_color != DEFAULT_COMPANY_COLOR ? $company_color : null,
                 'date_format' => setting('date_format'),
                 'time_format' => setting('time_format'),
             ];
 
-            // LNU: Zoom Meeting Links (README.md #14) - remove the Zoom meeting, if any, before the appointment
-            // record itself is gone.
-            $this->zoom_client->cancel_appointment_meeting($appointment);
-
             // Delete appointment record from the database.
             $this->appointments_model->delete($appointment_id);
-
-            $this->appointments_model->delete_attached_files((int) $appointment_id);
 
             if ($notify_users) {
                 $this->notifications->notify_appointment_deleted(
@@ -678,7 +584,7 @@ class Calendar extends EA_Controller
         try {
             method('post');
 
-            if (cannot('edit', PRIV_APPOINTMENTS)) {
+            if (cannot('edit', PRIV_USERS)) {
                 throw new RuntimeException('You do not have the required permissions for this task.');
             }
 
@@ -708,7 +614,7 @@ class Calendar extends EA_Controller
         try {
             method('post');
 
-            if (cannot('edit', PRIV_APPOINTMENTS)) {
+            if (cannot('edit', PRIV_USERS)) {
                 throw new RuntimeException('You do not have the required permissions for this task.');
             }
 
@@ -764,18 +670,10 @@ class Calendar extends EA_Controller
                 ]),
             ];
 
-            $attached_files_supported = boolval(setting('attached_files_supported', 0));
-
             foreach ($response['appointments'] as &$appointment) {
                 $appointment['provider'] = $this->providers_model->find($appointment['id_users_provider']);
                 $appointment['service'] = $this->services_model->find($appointment['id_services']);
                 $appointment['customer'] = $this->customers_model->find($appointment['id_users_customer']);
-
-                if ($attached_files_supported) {
-                    $appointment['attached_file_names'] = $this->appointments_model->get_attached_files(
-                        (int) $appointment['id'],
-                    );
-                }
             }
 
             unset($appointment);
@@ -785,8 +683,7 @@ class Calendar extends EA_Controller
             $role_slug = session('role_slug');
 
             // If the current user is a provider he must only see his own appointments.
-            // LNU: Extended Backend Permissions for Providers (README.md #9).
-            if ($role_slug === DB_SLUG_PROVIDER && !setting('provider_extended_backend_permissions')) {
+            if ($role_slug === DB_SLUG_PROVIDER) {
                 foreach ($response['appointments'] as $index => $appointment) {
                     if ((int) $appointment['id_users_provider'] !== (int) $user_id) {
                         unset($response['appointments'][$index]);
@@ -928,18 +825,10 @@ class Calendar extends EA_Controller
 
             $response['appointments'] = $this->db->get()->result_array();
 
-            $attached_files_supported = boolval(setting('attached_files_supported', 0));
-
             foreach ($response['appointments'] as &$appointment) {
                 $appointment['provider'] = $this->providers_model->find($appointment['id_users_provider']);
                 $appointment['service'] = $this->services_model->find($appointment['id_services']);
                 $appointment['customer'] = $this->customers_model->find($appointment['id_users_customer']);
-
-                if ($attached_files_supported) {
-                    $appointment['attached_file_names'] = $this->appointments_model->get_attached_files(
-                        (int) $appointment['id'],
-                    );
-                }
             }
 
             unset($appointment);
@@ -981,8 +870,7 @@ class Calendar extends EA_Controller
             $role_slug = session('role_slug');
 
             // If the current user is a provider he must only see his own appointments.
-            // LNU: Extended Backend Permissions for Providers (README.md #9).
-            if ($role_slug === DB_SLUG_PROVIDER && !setting('provider_extended_backend_permissions')) {
+            if ($role_slug === DB_SLUG_PROVIDER) {
                 foreach ($response['appointments'] as $index => $appointment) {
                     if ((int) $appointment['id_users_provider'] !== (int) $user_id) {
                         unset($response['appointments'][$index]);

@@ -4,15 +4,11 @@
  *
  * @var array $available_services
  */
-// LNU: Hide Provider Selection (README.md #3).
-$hide_provider_selection = boolval(setting('display_any_provider', 0)) && boolval(setting('hide_provider_selection', 0));
 ?>
 
 <div id="wizard-frame-1" class="wizard-frame p-3 p-md-4" style="display:none;" data-step="service">
     <div class="frame-container py-3" style="min-height: 500px;">
-        <h2 class="frame-title fw-light text-center mb-4 text-muted mt-md-5">
-            <?= $hide_provider_selection ? lang('select_service') : lang('service_and_provider') ?>
-        </h2>
+        <h2 class="frame-title fw-light text-center mb-4 text-muted mt-md-5"><?= lang('service_and_provider') ?></h2>
 
         <div class="row frame-content">
             <div class="col col-lg-8 offset-md-2">
@@ -38,33 +34,14 @@ $hide_provider_selection = boolval(setting('display_any_provider', 0)) && boolva
                         if ($has_category) {
                             $grouped_services = [];
 
-                            $categorized_services = array_values(
-                                array_filter(
-                                    $available_services,
-                                    fn($service) => !empty($service['service_category_id']),
-                                ),
-                            );
+                            foreach ($available_services as $service) {
+                                if (!empty($service['service_category_id'])) {
+                                    if (!isset($grouped_services[$service['service_category_name']])) {
+                                        $grouped_services[$service['service_category_name']] = [];
+                                    }
 
-                            // LNU: Services in Current Language First (README.md #11) - services whose category
-                            // name matches the current language are moved to the front, keeping the rest in
-                            // their original relative order (PHP's usort() has been stable since 8.0).
-                            if (setting('current_language_services_first', 0)) {
-                                $current_language = strtolower(session('language') ?? config('language'));
-
-                                usort($categorized_services, function ($a, $b) use ($current_language) {
-                                    $a_matches = strtolower($a['service_category_name']) === $current_language;
-                                    $b_matches = strtolower($b['service_category_name']) === $current_language;
-
-                                    return $b_matches <=> $a_matches;
-                                });
-                            }
-
-                            foreach ($categorized_services as $service) {
-                                if (!isset($grouped_services[$service['service_category_name']])) {
-                                    $grouped_services[$service['service_category_name']] = [];
+                                    $grouped_services[$service['service_category_name']][] = $service;
                                 }
-
-                                $grouped_services[$service['service_category_name']][] = $service;
                             }
 
                             // We need the uncategorized services at the end of the list, so we will use another
@@ -119,26 +96,6 @@ $hide_provider_selection = boolval(setting('display_any_provider', 0)) && boolva
 
             </div>
         </div>
-    </div>
-
-    <?php
-    // LNU: Custom Messages during Booking (README.md #12) - $custom_message can be either a translation id or
-    // literal plain text. get_instance()->lang->line() (called directly, rather than through lang()) tells the
-    // two cases apart: false means the id isn't recognized at all, so the raw value is shown as plain text; ''
-    // means the id is recognized but has been explicitly left empty for this language, suppressing the message;
-    // anything else is the resolved translation, shown as usual.
-    $custom_message = setting('booking_custom_message_service_page', '');
-    $resolved_custom_message = get_instance()->lang->line($custom_message, false);
-    $custom_message_hidden =
-        !setting('booking_custom_messages_enabled', 0) || $custom_message === '' || $resolved_custom_message === '';
-    $custom_message_display = $resolved_custom_message !== false ? $resolved_custom_message : $custom_message;
-    ?>
-    <div id="booking-custom-message-service-page" <?= $custom_message_hidden ? 'hidden' : '' ?>>
-        <?= $custom_message_display ?>
-    </div>
-
-    <div>
-        <span id="service-form-message" class="text-danger"></span>
     </div>
 
     <div class="command-buttons text-center my-3 mx-auto d-md-flex justify-content-md-between">

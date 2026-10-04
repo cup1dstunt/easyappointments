@@ -67,10 +67,6 @@ class Availability
             return [];
         }
 
-        if ($this->has_reached_provider_daily_booking_limit($date, $provider, $exclude_appointment_id)) {
-            return [];
-        }
-
         if ($service['attendants_number'] > 1) {
             $available_hours = $this->consider_multiple_attendants($date, $service, $provider, $exclude_appointment_id);
         } else {
@@ -79,12 +75,7 @@ class Availability
             $available_hours = $this->generate_available_hours($date, $service, $available_periods);
         }
 
-        $available_hours = $this->consider_book_advance_timeout(
-            $date,
-            $available_hours,
-            $provider,
-            $exclude_appointment_id !== null,
-        );
+        $available_hours = $this->consider_book_advance_timeout($date, $available_hours, $provider);
 
         return $this->consider_future_booking_limit($date, $available_hours, $provider);
     }
@@ -584,41 +575,26 @@ class Availability
      *
      * If the selected date is today, remove past hours. It is important  include the timeout before booking
      * that is set in the back-office the system. Normally we might want the customer to book an appointment
-     * that is at least half or one hour from now. The setting's unit (minutes, hours, days or weekdays) is
-     * configured separately via the "book_advance_timeout_unit" setting, shared by both timeouts below.
-     *
-     * LNU: Separate advance timeout for new bookings (README.md #4) - "new_booking_advance_timeout" governs
-     * brand new bookings, while "book_advance_timeout" now only governs rescheduling an existing appointment
-     * (which reaches this method via $exclude_appointment_id being set, since the slot excludes the
-     * appointment's own current booking from availability calculations).
+     * that is at least half or one hour from now. The setting is stored in minutes.
      *
      * @param string $date The selected date.
      * @param array $available_hours Already generated available hours.
      * @param array $provider Provider information.
-     * @param bool $is_reschedule Whether this is for rescheduling an existing appointment, rather than a new one.
      *
      * @return array Returns the updated available hours.
      *
      * @throws Exception
      */
-    protected function consider_book_advance_timeout(
-        string $date,
-        array $available_hours,
-        array $provider,
-        bool $is_reschedule,
-    ): array {
+    protected function consider_book_advance_timeout(string $date, array $available_hours, array $provider): array
+    {
         $provider_timezone = new DateTimeZone($provider['timezone']);
 
-        $book_advance_timeout = $is_reschedule
-            ? setting('book_advance_timeout', 0)
-            : setting('new_booking_advance_timeout', 0);
+        $book_advance_timeout = setting('book_advance_timeout', 0);
         $book_advance_timeout = is_numeric($book_advance_timeout) ? max(0, (int) $book_advance_timeout) : 0;
-
-        $book_advance_timeout_unit = setting('book_advance_timeout_unit', config('default_book_advance_timeout_unit'));
 
         $threshold = new DateTime('now', $provider_timezone);
 
-        $threshold->modify('+' . $book_advance_timeout . ' ' . $book_advance_timeout_unit);
+        $threshold->modify('+' . $book_advance_timeout . ' minutes');
 
         foreach ($available_hours as $index => $value) {
             $available_hour = new DateTime($date . ' ' . $value, $provider_timezone);
@@ -667,42 +643,5 @@ class Availability
         }
 
         return $threshold > $selected_date_time ? $available_hours : [];
-    }
-
-    /**
-     * LNU: Check whether a provider has already reached the maximum number of appointments allowed on a given day.
-     *
-     * Controlled by the provider's own "max_appointments_per_day" value (0 = no limit).
-     *
-     * @param string $date Selected date (Y-m-d).
-     * @param array $provider Provider data.
-     * @param int|null $exclude_appointment_id Exclude an appointment from the count (e.g. when editing/rescheduling).
-     *
-     * @return bool
-     */
-    protected function has_reached_provider_daily_booking_limit(
-        string $date,
-        array $provider,
-        ?int $exclude_appointment_id = null,
-    ): bool {
-        $max_appointments_per_day = (int) ($provider['max_appointments_per_day'] ?? 0);
-        $max_appointments_per_day = max(0, $max_appointments_per_day);
-
-        if ($max_appointments_per_day === 0) {
-            return false;
-        }
-
-        $where = [
-            'id_users_provider' => (int) $provider['id'],
-            'DATE(start_datetime)' => $date,
-        ];
-
-        if ($exclude_appointment_id) {
-            $where['id !='] = (int) $exclude_appointment_id;
-        }
-
-        $appointment_count = count($this->CI->appointments_model->get($where));
-
-        return $appointment_count >= $max_appointments_per_day;
     }
 }

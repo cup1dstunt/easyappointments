@@ -29,9 +29,7 @@ class Logout extends EA_Controller
 
         $this->session->sess_destroy();
 
-        // LNU: Settings Text Translatability - company_name may be set to a translation key instead of
-        // literal text, resolved here via lang()'s existing fallback-to-literal behavior.
-        $company_name = lang(setting('company_name'));
+        $company_name = setting('company_name');
 
         html_vars([
             'page_title' => lang('log_out'),

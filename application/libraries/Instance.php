@@ -134,7 +134,6 @@ class Instance
         $service_id = $this->CI->services_model->save([
             'name' => 'Service',
             'duration' => '30',
-            'cooldown' => '0',
             'price' => '0',
             'currency' => '',
             'slot_interval' => 15,

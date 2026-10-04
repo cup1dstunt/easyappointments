@@ -27,8 +27,6 @@ class Providers_model extends EA_Model
         'id' => 'integer',
         'is_private' => 'boolean',
         'id_roles' => 'integer',
-        'create_zoom_links' => 'boolean',
-        'max_appointments_per_day' => 'integer',
     ];
 
     /**
@@ -52,8 +50,6 @@ class Providers_model extends EA_Model
         'isPrivate' => 'is_private',
         'ldapDn' => 'ldap_dn',
         'roleId' => 'id_roles',
-        'createZoomLinks' => 'create_zoom_links',
-        'maxAppointmentsPerDay' => 'max_appointments_per_day',
     ];
 
     /**
@@ -678,81 +674,6 @@ class Providers_model extends EA_Model
     }
 
     /**
-     * LNU: Zoom Meeting Links (README.md #14).
-     *
-     * Set the "create_zoom_links" opt-in for every provider at once, so an admin does not have to click the
-     * switch individually on each provider's record. A direct bulk update, not a save()/update() loop, since
-     * those require a full provider payload (services, settings, required fields) that isn't relevant here.
-     *
-     * @param bool $enabled The value to apply to every provider.
-     */
-    public function set_create_zoom_links_for_all_providers(bool $enabled): void
-    {
-        $provider_ids = array_column(
-            $this->db
-                ->select('users.id')
-                ->from('users')
-                ->join('roles', 'roles.id = users.id_roles', 'inner')
-                ->where('roles.slug', DB_SLUG_PROVIDER)
-                ->get()
-                ->result_array(),
-            'id',
-        );
-
-        if (empty($provider_ids)) {
-            return;
-        }
-
-        $this->db->where_in('id', $provider_ids)->update('users', ['create_zoom_links' => (int) $enabled]);
-    }
-
-    /**
-     * LNU: Get the ID of the provider whose closest existing appointment is furthest away from the given time,
-     * among the given list of available providers (README.md #3).
-     *
-     * Providers with no existing appointments at all are considered equally available, and one of them is
-     * chosen at random. This distributes bookings among providers as evenly as possible over time.
-     *
-     * @param DateTime $time Selected appointment start date and time.
-     * @param int[] $available_providers IDs of the providers available for the requested service and time.
-     *
-     * @return int|null Returns the ID of the selected provider, or null if $available_providers is empty.
-     */
-    public function get_provider_available_around_date(DateTime $time, array $available_providers): ?int
-    {
-        if (empty($available_providers)) {
-            return null;
-        }
-
-        $time_string = $time->format('Y-m-d H:i:s');
-
-        $provider_appointment_distances = $this->db
-            ->select(
-                "id_users_provider, MIN(ABS(TIMESTAMPDIFF(MINUTE, '$time_string', start_datetime))) AS nearest_distance",
-            )
-            ->from('appointments')
-            ->where('is_unavailability', false)
-            ->where_in('id_users_provider', $available_providers)
-            ->group_by('id_users_provider')
-            ->order_by('nearest_distance', 'DESC')
-            ->get()
-            ->result_array();
-
-        $providers_with_appointments = array_map(
-            'intval',
-            array_column($provider_appointment_distances, 'id_users_provider'),
-        );
-
-        $providers_without_appointments = array_diff($available_providers, $providers_with_appointments);
-
-        if (!empty($providers_without_appointments)) {
-            return $providers_without_appointments[array_rand($providers_without_appointments)];
-        }
-
-        return $providers_with_appointments[0];
-    }
-
-    /**
      * Get the query builder interface, configured for use with the users (provider-filtered) table.
      *
      * @return CI_DB_query_builder
@@ -900,9 +821,6 @@ class Providers_model extends EA_Model
             'ldapDn' => $provider['ldap_dn'],
             'timezone' => $provider['timezone'],
             'language' => $provider['language'],
-            'color' => $provider['color'],
-            'createZoomLinks' => (bool) $provider['create_zoom_links'],
-            'maxAppointmentsPerDay' => (int) $provider['max_appointments_per_day'],
         ];
 
         if (array_key_exists('services', $provider)) {
@@ -1019,10 +937,6 @@ class Providers_model extends EA_Model
             $decoded_resource['language'] = $provider['language'];
         }
 
-        if (array_key_exists('color', $provider)) {
-            $decoded_resource['color'] = $provider['color'];
-        }
-
         if (array_key_exists('services', $provider)) {
             $decoded_resource['services'] = $provider['services'];
         }
@@ -1033,14 +947,6 @@ class Providers_model extends EA_Model
 
         if (array_key_exists('ldapDn', $provider)) {
             $decoded_resource['ldap_dn'] = $provider['ldapDn'];
-        }
-
-        if (array_key_exists('createZoomLinks', $provider)) {
-            $decoded_resource['create_zoom_links'] = (bool) $provider['createZoomLinks'];
-        }
-
-        if (array_key_exists('maxAppointmentsPerDay', $provider)) {
-            $decoded_resource['max_appointments_per_day'] = (int) $provider['maxAppointmentsPerDay'];
         }
 
         if (array_key_exists('settings', $provider)) {

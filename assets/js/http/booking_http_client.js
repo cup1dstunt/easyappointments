@@ -21,7 +21,6 @@ App.Http.Booking = (function () {
     const $selectService = $('#select-service');
     const $selectProvider = $('#select-provider');
     const $availableHours = $('#available-hours');
-    const $customMessageTimeUnavailable = $('#custom-message-time-unavailable');
     const $captchaHint = $('#captcha-hint');
     const $captchaTitle = $('.captcha-title');
 
@@ -34,50 +33,6 @@ App.Http.Booking = (function () {
     let processingUnavailableDates = false;
     let searchedMonthStart;
     let searchedMonthCounter = 0;
-
-    /**
-     * LNU: OIDC Booking Login (README.md #15) - the customer's login session has expired. Navigates to a real
-     * page (Booking_login::session_expired()) rather than showing an in-place popup, so that by the time the
-     * customer actually reads "your session has expired", it's already true - that page performs the real
-     * IdP-side logout (if "SSO logout after booking and session expiry" is on) *before* rendering its message,
-     * rather than deferring the logout to whatever the customer does next.
-     *
-     * @param {string} reason Distinguishes what's actually being lost, read server-side to pick the right
-     *                         wording - "booking_not_saved" (registerAppointment() found out only once
-     *                         submitting) vs the default (an idle timeout with nothing submitted yet).
-     */
-    function showSessionExpiredMessage(reason) {
-        window.location.href = App.Utils.Url.siteUrl(
-            'booking_login/session_expired?reason=' +
-                encodeURIComponent(reason) +
-                '&redirect=' +
-                encodeURIComponent(window.location.href),
-        );
-    }
-
-    /**
-     * Show the configured "no available hours" custom message, if the feature is enabled.
-     *
-     * LNU: Custom Messages during Booking (README.md #12) - customMessageId can be either a translation id or
-     * literal plain text. Checking `lang()[id]` directly (lang() with no key returns the raw translations
-     * object, see js_lang_script.php) tells the two cases apart: undefined means the id isn't recognized at
-     * all, so it's shown as plain text as-is; '' means the id is recognized but has been explicitly left empty
-     * for this language, suppressing the message; anything else is the resolved translation, shown as usual.
-     */
-    function showCustomMessageTimeUnavailable() {
-        const customMessageId = vars('custom_message_time_unavailable');
-
-        if (!Boolean(Number(vars('custom_messages_enabled'))) || !customMessageId) {
-            return;
-        }
-
-        const resolved = lang()[customMessageId];
-        const display = resolved !== undefined ? resolved : customMessageId;
-
-        if (display !== '') {
-            $customMessageTimeUnavailable.text(display);
-        }
-    }
 
     /**
      * Get Available Hours
@@ -122,7 +77,6 @@ App.Http.Booking = (function () {
 
         $.post(url, data).done((response) => {
             $availableHours.empty();
-            $customMessageTimeUnavailable.empty();
 
             // The response contains the available hours for the selected provider and service. Fill the available
             // hours div with response data.
@@ -190,7 +144,6 @@ App.Http.Booking = (function () {
 
             if (!$availableHours.find('.available-hour').length) {
                 $availableHours.text(lang('no_available_hours'));
-                showCustomMessageTimeUnavailable();
             }
         });
     }
@@ -225,29 +178,24 @@ App.Http.Booking = (function () {
             return;
         }
 
-        // post_data is sent as-is (already a JSON string) rather than parsed and re-serialized, since
-        // attached files require a multipart/form-data request, which cannot carry nested fields on its own.
-        const postData = $('input[name="post_data"]').val();
+        const formData = JSON.parse($('input[name="post_data"]').val());
 
-        const formData = new FormData();
-        formData.append('csrf_token', vars('csrf_token'));
-        formData.append('post_data', postData);
+        const data = {
+            csrf_token: vars('csrf_token'),
+            post_data: formData,
+        };
 
         if ($captchaText.length > 0) {
-            formData.append('captcha', $captchaText.val());
+            data.captcha = $captchaText.val();
         }
-
+        
         if ($altchaPayload.length > 0 && $altchaPayload.val()) {
-            formData.append('altcha_payload', $altchaPayload.val());
+            data.altcha_payload = $altchaPayload.val();
         }
 
         if (vars('manage_mode')) {
-            formData.append('exclude_appointment_id', vars('appointment_data').id);
+            data.exclude_appointment_id = vars('appointment_data').id;
         }
-
-        App.Utils.AttachedFiles.getAttachedFiles().forEach((file, index) => {
-            formData.append(`attached_file_data_${index + 1}`, file);
-        });
 
         const url = App.Utils.Url.siteUrl('booking/register');
 
@@ -256,9 +204,7 @@ App.Http.Booking = (function () {
         $.ajax({
             url: url,
             method: 'post',
-            data: formData,
-            contentType: false,
-            processData: false,
+            data: data,
             dataType: 'json',
             beforeSend: () => {
                 $layer.appendTo('body').css({
@@ -273,15 +219,6 @@ App.Http.Booking = (function () {
             },
         })
             .done((response) => {
-                if (response.auth_required) {
-                    // The login session died before this submission reached the server - the booking was not
-                    // saved, so say so explicitly rather than silently reloading into what would otherwise
-                    // look like an unrelated, unexplained login prompt.
-                    showSessionExpiredMessage('booking_not_saved');
-
-                    return false;
-                }
-
                 if (response.captcha_verification === false) {
                     $captchaHint.text(lang('captcha_is_wrong')).fadeTo(400, 1);
 
@@ -428,7 +365,6 @@ App.Http.Booking = (function () {
         // If all the days are unavailable then hide the appointments hours.
         if (unavailableDates.length === numberOfDays) {
             $availableHours.text(lang('no_available_hours'));
-            showCustomMessageTimeUnavailable();
         }
 
         // Grey out unavailable dates.
@@ -486,54 +422,11 @@ App.Http.Booking = (function () {
         });
     }
 
-    /**
-     * LNU: Check whether the customer is allowed to make this booking, given the configured customer booking
-     * limits (README.md #7).
-     *
-     * @param {String} customerEmail Email address of the booking customer.
-     * @param {Number} serviceId ID of the selected service.
-     * @param {String} bookingDate Start date of the booking (Y-m-d).
-     * @param {Number|null} excludeAppointmentId ID of the appointment being edited, if rescheduling.
-     * @param {Function} callback Called with the response ({allowed, message}).
-     */
-    function checkCustomerBookingLimits(customerEmail, serviceId, bookingDate, excludeAppointmentId, callback) {
-        const url = App.Utils.Url.siteUrl('booking/check_customer_booking_limits');
-
-        const data = {
-            csrf_token: vars('csrf_token'),
-            customer_email: customerEmail,
-            service_id: serviceId,
-            booking_date: bookingDate,
-            exclude_appointment_id: excludeAppointmentId,
-        };
-
-        $.post(url, data).done(callback);
-    }
-
-    /**
-     * LNU: Booking Authentication (README.md #15) - ping to keep the login session alive while the customer is
-     * still navigating the booking wizard. Reacting to a failed refresh here (rather than only at the final
-     * submit, in registerAppointment()) catches a dead session as early as the customer's very next click,
-     * instead of only after they've filled out the entire rest of the wizard for nothing.
-     */
-    function silentRefreshSession() {
-        $.get(App.Utils.Url.siteUrl('booking_login/silent_refresh')).done((response) => {
-            if (response.auth_required) {
-                // Nothing has been submitted yet at this point - only the in-progress form is about to be
-                // lost on reload, not a completed booking, so this gets its own, less alarming wording than
-                // registerAppointment()'s equivalent message.
-                showSessionExpiredMessage('idle');
-            }
-        });
-    }
-
     return {
         registerAppointment,
         getAvailableHours,
         getUnavailableDates,
         applyPreviousUnavailableDates,
         deletePersonalInformation,
-        checkCustomerBookingLimits,
-        silentRefreshSession,
     };
 })();

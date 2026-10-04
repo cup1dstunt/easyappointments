@@ -213,19 +213,6 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label" for="language-replacements">
-                                        <?= lang('language_replacements') ?>
-                                    </label>
-                                    <input type="text" class="form-control" id="language-replacements"
-                                           data-field="language_replacements" placeholder="<?= lang('language_replacements_placeholder') ?>">
-                                    <div class="form-text text-muted">
-                                        <small>
-                                            <?= lang('language_replacements_hint') ?>
-                                        </small>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
                                     <label class="form-label" for="default-timezone">
                                         <?= lang('default_timezone') ?>
                                         <span class="text-danger" hidden>*</span>
@@ -245,80 +232,6 @@
                             </div>
                         </div>
 
-                        <div class="row mb-5">
-                            <div class="col-12">
-                                <h5 class="mb-3 fw-light"><?= lang('calendar') ?></h5>
-
-                                <div class="mb-3">
-                                    <label class="form-label" for="calendar-slot-min-time">
-                                        <?= lang('calendar_slot_min_time') ?>
-                                    </label>
-                                    <input type="text" class="form-control" id="calendar-slot-min-time"
-                                           data-field="calendar_slot_min_time">
-                                    <div class="form-text text-muted">
-                                        <small>
-                                            <?= lang('calendar_slot_min_time_hint') ?>
-                                        </small>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label" for="calendar-slot-max-time">
-                                        <?= lang('calendar_slot_max_time') ?>
-                                    </label>
-                                    <input type="text" class="form-control" id="calendar-slot-max-time"
-                                           data-field="calendar_slot_max_time">
-                                    <div class="form-text text-muted">
-                                        <small>
-                                            <?= lang('calendar_slot_max_time_hint') ?>
-                                        </small>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label" for="calendar-scroll-time">
-                                        <?= lang('calendar_scroll_time') ?>
-                                    </label>
-                                    <input type="text" class="form-control" id="calendar-scroll-time"
-                                           data-field="calendar_scroll_time">
-                                    <div class="form-text text-muted">
-                                        <small>
-                                            <?= lang('calendar_scroll_time_hint') ?>
-                                        </small>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="calendar-hide-weekends"
-                                               data-field="calendar_hide_weekends">
-                                        <label class="form-check-label" for="calendar-hide-weekends">
-                                            <?= lang('calendar_hide_weekends') ?>
-                                        </label>
-                                    </div>
-                                    <div class="form-text text-muted">
-                                        <small>
-                                            <?= lang('calendar_hide_weekends_hint') ?>
-                                        </small>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label" for="calendar-timegrid-slot-height">
-                                        <?= lang('calendar_timegrid_slot_height') ?>
-                                    </label>
-                                    <input type="text" class="form-control" id="calendar-timegrid-slot-height"
-                                           data-field="calendar_timegrid_slot_height">
-                                    <div class="form-text text-muted">
-                                        <small>
-                                            <?= lang('calendar_timegrid_slot_height_hint') ?>
-                                        </small>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-
                     </fieldset>
                 </form>
             </div>
@@ -330,7 +243,6 @@
 
 <?php section('scripts'); ?>
 
-<script src="<?= asset_url('assets/js/utils/ui.js') ?>"></script>
 <script src="<?= asset_url('assets/js/http/general_settings_http_client.js') ?>"></script>
 <script src="<?= asset_url('assets/js/pages/general_settings.js') ?>"></script>
 

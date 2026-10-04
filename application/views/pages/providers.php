@@ -2,33 +2,15 @@
 
 <?php section('content'); ?>
 
-<?php
-// LNU: Extended Backend Permissions for Providers (README.md #9) - a provider viewing this page can only
-// ever have their own record, so the add/search/delete actions make no sense and are hidden; edit is the
-// only meaningful action, so it's styled as the primary button instead.
-$is_provider = session('role_slug') === DB_SLUG_PROVIDER;
-$hide_for_providers = $is_provider ? 'hidden' : '';
-$edit_button_class = $is_provider ? 'btn btn-primary' : 'btn btn-outline-secondary';
-
-// LNU: Zoom Meeting Links (README.md #14) - the per-provider opt-in is only shown once the integration is both
-// active and fully configured. Showing it while credentials are still incomplete would let an admin enable it
-// for a provider with nothing actually happening, silently.
-$zoom_configured =
-    setting('zoom_enabled') === '1' &&
-    setting('zoom_client_id') &&
-    setting('zoom_client_secret') &&
-    setting('zoom_account_id');
-?>
-
 <div class="container backend-page py-3" id="providers-page">
     <div class="row" id="providers">
         <div id="filter-providers" class="filter-records column col-12 mb-4">
-            <button id="add-provider" class="btn btn-primary add-record-btn mb-4" <?= $hide_for_providers ?>>
+            <button id="add-provider" class="btn btn-primary add-record-btn mb-4">
                 <i class="fas fa-plus-square me-2"></i>
                 <?= lang('add') ?>
             </button>
 
-            <form class="mb-4" <?= $hide_for_providers ?>>
+            <form class="mb-4">
                 <div class="input-group">
                     <input type="text" class="key form-control" aria-label="keyword">
 
@@ -51,7 +33,7 @@ $zoom_configured =
         <div class="record-details column col-12 mb-4">
             <div class="float-md-start mb-4 me-4">
                 <div class="add-edit-delete-group btn-group">
-                    <button id="edit-provider" class="<?= $edit_button_class ?>" disabled="disabled">
+                    <button id="edit-provider" class="btn btn-outline-secondary" disabled="disabled">
                         <i class="fas fa-edit me-2"></i>
                         <?= lang('edit') ?>
                     </button>
@@ -65,7 +47,7 @@ $zoom_configured =
                     <button id="cancel-provider" class="btn btn-outline-secondary">
                         <?= lang('cancel') ?>
                     </button>
-                    <button id="delete-provider" class="btn btn-outline-danger ms-2" <?= $hide_for_providers ?>>
+                    <button id="delete-provider" class="btn btn-outline-danger ms-2">
                         <i class="fas fa-trash-alt me-2"></i>
                         <?= lang('delete') ?>
                     </button>
@@ -242,14 +224,6 @@ $zoom_configured =
                             </div>
 
                             <div class="mb-3">
-                                <?php component('color_selection', [
-                                    'attributes' => 'id="color"',
-                                    'custom_colors' => config('provider_colors'),
-                                    'allow_no_color' => true,
-                                ]); ?>
-                            </div>
-
-                            <div class="mb-3">
                                 <label class="form-label" for="timezone">
                                     <?= lang('timezone') ?>
                                     <span class="text-danger" hidden>*</span>
@@ -294,34 +268,6 @@ $zoom_configured =
                                     <label class="form-check-label" for="notifications">
                                         <?= lang('receive_notifications') ?>
                                     </label>
-                                </div>
-
-                                <div <?= $zoom_configured ? '' : 'hidden' ?>>
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="create-zoom-links">
-                                        <label class="form-check-label" for="create-zoom-links">
-                                            <?= lang('create_zoom_links') ?>
-                                        </label>
-                                    </div>
-
-                                    <div class="form-text text-muted">
-                                        <small>
-                                            <?= lang('create_zoom_links_hint') ?>
-                                        </small>
-                                    </div>
-                                </div>
-
-                                <div class="mt-3">
-                                    <label for="max-appointments-per-day" class="form-label">
-                                        <?= lang('max_provider_appointments_per_day') ?>
-                                    </label>
-                                    <input id="max-appointments-per-day" class="form-control" type="number" min="0">
-
-                                    <div class="form-text text-muted">
-                                        <small>
-                                            <?= lang('max_provider_appointments_per_day_hint') ?>
-                                        </small>
-                                    </div>
                                 </div>
                             </div>
 

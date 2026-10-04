@@ -19,16 +19,6 @@ $customer_full_name = trim($customer_first_name . ' ' . $customer_last_name);
 $customer_email = trim((string) ($customer['email'] ?? ''));
 $customer_phone_number = trim((string) ($customer['phone_number'] ?? ''));
 $customer_address = trim((string) ($customer['address'] ?? ''));
-$max_custom_fields = config('max_custom_fields', 5);
-$max_appt_custom_fields = config('max_appt_custom_fields', 5);
-$max_attached_files = boolval(setting('attached_files_supported', 0)) ? (int) setting('max_attached_files', 0) : 0;
-
-// LNU: Cooldown period for services (README.md #5). "duration" is the full blocked timeslot (customer-facing
-// time + cooldown) - only the customer-facing part is communicated here.
-$customer_duration = (int) $service['duration'] - (int) $service['cooldown'];
-
-// LNU: Hide Timezone from Customers (README.md #6).
-$hide_customer_timezone = boolval(setting('hide_customer_timezone', 0));
 ?>
 
 <!doctype html>
@@ -457,13 +447,13 @@ $hide_customer_timezone = boolval(setting('hide_customer_timezone', 0));
                                             </tr>
                                             <tr>
                                                 <td class="label" style="padding: 3px;font-weight: bold;">
-                                                    <?= lang('duration') ?>
+                                                    <?= lang('end') ?>
                                                 </td>
                                                 <td style="padding: 3px;">
-                                                    <?= $customer_duration ?> <?= lang('minutes') ?>
+                                                    <?= format_date_time($appointment['end_datetime']) ?>
+
                                                 </td>
                                             </tr>
-                                            <?php if (!$hide_customer_timezone): ?>
                                             <tr>
                                                 <td class="label" style="padding: 3px;font-weight: bold;">
                                                     <?= lang('timezone') ?>
@@ -472,7 +462,6 @@ $hide_customer_timezone = boolval(setting('hide_customer_timezone', 0));
                                                     <?= format_timezone($timezone) ?>
                                                 </td>
                                             </tr>
-                                            <?php endif; ?>
 
                                             <?php if (!empty($appointment['status'])): ?>
                                                 <tr>
@@ -501,7 +490,7 @@ $hide_customer_timezone = boolval(setting('hide_customer_timezone', 0));
                                                     <td class="label" style="padding: 3px;font-weight: bold;">
                                                         <?= lang('location') ?>
                                                     </td>
-                                                    <td style="padding: 3px;word-break: break-all;">
+                                                    <td style="padding: 3px;">
                                                         <?php if (str_starts_with($appointment['location'], 'http')): ?>
                                                             <a
                                                                 href="<?= e($appointment['location']) ?>"
@@ -520,26 +509,11 @@ $hide_customer_timezone = boolval(setting('hide_customer_timezone', 0));
                                                     <td class="label" style="padding: 3px;font-weight: bold;">
                                                         <?= lang('meeting_link') ?>
                                                     </td>
-                                                    <td style="padding: 3px;word-break: break-all;">
+                                                    <td style="padding: 3px;">
                                                         <a
                                                             href="<?= e($appointment['meeting_link']) ?>"
                                                             target="_blank">
                                                             <?= e($appointment['meeting_link']) ?>
-                                                        </a>
-                                                    </td>
-                                                </tr>
-                                            <?php endif; ?>
-
-                                            <?php if (!empty($appointment['zoom_start_link'])): ?>
-                                                <tr>
-                                                    <td class="label" style="padding: 3px;font-weight: bold;">
-                                                        <?= lang('zoom_host_link') ?>
-                                                    </td>
-                                                    <td style="padding: 3px;word-break: break-all;">
-                                                        <a
-                                                            href="<?= e($appointment['zoom_start_link']) ?>"
-                                                            target="_blank">
-                                                            <?= e($appointment['zoom_start_link']) ?>
                                                         </a>
                                                     </td>
                                                 </tr>
@@ -563,37 +537,6 @@ $hide_customer_timezone = boolval(setting('hide_customer_timezone', 0));
                                                     </td>
                                                     <td style="padding: 3px;">
                                                         <?= e(lang($provider['booking_email_note'])) ?>
-                                                    </td>
-                                                </tr>
-                                            <?php endif; ?>
-
-                                            <?php for ($i = 1; $i <= $max_appt_custom_fields; $i++): ?>
-                                                <?php if (intval(setting('display_appt_custom_field_' . $i)) === 1): ?>
-                                                    <?php $label_data = setting('label_appt_custom_field_' . $i, 'appt_custom_field'); ?>
-                                                    <?php preg_match('/^(.+)(\s*{.+})*$/U', $label_data, $matches); ?>
-                                                    <?php $raw_value = $appointment['appt_custom_field_' . $i] ?? ''; ?>
-                                                    <tr>
-                                                        <td class="label" style="padding: 3px;font-weight: bold;">
-                                                            <?= e(lang($matches[1] ?? $label_data)) ?>
-                                                        </td>
-                                                        <td style="padding: 3px;">
-                                                            <?= $raw_value !== ''
-                                                                ? e(implode('; ', array_map('lang', explode(';', $raw_value))))
-                                                                : e(lang('no_field_value')) ?>
-                                                        </td>
-                                                    </tr>
-                                                <?php endif; ?>
-                                            <?php endfor; ?>
-
-                                            <?php if ($max_attached_files > 0): ?>
-                                                <tr>
-                                                    <td class="label" style="padding: 3px;font-weight: bold;">
-                                                        <?= lang('attached_files') ?>
-                                                    </td>
-                                                    <td style="padding: 3px;">
-                                                        <?= !empty($appointment['attached_file_names'])
-                                                            ? e(implode('; ', $appointment['attached_file_names']))
-                                                            : e(lang('no_field_value')) ?>
                                                     </td>
                                                 </tr>
                                             <?php endif; ?>
@@ -650,19 +593,20 @@ $hide_customer_timezone = boolval(setting('hide_customer_timezone', 0));
                                                 </tr>
                                             <?php endif; ?>
 
-                                            <?php for ($i = 1; $i <= $max_custom_fields; $i++): ?>
-                                                <?php if (intval(setting('display_custom_field_' . $i)) === 1): ?>
-                                                    <?php $label_data = setting('label_custom_field_' . $i, 'custom_field'); ?>
-                                                    <?php preg_match('/^(.+)(\s*{.+})*$/U', $label_data, $matches); ?>
-                                                    <?php $raw_value = $customer['custom_field_' . $i] ?? ''; ?>
+                                            <?php for ($i = 1; $i <= 5; $i++): ?>
+                                                <?php if (
+                                                    setting('display_custom_field_' . $i) &&
+                                                    !empty($customer['custom_field_' . $i])
+                                                ): ?>
                                                     <tr>
                                                         <td class="label" style="padding: 3px;font-weight: bold;">
-                                                            <?= e(lang($matches[1] ?? $label_data)) ?>
+                                                            <?= e(
+                                                                setting('label_custom_field_' . $i) ?:
+                                                                lang('custom_field') . ' #' . $i,
+                                                            ) ?>
                                                         </td>
                                                         <td style="padding: 3px;">
-                                                            <?= $raw_value !== ''
-                                                                ? e(implode('; ', array_map('lang', explode(';', $raw_value))))
-                                                                : e(lang('no_field_value')) ?>
+                                                            <?= e($customer['custom_field_' . $i]) ?>
                                                         </td>
                                                     </tr>
                                                 <?php endif; ?>

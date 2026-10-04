@@ -189,16 +189,6 @@ if (!function_exists('pure_html')) {
     {
         $config = HTMLPurifier_Config::createDefault();
 
-        // Use an absolute path (via FCPATH) rather than a relative one - a relative path depends on PHP's
-        // current working directory at request time, which isn't guaranteed to be the app root.
-        $config->set('Cache.SerializerPath', storage_path('cache'));
-
-        // LNU: open external links (eg. in the privacy policy/terms/cookie notice popups) in a new tab -
-        // without this, clicking a link inside the booking wizard navigates the current tab away from it, and
-        // going back reloads the wizard from scratch. Relative/same-host links are left untouched by
-        // HTMLPurifier's own "is this benign" check (see HTMLPurifier_AttrTransform_TargetBlank).
-        $config->set('HTML.TargetBlank', true);
-
         $purifier = new HTMLPurifier($config);
 
         return $purifier->purify($markup);

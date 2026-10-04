@@ -27,12 +27,9 @@ App.Pages.Providers = (function () {
     const $state = $('#state');
     const $zipCode = $('#zip-code');
     const $isPrivate = $('#is-private');
-    const $createZoomLinks = $('#create-zoom-links');
-    const $maxAppointmentsPerDay = $('#max-appointments-per-day');
     const $notes = $('#notes');
     const $bookingEmailNote = $('#booking-email-note');
     const $language = $('#language');
-    const $color = $('#color');
     const $timezone = $('#timezone');
     const $ldapDn = $('#ldap-dn');
     const $username = $('#username');
@@ -102,7 +99,6 @@ App.Pages.Providers = (function () {
                 .prop('disabled', false);
             $('#providers input:checkbox').prop('disabled', false);
             workingPlanManager.timepickers(false);
-            App.Components.ColorSelection.enable($color);
         });
 
         /**
@@ -131,7 +127,6 @@ App.Pages.Providers = (function () {
             const companyWorkingPlan = JSON.parse(vars('company_working_plan'));
             workingPlanManager.setup(companyWorkingPlan);
             workingPlanManager.timepickers(false);
-            App.Components.ColorSelection.enable($color);
         });
 
         /**
@@ -155,7 +150,6 @@ App.Pages.Providers = (function () {
                 .prop('disabled', false);
             $('#providers input:checkbox').prop('disabled', false);
             workingPlanManager.timepickers(false);
-            App.Components.ColorSelection.enable($color);
         });
 
         /**
@@ -204,12 +198,9 @@ App.Pages.Providers = (function () {
                 state: $state.val(),
                 zip_code: $zipCode.val(),
                 is_private: Number($isPrivate.prop('checked')),
-                create_zoom_links: Number($createZoomLinks.prop('checked')),
-                max_appointments_per_day: Number($maxAppointmentsPerDay.val()) || 0,
                 notes: $notes.val(),
                 booking_email_note: $bookingEmailNote.val(),
                 language: $language.val(),
-                color: App.Components.ColorSelection.getColor($color),
                 timezone: $timezone.val(),
                 ldap_dn: $ldapDn.val(),
                 settings: {
@@ -404,7 +395,6 @@ App.Pages.Providers = (function () {
         $providers.find('.record-details #language').val(vars('default_language'));
         $providers.find('.record-details #timezone').val(vars('default_timezone'));
         $providers.find('.record-details #is-private').prop('checked', false);
-        $providers.find('.record-details #create-zoom-links').prop('checked', false);
         $providers.find('.record-details #notifications').prop('checked', true);
         $providers.find('.add-break, .add-working-plan-exception, #reset-working-plan').prop('disabled', true);
 
@@ -425,8 +415,6 @@ App.Pages.Providers = (function () {
         $('#providers .working-plan tbody').empty();
         $('#providers .breaks tbody').empty();
         $('#providers .working-plan-exceptions tbody').empty();
-
-        App.Components.ColorSelection.disable($color);
     }
 
     /**
@@ -446,12 +434,9 @@ App.Pages.Providers = (function () {
         $state.val(provider.state);
         $zipCode.val(provider.zip_code);
         $isPrivate.prop('checked', provider.is_private);
-        $createZoomLinks.prop('checked', provider.create_zoom_links);
-        $maxAppointmentsPerDay.val(provider.max_appointments_per_day);
         $notes.val(provider.notes);
         $bookingEmailNote.val(provider.booking_email_note);
         $language.val(provider.language);
-        App.Components.ColorSelection.setColor($color, provider.color);
         $timezone.val(provider.timezone);
         $ldapDn.val(provider.ldap_dn);
 

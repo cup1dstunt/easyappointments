@@ -112,11 +112,6 @@ function styles() {
         .pipe(gulp.dest('assets/css'));
 }
 
-// LNU: Lnu theme - copies the "National 2" webfont files into place so the theme's @font-face rules resolve.
-function fonts() {
-    return gulp.src(['assets/fonts/*.woff2'], {encoding: false}).pipe(plumber()).pipe(gulp.dest('assets/fonts'));
-}
-
 function watch(done) {
     gulp.watch(['assets/js/**/*.js', '!assets/js/**/*.min.js'], gulp.parallel(scripts));
     gulp.watch(['assets/css/**/*.scss', '!assets/css/**/*.css'], gulp.parallel(styles));
@@ -203,8 +198,7 @@ exports.clean = gulp.series(clean);
 exports.vendor = gulp.series(vendor);
 exports.scripts = gulp.series(scripts);
 exports.styles = gulp.series(styles);
-exports.fonts = gulp.series(fonts);
-exports.compile = gulp.series(clean, vendor, scripts, styles, fonts);
-exports.dev = gulp.series(clean, vendor, scripts, styles, fonts, watch);
-exports.build = gulp.series(clean, vendor, scripts, styles, fonts, archive);
+exports.compile = gulp.series(clean, vendor, scripts, styles);
+exports.dev = gulp.series(clean, vendor, scripts, styles, watch);
+exports.build = gulp.series(clean, vendor, scripts, styles, archive);
 exports.default = exports.dev;

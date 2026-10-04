@@ -4,8 +4,6 @@
  *
  * @var array $grouped_timezones
  */
-// LNU: Hide Timezone from Customers (README.md #6).
-$hide_customer_timezone = boolval(setting('hide_customer_timezone', 0));
 ?>
 
 <div id="wizard-frame-2" class="wizard-frame p-3 p-md-4" style="display:none;" data-step="time">
@@ -21,7 +19,7 @@ $hide_customer_timezone = boolval(setting('hide_customer_timezone', 0));
 
             <div class="col-12 col-lg-6">
                 <div id="select-time" class="mx-auto py-3" style="max-width: 288px;">
-                    <div class="mb-3" <?= $hide_customer_timezone ? 'hidden' : '' ?>>
+                    <div class="mb-3">
                         <label for="select-timezone" class="form-label">
                             <?= lang('timezone') ?>
                         </label>
@@ -32,8 +30,6 @@ $hide_customer_timezone = boolval(setting('hide_customer_timezone', 0));
                     </div>
 
                     <div id="available-hours" class="overflow-auto my-3 pe-2" style="max-height: 250px;"></div>
-                    <?php // LNU: Custom Messages during Booking (README.md #12). ?>
-                    <div id="custom-message-time-unavailable"></div>
 
                 </div>
             </div>

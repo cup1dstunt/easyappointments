@@ -53,10 +53,6 @@
     'display_privacy_policy' => vars('display_privacy_policy'),
 ]); ?>
 
-<!-- LNU: Terms & Conditions Step - optional, only shown if "terms" is included in booking_step_order. -->
-
-<?php component('booking_terms_step'); ?>
-
 <?php endif; ?>
 
 <?php end_section('content'); ?>

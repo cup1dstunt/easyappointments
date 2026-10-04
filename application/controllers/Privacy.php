@@ -29,7 +29,6 @@ class Privacy extends EA_Controller
 
         $this->load->driver('cache', ['adapter' => 'file']);
         $this->load->model('customers_model');
-        $this->load->model('appointments_model');
     }
 
     /**
@@ -75,16 +74,7 @@ class Privacy extends EA_Controller
                 );
             }
 
-            $appointment_ids = array_column(
-                $this->appointments_model->get(['id_users_customer' => $customer_id]),
-                'id',
-            );
-
             $this->customers_model->delete($customer_id);
-
-            foreach ($appointment_ids as $appointment_id) {
-                $this->appointments_model->delete_attached_files((int) $appointment_id);
-            }
 
             log_message(
                 'info',

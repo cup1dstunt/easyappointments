@@ -67,12 +67,6 @@ class General_settings extends EA_Controller
             'role_slug' => $role_slug,
             'timezones' => $this->timezones->to_array(),
             'general_settings' => filter_sensitive_settings($this->settings_model->get()),
-            // LNU: Calendar Display Settings - needed by App.Utils.UI.initializeTimePicker() for the
-            // calendar start/end time fields, so they display in the admin's configured time format.
-            // first_weekday is also required internally (getFlatpickrLocale() calls
-            // App.Utils.Date.getWeekdayId(vars('first_weekday'))).
-            'time_format' => setting('time_format'),
-            'first_weekday' => setting('first_weekday'),
         ]);
 
         html_vars([
@@ -110,14 +104,6 @@ class General_settings extends EA_Controller
         'terms_and_conditions_content',
         'display_privacy_policy',
         'privacy_policy_content',
-        // LNU: Calendar Display Settings.
-        'calendar_slot_min_time',
-        'calendar_slot_max_time',
-        'calendar_hide_weekends',
-        'calendar_timegrid_slot_height',
-        'calendar_scroll_time',
-        // LNU: Configurable Terminology (README.md #17).
-        'language_replacements',
     ];
 
     /**

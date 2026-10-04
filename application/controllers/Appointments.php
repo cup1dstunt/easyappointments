@@ -49,10 +49,6 @@ class Appointments extends EA_Controller
     {
         parent::__construct();
 
-        for ($i = 1; $i <= config('max_appt_custom_fields', 5); $i++) {
-            array_push($this->allowed_appointment_fields, 'appt_custom_field_' . $i);
-        }
-
         $this->load->model('appointments_model');
         $this->load->model('roles_model');
 
@@ -291,8 +287,6 @@ class Appointments extends EA_Controller
             $appointment = $this->appointments_model->find($appointment_id);
 
             $this->appointments_model->delete($appointment_id);
-
-            $this->appointments_model->delete_attached_files((int) $appointment_id);
 
             $this->webhooks_client->trigger(WEBHOOK_APPOINTMENT_DELETE, $appointment);
 

@@ -2393,8 +2393,6 @@ components:
           type: string
         duration:
           type: integer
-        cooldown:
-          type: integer
         price:
           type: number
           format: float
@@ -2418,7 +2416,6 @@ components:
         id: 1
         name: Test Service
         duration: 30
-        cooldown: 0
         price: 10
         currency: USD
         location: Test Street 1A, 12345 Some State, Some Place
@@ -2434,8 +2431,6 @@ components:
         name:
           type: string
         duration:
-          type: integer
-        cooldown:
           type: integer
         price:
           type: number
@@ -2458,7 +2453,6 @@ components:
       example:
         name: Test Service
         duration: 30
-        cooldown: 0
         price: 10
         currency: USD
         location: Test Street 1A, 12345 Some State, Some Place

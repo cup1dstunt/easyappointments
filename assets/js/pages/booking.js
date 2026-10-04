@@ -33,6 +33,11 @@ App.Pages.Booking = (function () {
     const $availableHours = $('#available-hours');
     const $bookAppointmentSubmit = $('#book-appointment-submit');
     const $deletePersonalInformation = $('#delete-personal-information');
+    const $customField1 = $('#custom-field-1');
+    const $customField2 = $('#custom-field-2');
+    const $customField3 = $('#custom-field-3');
+    const $customField4 = $('#custom-field-4');
+    const $customField5 = $('#custom-field-5');
     const $displayBookingSelection = $('.display-booking-selection');
     const $rememberMe = $('#remember-me');
     const tippy = window.tippy;
@@ -246,24 +251,14 @@ App.Pages.Booking = (function () {
 
         App.Utils.UI.setDateTimePickerValue($selectDate, new Date());
 
-        // LNU: Hide Timezone from Customers (README.md #6).
-        if (Boolean(Number(vars('hide_customer_timezone')))) {
-            const defaultTimezone = vars('default_timezone');
-            const isDefaultTimezoneSupported = $selectTimezone.find(`option[value="${defaultTimezone}"]`).length > 0;
-            $selectTimezone.val(isDefaultTimezoneSupported ? defaultTimezone : 'UTC');
-        } else {
-            const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            const isTimezoneSupported = $selectTimezone.find(`option[value="${browserTimezone}"]`).length > 0;
-            $selectTimezone.val(isTimezoneSupported ? browserTimezone : 'UTC');
-        }
+        const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const isTimezoneSupported = $selectTimezone.find(`option[value="${browserTimezone}"]`).length > 0;
+        $selectTimezone.val(isTimezoneSupported ? browserTimezone : 'UTC');
 
         // Bind the event handlers (might not be necessary every time we use this class).
         addEventListeners();
-        App.Utils.AttachedFiles.addEventListeners();
-        App.Utils.AttachedFiles.initialize(null, []);
 
         optimizeContactInfoDisplay();
-        optimizeConfirmationDisplay();
 
         const serviceOptionCount = $selectService.find('option').length;
 
@@ -313,30 +308,16 @@ App.Pages.Booking = (function () {
                 $selectProvider.val(selectedProviderId).trigger('change');
             }
 
-            const isSingleService = vars('available_services').length === 1;
-            const isSingleProvider = vars('available_providers').length === 1;
-
-            // LNU: Hide Provider Selection (README.md #3).
-            const selectHiddenAnyProvider =
-                Boolean(Number(vars('display_any_provider'))) && Boolean(Number(vars('hide_provider_selection')));
-
-            // LNU: Configurable order for booking wizard steps - rather than only skipping the service step when
-            // it happens to be first (and simulating a click through it), "service" is removed from stepOrder
-            // entirely whenever it's skippable, so whichever step is actually configured first is shown normally,
-            // regardless of where "service" falls in the order.
-            const skipServiceStep =
+            if (
                 (selectedServiceId && selectedProviderId) ||
-                (isSingleService && (isSingleProvider || selectHiddenAnyProvider));
-
-            if (skipServiceStep) {
+                (vars('available_services').length === 1 && vars('available_providers').length === 1)
+            ) {
                 if (!selectedServiceId) {
                     $selectService.val(vars('available_services')[0].id).trigger('change');
                 }
 
                 if (!selectedProviderId) {
-                    $selectProvider
-                        .val(isSingleProvider ? vars('available_providers')[0].id : vars('ANY_PROVIDER'))
-                        .trigger('change');
+                    $selectProvider.val(vars('available_providers')[0].id).trigger('change');
                 }
 
                 getStepMarkerForStepName('service').hide().removeClass('d-inline-block');
@@ -394,15 +375,6 @@ App.Pages.Booking = (function () {
             initializeRememberMe();
         }
 
-        // LNU: OIDC Booking Login (README.md #15) - locks every "auth-prop"-marked field (the built-in
-        // name/email inputs, and any custom field an admin has opted into this via its own "attributes"
-        // setting) to the authenticated identity's matching property, if any (a no-op while no login is
-        // active). Takes priority over anything else that filled these fields above (query params, or the
-        // appointment's own customer record in manage mode): the customer can't book/edit under a different
-        // identity than the one they just logged in with. Applies to both branches above, so it sits after the
-        // if/else rather than inside either one.
-        prefillAndLockAuthProps();
-
         // LNU: Configurable order for booking wizard steps - booking_header.php no longer bakes in which step
         // marker starts active, since that might not be stepOrder's first entry once the service step is
         // auto-skipped above; mark whichever step is actually shown first (currentStepIndex is always 1 here,
@@ -422,132 +394,26 @@ App.Pages.Booking = (function () {
     }
 
     /**
-     * Find whichever element in a list has display text matching a value, ignoring case/surrounding whitespace.
-     *
-     * A custom field's own option values are synthetic translation keys (e.g. "custom_field_fruit_1"), not the
-     * option's displayed text, so an authenticated property's raw value (e.g. "banana") can only ever be
-     * matched against what's actually rendered - never the option's own value attribute.
-     *
-     * @param {Element[]} candidates
-     * @param {string} value
-     * @param {function(Element): string} getText
-     *
-     * @return {Element|undefined}
-     */
-    function findByMatchingText(candidates, value, getText) {
-        const normalizedValue = String(value).trim().toLowerCase();
-
-        return candidates.find((candidate) => getText(candidate).trim().toLowerCase() === normalizedValue);
-    }
-
-    /**
-     * LNU: OIDC Booking Login (README.md #15) - prefill and lock every "auth-prop"-marked field found on
-     * the page with the authenticated identity's matching property, if any (a no-op while no login is active).
-     * Covers both the built-in name/email inputs and any custom field an admin has opted into this via an
-     * "auth-prop" attribute in its own "attributes" setting (see components/custom_fields.php) - neither this
-     * function nor the backend needs to know in advance which fields (if any) are marked this way.
-     */
-    function prefillAndLockAuthProps() {
-        const authUserProps = vars('auth_user_props') || {};
-        const processedGroupContainers = new Set();
-
-        $('[auth-prop]').each((index, field) => {
-            const $field = $(field);
-            const value = authUserProps[$field.attr('auth-prop')];
-
-            if (!value) {
-                return;
-            }
-
-            if ($field.is(':radio, :checkbox')) {
-                // A checkbox/radio-group custom field (components/custom_fields.php) echoes its "attributes"
-                // (so also "auth-prop") onto every individual option input, not once - several iterations of
-                // this loop land on the very same group. The group's real value lives in a hidden sibling
-                // input, synced into each option's checked state via App.Utils.CustomFields.splitGroupValues()
-                // (see that file) - and locking means disabling every option input directly, since checkbox/
-                // radio inputs ignore the "readonly" attribute entirely.
-                const groupContainer = $field.closest('.custom-field-container, .appt-custom-field-container')[0];
-
-                if (!groupContainer || processedGroupContainers.has(groupContainer) || !App.Utils.CustomFields) {
-                    return;
-                }
-
-                processedGroupContainers.add(groupContainer);
-
-                const $optionInputs = $(groupContainer).find(
-                    '.form-input-group input[type="radio"], .form-input-group input[type="checkbox"]',
-                );
-
-                const matchedInput = findByMatchingText(
-                    $optionInputs.toArray(),
-                    value,
-                    (input) => $(`label[for="${input.id}"]`).text(),
-                );
-
-                if (matchedInput) {
-                    $(groupContainer)
-                        .find('.form-input[type="hidden"]')
-                        .val(matchedInput.value);
-
-                    App.Utils.CustomFields.splitGroupValues(groupContainer);
-                }
-
-                $optionInputs.prop('disabled', true);
-
-                return;
-            }
-
-            if ($field.is('select')) {
-                const matchedOption = findByMatchingText($field.find('option').toArray(), value, (option) =>
-                    $(option).text(),
-                );
-
-                if (matchedOption) {
-                    $field.val(matchedOption.value);
-                }
-
-                $field.prop('disabled', true);
-
-                return;
-            }
-
-            // A plain input/textarea has no equivalent mismatch - its own value already is its displayed text.
-            $field.val(value).prop('readOnly', true);
-        });
-    }
-
-    /**
      * Remove empty columns and center elements if needed.
      */
     function optimizeContactInfoDisplay() {
         // If a column has only one control shown then move the control to the other column.
 
         const $firstCol = $('#wizard-frame-3 .field-col:first');
-        const $firstColInputs = $firstCol.children();
+        const $firstColControls = $firstCol.find('.form-control');
         const $secondCol = $('#wizard-frame-3 .field-col:last');
-        const $secondColInputs = $secondCol.children();
+        const $secondColControls = $secondCol.find('.form-control');
 
-        if ($firstColInputs.length === 1 && $secondColInputs.length > 1) {
-            $firstColInputs.toArray().forEach((controlEl) => {
-                $(controlEl).insertBefore($secondColInputs.first());
+        if ($firstColControls.length === 1 && $secondColControls.length > 1) {
+            $firstColControls.each((index, controlEl) => {
+                $(controlEl).parent().insertBefore($secondColControls.first().parent());
             });
         }
 
-        // LNU: Booking info can use single column always - when enabled, every second-column child is moved
-        // into the first column, not just a single leftover one; reversed first so each insertAfter() (which
-        // always targets the same original last-of-first-column anchor) doesn't flip their relative order.
-        // Operating on all children (not just .form-input elements) also sweeps up the "remember me" checkbox,
-        // which uses .form-check-input (Bootstrap's checkbox styling class) instead of .form-input.
-        if (
-            ($secondColInputs.length === 1 && $firstColInputs.length > 1) ||
-            Boolean(Number(vars('booking_info_single_column')))
-        ) {
-            $secondColInputs
-                .toArray()
-                .reverse()
-                .forEach((controlEl) => {
-                    $(controlEl).insertAfter($firstColInputs.last());
-                });
+        if ($secondColControls.length === 1 && $firstColControls.length > 1) {
+            $secondColControls.each((index, controlEl) => {
+                $(controlEl).parent().insertAfter($firstColControls.last().parent());
+            });
         }
 
         // Hide columns that do not have any controls displayed.
@@ -557,34 +423,10 @@ App.Pages.Booking = (function () {
         $fieldCols.each((index, fieldColEl) => {
             const $fieldCol = $(fieldColEl);
 
-            if (!$fieldCol.find('.form-input').length) {
+            if (!$fieldCol.find('.form-control').length) {
                 $fieldCol.hide();
-
-                // LNU: Booking info can use single column always - the surviving column would otherwise stay
-                // constrained to half-width (col-lg-6); widen it now that it's the only visible column.
-                $fieldCols.removeClass('col-lg-6').addClass('col-md-8');
             }
         });
-    }
-
-    /**
-     * Force the confirmation step's appointment/customer details into a single column, if enabled.
-     *
-     * LNU: Booking info can use single column always.
-     */
-    function optimizeConfirmationDisplay() {
-        if (!Boolean(Number(vars('booking_info_single_column')))) {
-            return;
-        }
-
-        const $frameContent = $('#appointment-details').closest('.frame-content');
-
-        $frameContent.removeClass('row');
-
-        $frameContent
-            .find('.col-lg-6')
-            .removeClass('col-lg-6 text-md-end mb-2 mb-md-0')
-            .addClass('text-md-start mb-5');
     }
 
     /**
@@ -626,11 +468,7 @@ App.Pages.Booking = (function () {
             const serviceId = $selectService.val();
             const previousProviderId = $selectProvider.val();
 
-            // LNU: Hide Provider Selection (README.md #3).
-            const selectHiddenAnyProvider =
-                Boolean(Number(vars('display_any_provider'))) && Boolean(Number(vars('hide_provider_selection')));
-
-            $selectProvider.parent().prop('hidden', !Boolean(serviceId) || selectHiddenAnyProvider);
+            $selectProvider.parent().prop('hidden', !Boolean(serviceId));
 
             $selectProvider.empty();
 
@@ -659,7 +497,6 @@ App.Pages.Booking = (function () {
 
             if (providerOptionCount === 2) {
                 $selectProvider.find('option[value=""]').remove();
-                $selectProvider.val($selectProvider.find('option:first').val());
             }
 
             // Add the "Any Provider" entry
@@ -672,10 +509,6 @@ App.Pages.Booking = (function () {
             if (previousProviderId && previousProviderCanServe) {
                 $selectProvider.val(previousProviderId);
             } else if (previousProviderId === 'any-provider' && providerOptionCount > 2 && Boolean(Number(vars('display_any_provider')))) {
-                $selectProvider.val('any-provider');
-            } else if (selectHiddenAnyProvider && providerOptionCount > 2) {
-                // LNU: Hide Provider Selection (README.md #3) - no explicit choice to restore, so
-                // default straight to "Any Provider" since the selection UI is hidden from the customer.
                 $selectProvider.val('any-provider');
             }
 
@@ -691,13 +524,6 @@ App.Pages.Booking = (function () {
          * Some special tasks might be performed, depending on the current wizard step.
          */
         $('.button-next').on('click', (event) => {
-            // LNU: OIDC Booking Login (README.md #15) - keep the login session alive while the customer is
-            // still navigating the wizard, so a long-lived visit doesn't leave the session stale by the time
-            // they reach the info step or submit.
-            if (vars('auth_refresh_supported')) {
-                App.Http.Booking.silentRefreshSession();
-            }
-
             const $target = $(event.currentTarget);
 
             // LNU: Configurable order for booking wizard steps - each step is now identified by name rather
@@ -707,23 +533,9 @@ App.Pages.Booking = (function () {
             const timeStepIndex = getStepIndexForStepName('time');
             const infoStepIndex = getStepIndexForStepName('info');
 
-            // If we are on the service step, the customer needs a service (and, unless the provider selection
-            // is hidden - README.md #3 - a provider too) selected before continuing.
-            if (currentStepIndex === serviceStepIndex) {
-                $('#service-form-message').text('');
-
-                const selectHiddenAnyProvider =
-                    Boolean(Number(vars('display_any_provider'))) && Boolean(Number(vars('hide_provider_selection')));
-
-                if (!$selectService.val()) {
-                    $('#service-form-message').text(lang('service_missing'));
-                    return;
-                }
-
-                if (!selectHiddenAnyProvider && !$selectProvider.val()) {
-                    $('#service-form-message').text(lang('provider_missing'));
-                    return;
-                }
+            // If we are on the service step and there is no provider selected do not continue with the next step.
+            if (currentStepIndex === serviceStepIndex && !$selectProvider.val()) {
+                return;
             }
 
             // If we are on the time step then the user should have an appointment hour selected.
@@ -747,29 +559,11 @@ App.Pages.Booking = (function () {
                     return; // Validation failed, do not continue.
                 } else {
                     App.Pages.Booking.updateConfirmFrame();
-
+                    
                     // Initialize ALTCHA widget if present
                     if ($('#altcha-widget').length && App.Utils.Altcha) {
                         App.Utils.Altcha.initialize('altcha-widget');
                     }
-                }
-            }
-
-            // LNU: Terms & Conditions Step - the customer must accept the terms before continuing. Only
-            // reachable if "terms" is actually included in booking_step_order (getStepIndexForStepName()
-            // returns 0 otherwise, which currentStepIndex can never match).
-            const termsStepIndex = getStepIndexForStepName('terms');
-
-            if (currentStepIndex === termsStepIndex) {
-                const $acceptToTermsPage = $('#accept-to-terms-page-checkbox');
-
-                $acceptToTermsPage.removeClass('is-invalid');
-                $('#terms-form-message').text('');
-
-                if (!$acceptToTermsPage.prop('checked')) {
-                    $acceptToTermsPage.addClass('is-invalid');
-                    $('#terms-form-message').text(lang('terms_and_conditions_required'));
-                    return;
                 }
             }
 
@@ -787,14 +581,6 @@ App.Pages.Booking = (function () {
                     $selectService.val(),
                     todayMoment.format('YYYY-MM-DD'),
                 );
-            }
-
-            // LNU: Customer Booking Limits (README.md #7) - checked here, on entering the confirmation step,
-            // rather than on leaving the info step: with a custom booking_step_order, service isn't guaranteed
-            // to be selected by the time info is completed, but confirmation is always last, so both service
-            // and the customer's info are guaranteed to be known by this point regardless of order.
-            if (currentStepIndex === getStepIndexForStepName('confirmation')) {
-                App.Pages.Booking.checkCustomerBookingLimits();
             }
 
             const wizardFrame = getWizardFrameForStepIndex(currentStepIndex);
@@ -824,11 +610,6 @@ App.Pages.Booking = (function () {
          * book wizard.
          */
         $('.button-back').on('click', (event) => {
-            // LNU: OIDC Booking Login (README.md #15) - see the ".button-next" handler above.
-            if (vars('auth_refresh_supported')) {
-                App.Http.Booking.silentRefreshSession();
-            }
-
             currentStepIndex = currentStepIndex - 1;
 
             const wizardFrame = getWizardFrameForStepIndex(currentStepIndex);
@@ -942,13 +723,6 @@ App.Pages.Booking = (function () {
          * @param {jQuery.Event} event
          */
         $bookAppointmentSubmit.on('click', () => {
-            // LNU: OIDC Booking Login (README.md #15) - deliberately NOT calling silentRefreshSession() here
-            // like the ".button-next"/".button-back" handlers do: registerAppointment()'s own request already
-            // gets its own fresh check server-side (Booking::register() -> get_authenticated_email() ->
-            // validate_session(), which attempts its own refresh internally if needed), so an extra parallel
-            // ping here would just race it - whichever of the two unrelated AJAX responses happened to come
-            // back first would decide which "session expired" message the customer sees, unpredictably.
-
             const $acceptToTermsAndConditions = $('#accept-to-terms-and-conditions');
 
             $acceptToTermsAndConditions.removeClass('is-invalid');
@@ -994,9 +768,6 @@ App.Pages.Booking = (function () {
         $('#wizard-frame-3 .is-invalid').removeClass('is-invalid');
         $('#wizard-frame-3 label.text-danger').removeClass('text-danger');
 
-        App.Utils.CustomFields.joinAllGroupValues('appt-custom-field-container');
-        App.Utils.CustomFields.joinAllGroupValues('custom-field-container');
-
         // Validate required fields.
         let missingRequiredField = false;
 
@@ -1032,29 +803,6 @@ App.Pages.Booking = (function () {
     }
 
     /**
-     * LNU: Check whether the customer is allowed to make this booking, given the configured customer booking
-     * limits (README.md #7). Disables the submit button until the check completes, and re-disables it if the
-     * booking turns out not to be allowed.
-     */
-    function checkCustomerBookingLimits() {
-        const customerEmail = $('#email').val();
-        const serviceId = $selectService.val();
-        const bookingDate = moment(App.Utils.UI.getDateTimePickerValue($selectDate)).format('YYYY-MM-DD');
-        const excludeAppointmentId = manageMode ? vars('appointment_data').id : null;
-
-        $('#book-appointment-submit').prop('disabled', true);
-        $('#customer-booking-limits-wait').show();
-        $('#customer-booking-limits-text').hide();
-
-        App.Http.Booking.checkCustomerBookingLimits(customerEmail, serviceId, bookingDate, excludeAppointmentId, (result) => {
-            $('#book-appointment-submit').prop('disabled', !result.allowed);
-            $('#customer-booking-limits-text').html(result.message).toggleClass('text-danger', !result.allowed);
-            $('#customer-booking-limits-wait').hide();
-            $('#customer-booking-limits-text').show();
-        });
-    }
-
-    /**
      * Every time this function is executed, it updates the confirmation page with the latest
      * customer settings and input for the appointment booking.
      */
@@ -1062,17 +810,13 @@ App.Pages.Booking = (function () {
         const serviceId = $selectService.val();
         const providerId = $selectProvider.val();
 
-        // LNU: Hide Provider Selection (README.md #3).
-        const selectHiddenAnyProvider =
-            Boolean(Number(vars('display_any_provider'))) && Boolean(Number(vars('hide_provider_selection')));
+        $displayBookingSelection.text(`${lang('service')} │ ${lang('provider')}`); // Notice: "│" is a custom ASCII char
 
         const serviceOptionText = serviceId ? $selectService.find('option:selected').text() : lang('service');
         const providerOptionText = providerId ? $selectProvider.find('option:selected').text() : lang('provider');
 
-        if (selectHiddenAnyProvider) {
-            $displayBookingSelection.text(`${serviceOptionText}`);
-        } else {
-            $displayBookingSelection.text(`${serviceOptionText} │ ${providerOptionText}`); // Notice: "│" is a custom ASCII char
+        if (serviceId || providerId) {
+            $displayBookingSelection.text(`${serviceOptionText} │ ${providerOptionText}`);
         }
 
         if (!$availableHours.find('.selected-hour').text()) {
@@ -1088,9 +832,6 @@ App.Pages.Booking = (function () {
         if (!service) {
             return; // Service was not found
         }
-
-        // LNU: "duration" is the full blocked timeslot (customer-facing time + cooldown) (README.md #5).
-        const customerDuration = Number(service.duration) - Number(service.cooldown);
 
         const selectedDateObject = App.Utils.UI.getDateTimePickerValue($selectDate);
         const selectedDateMoment = moment(selectedDateObject);
@@ -1108,83 +849,32 @@ App.Pages.Booking = (function () {
 
         const timezoneOptionText = $selectTimezone.find('option:selected').text();
 
-        let appointmentDetailsHtml = `
+        $('#appointment-details').html(`
             <div>
                 <div class="mb-2 fw-bold fs-3">
                     ${serviceOptionText}
-                </div>
-                <div class="mb-2 fw-bold text-muted" ${selectHiddenAnyProvider ? 'hidden' : ''}>
+                </div> 
+                <div class="mb-2 fw-bold text-muted">
                     ${providerOptionText}
                 </div>
                 <div class="mb-2">
                     <i class="fas fa-calendar-day me-2"></i>
                     ${formattedSelectedDate}
-                </div>
+                </div> 
                 <div class="mb-2">
                     <i class="fas fa-clock me-2"></i>
-                    ${customerDuration} ${lang('minutes')}
+                    ${service.duration} ${lang('minutes')}
                 </div>
-                <div class="mb-2" ${Boolean(Number(vars('hide_customer_timezone'))) ? 'hidden' : ''}>
+                <div class="mb-2">
                     <i class="fas fa-globe me-2"></i>
                     ${timezoneOptionText}
-                </div>
+                </div> 
                 <div class="mb-2" ${!Number(service.price) ? 'hidden' : ''}>
                     <i class="fas fa-cash-register me-2"></i>
                     ${Number(service.price).toFixed(2)} ${service.currency}
                 </div>
-            </div>
-        `;
-
-        // Appointment custom fields
-        Array.from(document.getElementsByClassName('appt-custom-field-container')).forEach((container) => {
-            const label = App.Utils.String.escapeHtml(container.querySelector('.form-label').childNodes[0].textContent.trim());
-            const rawValue = container.querySelector('.form-input').value;
-            const value = App.Utils.String.escapeHtml(
-                rawValue ? rawValue.split(';').map((string) => lang(string)).join('; ') : lang('no_field_value'),
-            );
-            appointmentDetailsHtml += `
-                <div class="mb-2">
-                    <b>${label}:</b> ${value}
-                </div>
-            `;
-        });
-
-        // Attached files
-        if (App.Utils.AttachedFiles.getMaxAttachedFiles() > 0) {
-            const existingFileRows = Array.from(document.getElementsByClassName('existing-file-name-row'))
-                .map((row) => $(row))
-                .filter(($row) => $row.data('filename'));
-            const hasPreviousFiles = manageMode && existingFileRows.length > 0;
-
-            const attachedFileNamesText = App.Utils.AttachedFiles.getAttachedFiles().length
-                ? App.Utils.AttachedFiles.getAttachedFiles()
-                      .map((file) => App.Utils.String.escapeHtml(file.name))
-                      .join('; ')
-                : App.Utils.String.escapeHtml(lang('no_field_value'));
-
-            appointmentDetailsHtml += `
-                <div class="mb-2">
-                    <b>${hasPreviousFiles ? lang('new_attached_files') : lang('attached_files')}:</b> ${attachedFileNamesText}
-                </div>
-            `;
-
-            if (hasPreviousFiles) {
-                const previousFilesText = existingFileRows
-                    .map(($row) => {
-                        const fileName = App.Utils.String.escapeHtml($row.data('filename'));
-                        return $row.data('discarded') ? `<s>${fileName}</s>` : fileName;
-                    })
-                    .join('; ');
-
-                appointmentDetailsHtml += `
-                    <div class="mb-2">
-                        <b>${lang('prev_attached_files')}:</b> ${previousFilesText}
-                    </div>
-                `;
-            }
-        }
-
-        $('#appointment-details').html(appointmentDetailsHtml);
+            </div>     
+        `);
 
         // Render the customer information
 
@@ -1207,7 +897,7 @@ App.Pages.Booking = (function () {
             addressParts.push(zipCode);
         }
 
-        let customerDetailsHtml = `
+        $('#customer-details').html(`
             <div>
                 <div class="mb-2 fw-bold fs-3">
                     ${lang('contact_info')}
@@ -1228,23 +918,7 @@ App.Pages.Booking = (function () {
                     ${addressParts.join(', ')}
                 </div>
             </div>
-        `;
-
-        // Customer custom fields
-        Array.from(document.getElementsByClassName('custom-field-container')).forEach((container) => {
-            const label = App.Utils.String.escapeHtml(container.querySelector('.form-label').childNodes[0].textContent.trim());
-            const rawValue = container.querySelector('.form-input').value;
-            const value = App.Utils.String.escapeHtml(
-                rawValue ? rawValue.split(';').map((string) => lang(string)).join('; ') : lang('no_field_value'),
-            );
-            customerDetailsHtml += `
-                <div class="mb-2">
-                    <b>${label}:</b> ${value}
-                </div>
-            `;
-        });
-
-        $('#customer-details').html(customerDetailsHtml);
+        `);
 
         // Update appointment form data for submission to server when the user confirms the appointment.
 
@@ -1259,11 +933,12 @@ App.Pages.Booking = (function () {
             city: $city.val(),
             zip_code: $zipCode.val(),
             timezone: $selectTimezone.val(),
+            custom_field_1: $customField1.val(),
+            custom_field_2: $customField2.val(),
+            custom_field_3: $customField3.val(),
+            custom_field_4: $customField4.val(),
+            custom_field_5: $customField5.val(),
         };
-
-        App.Utils.CustomFields.getFieldIndexes('custom-field-container').forEach((i) => {
-            data.customer[`custom_field_${i}`] = $(`#custom-field-${i}`).val();
-        });
 
         data.appointment = {
             start_datetime:
@@ -1278,12 +953,7 @@ App.Pages.Booking = (function () {
             id_services: $selectService.val(),
         };
 
-        App.Utils.CustomFields.getFieldIndexes('appt-custom-field-container').forEach((i) => {
-            data.appointment[`appt_custom_field_${i}`] = $(`#appt-custom-field-${i}`).val();
-        });
-
         data.manage_mode = Number(manageMode);
-        data.discarded_file_names = App.Utils.AttachedFiles.getDiscardedFileNames();
 
         if (manageMode) {
             data.appointment.id = vars('appointment_data').id;
@@ -1355,9 +1025,6 @@ App.Pages.Booking = (function () {
                 startMoment.format('YYYY-MM-DD'),
             );
 
-            // Initialize attached files
-            App.Utils.AttachedFiles.initialize(appointment.id, appointment.attached_file_names || []);
-
             // Apply Customer's Data
             $lastName.val(customer.last_name);
             $firstName.val(customer.first_name);
@@ -1372,17 +1039,11 @@ App.Pages.Booking = (function () {
             const appointmentNotes = appointment.notes !== null ? appointment.notes : '';
             $notes.val(appointmentNotes);
 
-            App.Utils.CustomFields.getFieldIndexes('appt-custom-field-container').forEach((i) => {
-                $(`#appt-custom-field-${i}`).val(appointment[`appt_custom_field_${i}`]);
-            });
-
-            App.Utils.CustomFields.splitAllGroupValues('appt-custom-field-container');
-
-            App.Utils.CustomFields.getFieldIndexes('custom-field-container').forEach((i) => {
-                $(`#custom-field-${i}`).val(customer[`custom_field_${i}`]);
-            });
-
-            App.Utils.CustomFields.splitAllGroupValues('custom-field-container');
+            $customField1.val(customer.custom_field_1);
+            $customField2.val(customer.custom_field_2);
+            $customField3.val(customer.custom_field_3);
+            $customField4.val(customer.custom_field_4);
+            $customField5.val(customer.custom_field_5);
 
             App.Pages.Booking.updateConfirmFrame();
 
@@ -1418,11 +1079,8 @@ App.Pages.Booking = (function () {
 
         const additionalInfoParts = [];
 
-        // LNU: "duration" is the full blocked timeslot (customer-facing time + cooldown) (README.md #5).
-        const customerDuration = Number(service.duration) - Number(service.cooldown);
-
-        if (customerDuration) {
-            additionalInfoParts.push(`${lang('duration')}: ${customerDuration} ${lang('minutes')}`);
+        if (service.duration) {
+            additionalInfoParts.push(`${lang('duration')}: ${service.duration} ${lang('minutes')}`);
         }
 
         if (Number(service.price) > 0) {
@@ -1468,12 +1126,13 @@ App.Pages.Booking = (function () {
             address: $address.val(),
             city: $city.val(),
             zipCode: $zipCode.val(),
+            customField1: $customField1.val(),
+            customField2: $customField2.val(),
+            customField3: $customField3.val(),
+            customField4: $customField4.val(),
+            customField5: $customField5.val(),
             rememberMe: true,
         };
-
-        App.Utils.CustomFields.getFieldIndexes('custom-field-container').forEach((i) => {
-            customerInfo[`customField${i}`] = $(`#custom-field-${i}`).val();
-        });
 
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(customerInfo));
@@ -1526,13 +1185,21 @@ App.Pages.Booking = (function () {
             if (!urlParams.has('zip_code') && !$zipCode.val()) {
                 $zipCode.val(customerInfo.zipCode || '');
             }
-            App.Utils.CustomFields.getFieldIndexes('custom-field-container').forEach((i) => {
-                const $field = $(`#custom-field-${i}`);
-                if (!urlParams.has(`custom_field_${i}`) && !$field.val()) {
-                    $field.val(customerInfo[`customField${i}`] || '');
-                }
-            });
-            App.Utils.CustomFields.splitAllGroupValues('custom-field-container');
+            if (!urlParams.has('custom_field_1') && !$customField1.val()) {
+                $customField1.val(customerInfo.customField1 || '');
+            }
+            if (!urlParams.has('custom_field_2') && !$customField2.val()) {
+                $customField2.val(customerInfo.customField2 || '');
+            }
+            if (!urlParams.has('custom_field_3') && !$customField3.val()) {
+                $customField3.val(customerInfo.customField3 || '');
+            }
+            if (!urlParams.has('custom_field_4') && !$customField4.val()) {
+                $customField4.val(customerInfo.customField4 || '');
+            }
+            if (!urlParams.has('custom_field_5') && !$customField5.val()) {
+                $customField5.val(customerInfo.customField5 || '');
+            }
         } catch (e) {
             console.warn('Could not load customer info from localStorage:', e);
         }
@@ -1585,6 +1252,5 @@ App.Pages.Booking = (function () {
         updateConfirmFrame,
         updateServiceDescription,
         validateCustomerForm,
-        checkCustomerBookingLimits,
     };
 })();

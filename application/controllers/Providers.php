@@ -40,9 +40,6 @@ class Providers extends EA_Controller
         'id_roles',
         'settings',
         'services',
-        'color',
-        'create_zoom_links',
-        'max_appointments_per_day',
     ];
 
     public array $optional_provider_fields = [
@@ -109,11 +106,6 @@ class Providers extends EA_Controller
 
         $role_slug = session('role_slug');
 
-        // LNU: Extended Backend Permissions for Providers (README.md #9).
-        if ($role_slug === DB_SLUG_PROVIDER && !setting('provider_extended_backend_permissions')) {
-            abort(403, 'Forbidden');
-        }
-
         $services = $this->services_model->get();
 
         foreach ($services as &$service) {
@@ -156,18 +148,6 @@ class Providers extends EA_Controller
 
             if (cannot('view', PRIV_USERS)) {
                 abort(403, 'Forbidden');
-            }
-
-            // LNU: Extended Backend Permissions for Providers (README.md #9) - a provider may only ever see
-            // their own record here, never search for or list other providers.
-            if (session('role_slug') === DB_SLUG_PROVIDER) {
-                if (!setting('provider_extended_backend_permissions')) {
-                    abort(403, 'Forbidden');
-                }
-
-                json_response([$this->providers_model->find(session('user_id'))]);
-
-                return;
             }
 
             check('keyword', 'string|null');
@@ -251,18 +231,6 @@ class Providers extends EA_Controller
                 throw new InvalidArgumentException('Invalid provider ID provided.');
             }
 
-            // LNU: Extended Backend Permissions for Providers (README.md #9) - a provider may only ever view
-            // their own record, never another provider's.
-            if (session('role_slug') === DB_SLUG_PROVIDER) {
-                if (!setting('provider_extended_backend_permissions')) {
-                    abort(403, 'Forbidden');
-                }
-
-                if ((int) $provider_id !== (int) session('user_id')) {
-                    abort(403, 'Forbidden');
-                }
-            }
-
             $provider = $this->providers_model->find($provider_id);
 
             json_response($provider);
@@ -286,18 +254,6 @@ class Providers extends EA_Controller
             check('provider', 'array');
 
             $provider = request('provider');
-
-            // LNU: Extended Backend Permissions for Providers (README.md #9) - a provider may only ever edit
-            // their own record, never another provider's.
-            if (session('role_slug') === DB_SLUG_PROVIDER) {
-                if (!setting('provider_extended_backend_permissions')) {
-                    abort(403, 'Forbidden');
-                }
-
-                if ((int) ($provider['id'] ?? 0) !== (int) session('user_id')) {
-                    abort(403, 'Forbidden');
-                }
-            }
 
             $this->providers_model->only($provider, $this->allowed_provider_fields);
 

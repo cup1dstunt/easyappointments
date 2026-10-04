@@ -33,7 +33,6 @@ App.Utils.CalendarEventPopover = (function () {
             return null;
         }
         return $('<div/>', {
-            class: 'flex-shrink-0 me-1',
             html: [
                 $('<a/>', {
                     href: 'https://google.com/maps/place/' + data.join(','),
@@ -55,7 +54,6 @@ App.Utils.CalendarEventPopover = (function () {
             return null;
         }
         return $('<div/>', {
-            class: 'flex-shrink-0 me-1',
             html: [
                 $('<a/>', {
                     href: 'mailto:' + email,
@@ -77,7 +75,6 @@ App.Utils.CalendarEventPopover = (function () {
             return null;
         }
         return $('<div/>', {
-            class: 'flex-shrink-0 me-1',
             html: [
                 $('<a/>', {
                     href: 'tel:' + phone,
@@ -170,34 +167,6 @@ App.Utils.CalendarEventPopover = (function () {
     }
 
     /**
-     * Create a labeled row for popover content, truncating the value to a single line.
-     *
-     * The value needs both a Bootstrap "flex-grow-1" (to occupy the row's remaining width,
-     * so all values line up under the same "column") and an explicit "min-width: 0" (so a flex
-     * item can shrink below its content's natural width and actually truncate).
-     *
-     * @param {string} label - Row label text.
-     * @param {string|null} icon - Optional icon HTML rendered between the label and value.
-     * @param {string} text - Value text content.
-     * @param {string|null} href - Optional link URL, renders the value as a link when set.
-     * @returns {jQuery} Row element.
-     */
-    function createPopoverRowElement(label, icon, text, href) {
-        const valueElement = href
-            ? $('<a/>', {href, target: '_blank', title: text, text})
-            : $('<span/>', {title: text, text});
-
-        return $('<div/>', {
-            class: 'd-flex align-items-center mb-1',
-            html: [
-                $('<strong/>', {class: 'flex-shrink-0 me-2', text: label}),
-                icon,
-                valueElement.addClass('text-truncate flex-grow-1').css('min-width', 0),
-            ].filter(Boolean),
-        });
-    }
-
-    /**
      * Create a labeled text row for popover content.
      *
      * @param {string} labelKey - Language key for label.
@@ -205,7 +174,11 @@ App.Utils.CalendarEventPopover = (function () {
      * @returns {Array<jQuery>} Array of jQuery elements.
      */
     function createPopoverRow(labelKey, text) {
-        return [createPopoverRowElement(lang(labelKey), null, text, null)];
+        return [
+            $('<strong/>', {class: 'd-inline-block me-2', text: lang(labelKey)}),
+            $('<span/>', {text: text}),
+            $('<br/>'),
+        ];
     }
 
     // Popover Content Builders
@@ -293,9 +266,13 @@ App.Utils.CalendarEventPopover = (function () {
         const customer = data.customer;
         const provider = data.provider;
         const customerName = [customer.first_name, customer.last_name].filter(Boolean).join(' ') || '-';
-        const meetingLinkElement = data.meeting_link
-            ? createPopoverRowElement(lang('meeting_link'), null, data.meeting_link, data.meeting_link)
-            : null;
+        const meetingLinkElements = data.meeting_link
+            ? [
+                  $('<strong/>', {class: 'd-inline-block me-2', text: lang('meeting_link')}),
+                  $('<a/>', {href: data.meeting_link, target: '_blank', text: data.meeting_link}),
+                  $('<br/>'),
+              ]
+            : [];
         return $('<div/>', {
             html: [
                 ...createPopoverRow('start', formatDateTime(info.event.start)),
@@ -303,26 +280,23 @@ App.Utils.CalendarEventPopover = (function () {
                 ...createPopoverRow('timezone', vars('timezones')[provider.timezone]),
                 ...createPopoverRow('status', data.status || '-'),
                 ...createPopoverRow('service', data.service.name),
-                createPopoverRowElement(
-                    lang('provider'),
-                    renderMapIcon(provider),
-                    provider.first_name + ' ' + provider.last_name,
-                    null,
-                ),
-                createPopoverRowElement(lang('customer'), renderMapIcon(customer), customerName, null),
-                createPopoverRowElement(
-                    lang('email'),
-                    renderMailIcon(customer.email),
-                    customer.email || '-',
-                    null,
-                ),
-                createPopoverRowElement(
-                    lang('phone'),
-                    renderPhoneIcon(customer.phone_number),
-                    customer.phone_number || '-',
-                    null,
-                ),
-                meetingLinkElement,
+                $('<strong/>', {class: 'd-inline-block me-2', text: lang('provider')}),
+                renderMapIcon(provider),
+                $('<span/>', {text: provider.first_name + ' ' + provider.last_name}),
+                $('<br/>'),
+                $('<strong/>', {class: 'd-inline-block me-2', text: lang('customer')}),
+                renderMapIcon(customer),
+                $('<span/>', {class: 'd-inline-block', text: customerName}),
+                $('<br/>'),
+                $('<strong/>', {class: 'd-inline-block me-2', text: lang('email')}),
+                renderMailIcon(customer.email),
+                $('<span/>', {class: 'd-inline-block', text: customer.email || '-'}),
+                $('<br/>'),
+                $('<strong/>', {class: 'd-inline-block me-2', text: lang('phone')}),
+                renderPhoneIcon(customer.phone_number),
+                $('<span/>', {class: 'd-inline-block', text: customer.phone_number || '-'}),
+                $('<br/>'),
+                ...meetingLinkElements,
                 ...createPopoverRow('notes', getEventNotes(info.event)),
                 renderCustomContent(info),
                 $('<hr/>'),

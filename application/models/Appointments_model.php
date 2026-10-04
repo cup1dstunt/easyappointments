@@ -51,17 +51,6 @@ class Appointments_model extends EA_Model
     ];
 
     /**
-     * Appointments_model constructor.
-     * Configurable number of appointment custom fields added dynamically.
-     */
-    function __construct() {
-        parent::__construct();
-        for ($i = 1; $i <= config('max_appt_custom_fields', 5); $i++) {
-            $this->api_resource['apptCustomField' . $i] = 'appt_custom_field_' . $i;
-        }
-    }
-
-    /**
      * Save (insert or update) an appointment.
      *
      * @param array $appointment Associative array with the appointment data.
@@ -618,24 +607,11 @@ class Appointments_model extends EA_Model
             'providerId' => $appointment['id_users_provider'] !== null ? (int) $appointment['id_users_provider'] : null,
             'serviceId' => $appointment['id_services'] !== null ? (int) $appointment['id_services'] : null,
             'meetingLink' => $appointment['meeting_link'],
-            // LNU: Zoom Meeting Links (README.md #14) - only the meeting id is exposed here. The host/start
-            // link (zoom_start_link) is deliberately never included in the API resource, since it lets whoever
-            // holds it start and control the meeting as host - it is only ever shown to staff, in the backend
-            // appointment modal and in staff-facing emails.
-            'zoomMeetingId' => $appointment['zoom_meeting_id'] ?? null,
             'googleCalendarId' =>
                 $appointment['id_google_calendar'] !== null ? $appointment['id_google_calendar'] : null,
             'caldavCalendarId' =>
                 $appointment['id_caldav_calendar'] !== null ? $appointment['id_caldav_calendar'] : null,
         ];
-
-        for ($i = 1; $i <= config('max_appt_custom_fields', 5); $i++) {
-            $encoded_resource['apptCustomField' . $i] = $appointment['appt_custom_field_' . $i];
-        }
-
-        $encoded_resource['attachedFileNames'] = !empty($appointment['id'])
-            ? $this->get_attached_files((int) $appointment['id'])
-            : [];
 
         $appointment = $encoded_resource;
     }
@@ -710,12 +686,6 @@ class Appointments_model extends EA_Model
             $decoded_resource['meeting_link'] = $appointment['meetingLink'];
         }
 
-        for ($i = 1; $i <= config('max_appt_custom_fields', 5); $i++) {
-            if (array_key_exists('apptCustomField' . $i, $appointment)) {
-                $decoded_resource['appt_custom_field_' . $i] = $appointment['apptCustomField' . $i];
-            }
-        }
-
         $decoded_resource['is_unavailability'] = false;
 
         $appointment = $decoded_resource;
@@ -773,191 +743,5 @@ class Appointments_model extends EA_Model
             ->group_end()
             ->get()
             ->num_rows() > 0;
-    }
-
-    /**
-     * LNU: Support for Attached Files (README.md #2).
-     *
-     * Each appointment's attached files live in their own directory, named after the appointment ID, under
-     * storage/uploads/. This is the single source of truth for which files are attached to an appointment -
-     * there is no database column to keep in sync.
-     */
-
-    /**
-     * Get the directory where an appointment's attached files are stored.
-     *
-     * @param int $appointment_id Appointment ID.
-     *
-     * @return string Relative path to the appointment's attached files directory.
-     */
-    public function get_attached_files_directory(int $appointment_id): string
-    {
-        return 'storage/uploads/' . $appointment_id;
-    }
-
-    /**
-     * Get the list of attached file names for an appointment.
-     *
-     * @param int $appointment_id Appointment ID.
-     *
-     * @return string[] File names, sorted alphabetically.
-     */
-    public function get_attached_files(int $appointment_id): array
-    {
-        $directory = $this->get_attached_files_directory($appointment_id);
-
-        if (!is_dir($directory)) {
-            return [];
-        }
-
-        $files = array_values(array_diff(scandir($directory) ?: [], ['.', '..']));
-
-        sort($files);
-
-        return $files;
-    }
-
-    /**
-     * Validate and store an uploaded file as one of an appointment's attached files.
-     *
-     * If a file with the same name is already attached to the appointment, the new file is saved under a
-     * disambiguated name (e.g. "invoice (1).pdf") rather than overwriting it.
-     *
-     * @param int $appointment_id Appointment ID.
-     * @param string $file_field_name The $_FILES key to read the upload from (e.g. "attached_file_data_1").
-     *
-     * @return string|null The stored file name, or null if no file was provided for this field.
-     *
-     * @throws RuntimeException If the upload is invalid, too large, or not an allowed file type.
-     */
-    public function save_attached_file(int $appointment_id, string $file_field_name): ?string
-    {
-        if (!isset($_FILES[$file_field_name]) || $_FILES[$file_field_name]['error'] === UPLOAD_ERR_NO_FILE) {
-            return null;
-        }
-
-        if (!isset($_FILES[$file_field_name]['error']) || is_array($_FILES[$file_field_name]['error'])) {
-            throw new RuntimeException(lang('invalid_parameters'));
-        }
-
-        switch ($_FILES[$file_field_name]['error']) {
-            case UPLOAD_ERR_OK:
-                break;
-
-            case UPLOAD_ERR_INI_SIZE:
-            case UPLOAD_ERR_FORM_SIZE:
-                throw new RuntimeException(lang('system_file_size_exceeded'));
-
-            default:
-                throw new RuntimeException(lang('unknown_error'));
-        }
-
-        $tmp_name = $_FILES[$file_field_name]['tmp_name'];
-        $size = (int) $_FILES[$file_field_name]['size'];
-        $original_name = basename($_FILES[$file_field_name]['name']);
-
-        $max_size = (int) setting('attached_files_max_size');
-
-        if ($size > $max_size) {
-            $this->load->helper('number');
-
-            throw new RuntimeException(sprintf(lang('attached_files_max_size_exceeded'), byte_format($max_size)));
-        }
-
-        $finfo = new finfo(FILEINFO_MIME_TYPE);
-        $mime_type = $finfo->file($tmp_name);
-
-        $allowed_types = array_map('trim', explode(',', (string) setting('attached_files_allowed_types')));
-        $mimes = get_mimes();
-        $allowed_mime_types = [];
-
-        foreach ($allowed_types as $allowed_type) {
-            $allowed_type = trim($allowed_type, '. ');
-
-            if (array_key_exists($allowed_type, $mimes)) {
-                $allowed_mime_types = array_merge($allowed_mime_types, (array) $mimes[$allowed_type]);
-            } elseif (in_array($allowed_type, $mimes, true)) {
-                $allowed_mime_types[] = $allowed_type;
-            }
-        }
-
-        if (!in_array($mime_type, $allowed_mime_types, true)) {
-            throw new RuntimeException(
-                sprintf(lang('attached_files_invalid_format'), lang(setting('attached_files_allowed_types_hint', ''))),
-            );
-        }
-
-        $directory = $this->get_attached_files_directory($appointment_id);
-
-        if (!is_dir($directory) && !mkdir($directory, 0755, true) && !is_dir($directory)) {
-            throw new RuntimeException(lang('failed_to_move_file'));
-        }
-
-        $final_name = $this->disambiguate_attached_file_name($directory, $original_name);
-
-        if (!move_uploaded_file($tmp_name, $directory . '/' . $final_name)) {
-            throw new RuntimeException(lang('failed_to_move_file'));
-        }
-
-        return $final_name;
-    }
-
-    /**
-     * Delete one of an appointment's attached files.
-     *
-     * @param int $appointment_id Appointment ID.
-     * @param string $filename File name to delete.
-     */
-    public function delete_attached_file(int $appointment_id, string $filename): void
-    {
-        $path = $this->get_attached_files_directory($appointment_id) . '/' . basename($filename);
-
-        if (is_file($path)) {
-            unlink($path);
-        }
-    }
-
-    /**
-     * Delete every attached file for an appointment, along with its directory.
-     *
-     * @param int $appointment_id Appointment ID.
-     */
-    public function delete_attached_files(int $appointment_id): void
-    {
-        $directory = $this->get_attached_files_directory($appointment_id);
-
-        if (!is_dir($directory)) {
-            return;
-        }
-
-        foreach (array_diff(scandir($directory) ?: [], ['.', '..']) as $file) {
-            unlink($directory . '/' . $file);
-        }
-
-        rmdir($directory);
-    }
-
-    /**
-     * Find a file name that does not already exist in the given directory, appending " (1)", " (2)", etc.
-     * to the base name as needed.
-     *
-     * @param string $directory Directory to check for a collision.
-     * @param string $filename Desired file name.
-     *
-     * @return string A file name that does not currently exist in the directory.
-     */
-    private function disambiguate_attached_file_name(string $directory, string $filename): string
-    {
-        $path_info = pathinfo($filename);
-        $name = $path_info['filename'];
-        $extension = isset($path_info['extension']) && $path_info['extension'] !== '' ? '.' . $path_info['extension'] : '';
-
-        $candidate = $filename;
-
-        for ($suffix = 1; file_exists($directory . '/' . $candidate); $suffix++) {
-            $candidate = $name . ' (' . $suffix . ')' . $extension;
-        }
-
-        return $candidate;
     }
 }

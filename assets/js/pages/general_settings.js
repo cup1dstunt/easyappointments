@@ -21,15 +21,7 @@ App.Pages.GeneralSettings = (function () {
     const $removeCompanyLogo = $('#remove-company-logo');
     const $companyColor = $('#company-color');
     const $resetCompanyColor = $('#reset-company-color');
-    const $calendarSlotMinTime = $('#calendar-slot-min-time');
-    const $calendarSlotMaxTime = $('#calendar-slot-max-time');
-    const $calendarScrollTime = $('#calendar-scroll-time');
     let companyLogoBase64 = '';
-
-    // LNU: Calendar Display Settings - stored/exchanged with the server as 24h "HH:mm:ss" (matching
-    // FullCalendar's slotMinTime/slotMaxTime/scrollTime), but displayed in the admin's configured time_format
-    // via the same flatpickr time picker used everywhere else (App.Utils.UI.initializeTimePicker()).
-    const CALENDAR_TIME_FIELD_NAMES = ['calendar_slot_min_time', 'calendar_slot_max_time', 'calendar_scroll_time'];
 
     /**
      * Check if the form has invalid values.
@@ -80,11 +72,6 @@ App.Pages.GeneralSettings = (function () {
 
             const $field = $('[data-field="' + generalSetting.name + '"]');
 
-            if (CALENDAR_TIME_FIELD_NAMES.includes(generalSetting.name)) {
-                App.Utils.UI.setDateTimePickerValue($field, moment(generalSetting.value, 'HH:mm:ss').toDate());
-                return;
-            }
-
             $field.is(':checkbox')
                 ? $field.prop('checked', Boolean(Number(generalSetting.value)))
                 : $field.val(generalSetting.value);
@@ -96,24 +83,10 @@ App.Pages.GeneralSettings = (function () {
 
         $('[data-field]').each((index, field) => {
             const $field = $(field);
-            const fieldName = $field.data('field');
-
-            if (CALENDAR_TIME_FIELD_NAMES.includes(fieldName)) {
-                return; // Handled below - the picker's own .val() is a localized display string, not HH:mm:ss.
-            }
 
             generalSettings.push({
-                name: fieldName,
+                name: $field.data('field'),
                 value: $field.is(':checkbox') ? Number($field.prop('checked')) : $field.val(),
-            });
-        });
-
-        CALENDAR_TIME_FIELD_NAMES.forEach((fieldName) => {
-            const $field = $('[data-field="' + fieldName + '"]');
-
-            generalSettings.push({
-                name: fieldName,
-                value: moment(App.Utils.UI.getDateTimePickerValue($field)).format('HH:mm:ss'),
             });
         });
 
@@ -203,11 +176,6 @@ App.Pages.GeneralSettings = (function () {
         $companyColor.on('change', onCompanyColorChange);
 
         $resetCompanyColor.on('click', onResetCompanyColorClick);
-
-        // Must run before deserialize() below, which sets their values via the flatpickr instance.
-        App.Utils.UI.initializeTimePicker($calendarSlotMinTime);
-        App.Utils.UI.initializeTimePicker($calendarSlotMaxTime);
-        App.Utils.UI.initializeTimePicker($calendarScrollTime);
 
         const generalSettings = vars('general_settings');
 

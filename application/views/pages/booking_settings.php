@@ -2,11 +2,6 @@
 
 <?php section('content'); ?>
 
-<?php
-$max_custom_fields = config('max_custom_fields', 5);
-$max_appt_custom_fields = config('max_appt_custom_fields', 5);
-?>
-
 <div id="booking-settings-page" class="container backend-page py-3">
     <div id="booking-settings">
         <div class="row">
@@ -256,8 +251,8 @@ $max_appt_custom_fields = config('max_appt_custom_fields', 5);
                         </h5>
 
                         <div class="row mb-5 fields-row">
-                            <?php for ($i = 1; $i <= $max_custom_fields; $i++): ?>
-                                <div class="col-lg-6">
+                            <?php for ($i = 1; $i <= 5; $i++): ?>
+                                <div class="col-sm-9">
                                     <div class="form-group mb-5">
                                         <label for="custom-field-<?= $i ?>" class="form-label">
                                             <?= lang('custom_field') ?> #<?= $i ?>
@@ -294,48 +289,6 @@ $max_appt_custom_fields = config('max_appt_custom_fields', 5);
                             <?php endfor; ?>
                         </div>
 
-                        <h5 class="mb-3 fw-light">
-                            <?= lang('appt_custom_fields') ?>
-                        </h5>
-
-                        <div class="row mb-5 fields-row">
-                            <?php for ($i = 1; $i <= $max_appt_custom_fields; $i++): ?>
-                                <div class="col-lg-6">
-                                    <div class="form-group mb-5">
-                                        <label for="appt-custom-field-<?= $i ?>" class="form-label">
-                                            <?= lang('appt_custom_field') ?> #<?= $i ?>
-                                            <span class="text-danger">*</span>
-                                        </label>
-
-                                        <input type="text" id="appt-custom-field-<?= $i ?>" class="form-control mb-2"
-                                               placeholder="<?= lang('label') ?>"
-                                               data-field="label_appt_custom_field_<?= $i ?>"
-                                               aria-label="label"
-                                        />
-
-                                        <div class="d-flex">
-                                            <div class="form-check form-switch me-4">
-                                                <input class="form-check-input display-switch" type="checkbox"
-                                                       id="display-appt-custom-field-<?= $i ?>"
-                                                       data-field="display_appt_custom_field_<?= $i ?>">
-                                                <label class="form-check-label" for="display-appt-custom-field-<?= $i ?>">
-                                                    <?= lang('display') ?>
-                                                </label>
-                                            </div>
-
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input require-switch" type="checkbox"
-                                                       id="require-appt-custom-field-<?= $i ?>"
-                                                       data-field="require_appt_custom_field_<?= $i ?>">
-                                                <label class="form-check-label" for="require-appt-custom-field-<?= $i ?>">
-                                                    <?= lang('require') ?>
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php endfor; ?>
-                        </div>
 
                         <h5 class="mb-3 fw-light">
                             <?= lang('options') ?>
@@ -344,7 +297,6 @@ $max_appt_custom_fields = config('max_appt_custom_fields', 5);
                         <div class="row">
                             <div class="col-12">
                                 <div class="border rounded mb-3 p-3">
-
                                     <div class="mb-3">
                                         <div class="form-check form-switch">
                                             <input class="form-check-input" type="checkbox" id="customer-notifications"
@@ -409,7 +361,7 @@ $max_appt_custom_fields = config('max_appt_custom_fields', 5);
                                         </div>
                                     </div>
 
-                                    <div class="mb-3 setting-group">
+                                    <div class="mb-3">
                                         <div class="form-check form-switch">
                                             <input class="form-check-input" type="checkbox" id="display-any-provider"
                                                    data-field="display_any_provider">
@@ -418,32 +370,9 @@ $max_appt_custom_fields = config('max_appt_custom_fields', 5);
                                             </label>
                                         </div>
 
-                                        <div class="subsettings fields-row">
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" id="hide-provider-selection"
-                                                       data-field="hide_provider_selection">
-                                                <label class="form-check-label" for="hide-provider-selection">
-                                                    <?= lang('hide_provider_selection') ?>
-                                                </label>
-                                            </div>
-                                            <div class="form-group row">
-                                                <select class="form-select form-control form-control-sm col-3" id="provider-selection-method"
-                                                        data-field="provider_selection_method">
-                                                    <option value="on_date"><?= lang('provider_selection_on_date') ?></option>
-                                                    <option value="around_date"><?= lang('provider_selection_around_date') ?></option>
-                                                </select>
-                                                <label class="form-check-label col-7" for="provider-selection-method">
-                                                    <?= lang('provider_selection_method') ?>
-                                                </label>
-                                            </div>
-                                        </div>
-
                                         <div class="form-text text-muted">
                                             <small>
                                                 <?= lang('display_any_provider_hint') ?>
-                                            </small>
-                                            <small>
-                                                <?= lang('hide_provider_selection_hint') ?>
                                             </small>
                                         </div>
                                     </div>
@@ -481,7 +410,7 @@ $max_appt_custom_fields = config('max_appt_custom_fields', 5);
                                         </div>
                                     </div>
 
-                                    <div class="mb-3">
+                                    <div>
                                         <div class="form-check form-switch">
                                             <input class="form-check-input" type="checkbox" id="disable-booking"
                                                    data-field="disable_booking">
@@ -503,162 +432,6 @@ $max_appt_custom_fields = config('max_appt_custom_fields', 5);
                                         </label>
                                         <textarea id="disable-booking-message" cols="30" rows="10"
                                                   class="mb-3"></textarea>
-                                    </div>
-
-                                    <div class="mb-3 setting-group">
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="attached-files-supported"
-                                                   data-field="attached_files_supported">
-                                            <label class="form-check-label" for="attached-files-supported">
-                                                <?= lang('attached_files_supported') ?>
-                                            </label>
-                                        </div>
-                                        <div class="subsettings fields-row">
-                                            <div class="form-group row">
-                                                <input class="form-input form-control form-control-sm col-3" type="number" id="max-attached-files"
-                                                    data-field="max_attached_files"
-                                                    min="1" max="<?= config('max_attached_files') ?>">
-                                                <label class="form-check-label col-7" for="max-attached-files">
-                                                    <?= lang('max_attached_files') ?>
-                                                </label>
-                                            </div>
-                                            <div class="form-group row">
-                                                <input class="form-input form-control form-control-sm col-3" type="text" id="attached-files-max_size"
-                                                    data-field="attached_files_max_size">
-                                                <label class="form-check-label col-7" for="attached-files-max_size">
-                                                    <?= lang('attached_files_admin_max_size') ?>
-                                                </label>
-                                            </div>
-                                            <div class="form-group row">
-                                                <input class="form-input form-control form-control-sm col-3" type="text" id="attached-files-allowed-types"
-                                                    data-field="attached_files_allowed_types">
-                                                <label class="form-check-label col-7" for="attached-files-allowed-types">
-                                                    <?= lang('attached_files_admin_allowed_types') ?>
-                                                </label>
-                                            </div>
-                                            <div class="form-group row">
-                                                <input class="form-input form-control form-control-sm col-3" type="text" id="attached-files-allowed-types-hint"
-                                                    data-field="attached_files_allowed_types_hint">
-                                                <label class="form-check-label col-7" for="attached-files-allowed-types-hint">
-                                                    <?= lang('attached_files_admin_allowed_types_hint') ?>
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div class="form-text text-muted">
-                                            <small>
-                                                <?= lang('attached_files_admin_hint') ?>
-                                            </small>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="hide-customer-timezone"
-                                                   data-field="hide_customer_timezone">
-                                            <label class="form-check-label" for="hide-customer-timezone">
-                                                <?= lang('hide_customer_timezone') ?>
-                                            </label>
-                                        </div>
-
-                                        <div class="form-text text-muted">
-                                            <small>
-                                                <?= lang('hide_customer_timezone_hint') ?>
-                                            </small>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="provider-extended-backend-permissions"
-                                                   data-field="provider_extended_backend_permissions">
-                                            <label class="form-check-label" for="provider-extended-backend-permissions">
-                                                <?= lang('provider_extended_backend_permissions') ?>
-                                            </label>
-                                        </div>
-
-                                        <div class="form-text text-muted">
-                                            <small>
-                                                <?= lang('provider_extended_backend_permissions_hint') ?>
-                                            </small>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="current-language-services-first"
-                                                   data-field="current_language_services_first">
-                                            <label class="form-check-label" for="current-language-services-first">
-                                                <?= lang('current_language_services_first') ?>
-                                            </label>
-                                        </div>
-
-                                        <div class="form-text text-muted">
-                                            <small>
-                                                <?= lang('current_language_services_first_hint') ?>
-                                            </small>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-3 setting-group">
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="booking-custom-messages-enabled"
-                                                   data-field="booking_custom_messages_enabled">
-                                            <label class="form-check-label" for="booking-custom-messages-enabled">
-                                                <?= lang('booking_custom_messages_enabled') ?>
-                                            </label>
-                                        </div>
-                                        <div class="subsettings fields-row">
-                                            <div class="form-group row">
-                                                <input class="form-input form-control form-control-sm col-3" type="text" id="booking-custom-message-service-page"
-                                                       data-field="booking_custom_message_service_page">
-                                                <label class="form-check-label col-7" for="booking-custom-message-service-page">
-                                                    <?= lang('booking_custom_message_service_page') ?>
-                                                </label>
-                                            </div>
-                                            <div class="form-group row">
-                                                <input class="form-input form-control form-control-sm col-3" type="text" id="booking-custom-message-time-unavailable"
-                                                       data-field="booking_custom_message_time_unavailable">
-                                                <label class="form-check-label col-7" for="booking-custom-message-time-unavailable">
-                                                    <?= lang('booking_custom_message_time_unavailable') ?>
-                                                </label>
-                                            </div>
-                                            <div class="form-group row">
-                                                <input class="form-input form-control form-control-sm col-3" type="text" id="booking-custom-message-confirm-link"
-                                                       data-field="booking_custom_message_confirm_link">
-                                                <label class="form-check-label col-7" for="booking-custom-message-confirm-link">
-                                                    <?= lang('booking_custom_message_confirm_link') ?>
-                                                </label>
-                                            </div>
-                                            <div class="form-group row">
-                                                <input class="form-input form-control form-control-sm col-3" type="text" id="booking-custom-message-confirm-link-text"
-                                                       data-field="booking_custom_message_confirm_link_text">
-                                                <label class="form-check-label col-7" for="booking-custom-message-confirm-link-text">
-                                                    <?= lang('booking_custom_message_confirm_link_text') ?>
-                                                </label>
-                                            </div>
-                                        </div>
-
-                                        <div class="form-text text-muted">
-                                            <small>
-                                                <?= lang('booking_custom_messages_hint') ?>
-                                            </small>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="booking-info-single-column"
-                                                   data-field="booking_info_single_column">
-                                            <label class="form-check-label" for="booking-info-single-column">
-                                                <?= lang('booking_info_single_column') ?>
-                                            </label>
-                                        </div>
-
-                                        <div class="form-text text-muted">
-                                            <small>
-                                                <?= lang('booking_info_single_column_hint') ?>
-                                            </small>
-                                        </div>
                                     </div>
 
                                     <div class="mb-3 setting-group">
@@ -688,7 +461,6 @@ $max_appt_custom_fields = config('max_appt_custom_fields', 5);
                                             </small>
                                         </div>
                                     </div>
-
                                 </div>
                             </div>
                         </div>

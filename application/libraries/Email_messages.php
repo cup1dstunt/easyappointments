@@ -99,8 +99,6 @@ class Email_messages
             $appointment['end_datetime'] = $appointment_end->format('Y-m-d H:i:s');
         }
 
-        $appointment['attached_file_names'] = $this->CI->appointments_model->get_attached_files((int) $appointment['id']);
-
         $html = $this->CI->load->view(
             'emails/appointment_saved_email',
             [
@@ -173,8 +171,6 @@ class Email_messages
             $appointment_end->setTimezone($custom_timezone);
             $appointment['end_datetime'] = $appointment_end->format('Y-m-d H:i:s');
         }
-
-        $appointment['attached_file_names'] = $this->CI->appointments_model->get_attached_files((int) $appointment['id']);
 
         $html = $this->CI->load->view(
             'emails/appointment_deleted_email',
@@ -287,10 +283,8 @@ class Email_messages
             $php_mailer->Port = config('smtp_port');
         }
 
-        // LNU: Settings Text Translatability - company_name/company_email may be set to a translation key
-        // instead of literal text, resolved here via lang()'s existing fallback-to-literal behavior.
-        $from_name = config('from_name') ?: lang(setting('company_name'));
-        $from_address = config('from_address') ?: lang(setting('company_email'));
+        $from_name = config('from_name') ?: setting('company_name');
+        $from_address = config('from_address') ?: setting('company_email');
 
         $php_mailer->setFrom($from_address, $from_name);
 
@@ -299,7 +293,7 @@ class Email_messages
         if ($reply_to_email) {
             $php_mailer->addReplyTo($reply_to_email, (string) $reply_to_name);
         } else {
-            $reply_to_address = config('reply_to') ?: lang(setting('company_email'));
+            $reply_to_address = config('reply_to') ?: setting('company_email');
             $php_mailer->addReplyTo($reply_to_address);
         }
 

@@ -26,7 +26,7 @@
             <div class="modal-body">
                 <div class="modal-message alert d-none"></div>
 
-                <form enctype="multipart/form-data">
+                <form>
                     <fieldset>
                         <h5 class="mb-3 fw-light"><?= lang('appointment_details_title') ?></h5>
 
@@ -117,10 +117,7 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <?php component('color_selection', [
-                                        'attributes' => 'id="appointment-color"',
-                                        'custom_colors' => config('appointment_colors'),
-                                    ]); ?>
+                                    <?php component('color_selection', ['attributes' => 'id="appointment-color"']); ?>
                                 </div>
 
                                 <div class="mb-3">
@@ -134,31 +131,7 @@
                                     <label for="appointment-meeting-link" class="form-label">
                                         <?= lang('meeting_link') ?>
                                     </label>
-                                    <div class="input-group">
-                                        <input id="appointment-meeting-link" class="form-control" placeholder="https://">
-                                        <button type="button" class="btn btn-outline-secondary open-link-button"
-                                                data-target="appointment-meeting-link"
-                                                data-tippy-content="<?= lang('open_meeting_link') ?>">
-                                            <i class="fas fa-external-link-alt"></i>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div id="zoom-info-container" class="mb-3 d-none">
-                                    <label for="zoom-host-link" class="form-label">
-                                        <?= lang('zoom_host_link') ?>
-                                    </label>
-                                    <div class="input-group">
-                                        <input id="zoom-host-link" class="form-control" readonly>
-                                        <button type="button" class="btn btn-outline-secondary open-link-button"
-                                                data-target="zoom-host-link"
-                                                data-tippy-content="<?= lang('open_meeting_link') ?>">
-                                            <i class="fas fa-external-link-alt"></i>
-                                        </button>
-                                    </div>
-                                    <div class="form-text text-muted">
-                                        <?= lang('zoom_host_link_hint') ?>
-                                    </div>
+                                    <input id="appointment-meeting-link" class="form-control" placeholder="https://">
                                 </div>
 
                                 <div class="mb-3">
@@ -224,9 +197,6 @@
                                         ? 'required'
                                         : '' ?> form-control" rows="3"></textarea>
                                 </div>
-
-                                <?php component('custom_fields', ['disabled' => false, 'fieldset' => 'appointment']); ?>
-                                <?php component('attached_files'); ?>
 
                             </div>
                         </div>
@@ -322,6 +292,8 @@
                                     </select>
                                 </div>
 
+                                <?php component('custom_fields'); ?>
+
                             </div>
                             <div class="col-12 col-sm-6">
                                 <div class="mb-3">
@@ -377,8 +349,6 @@
                                     </label>
                                     <textarea id="customer-notes" rows="3" class="form-control"></textarea>
                                 </div>
-
-                                <?php component('custom_fields', ['disabled' => false, 'fieldset' => 'customer']); ?>
 
                             </div>
                         </div>

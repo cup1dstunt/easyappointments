@@ -122,7 +122,7 @@ $languages = [
     'ru' => 'russian',
     'sk' => 'slovak',
     'sl' => 'slovenian',
-    'sv' => 'svenska',
+    'sv' => 'swedish',
     'th' => 'thai',
     'tr' => 'turkish',
     'zh' => 'chinese',
@@ -159,8 +159,47 @@ $config['language_code'] = array_search($config['language'], $languages) ?: 'en'
 |
 */
 $config['available_languages'] = [
+    'albanian',
+    'arabic',
+    'bosnian',
+    'bulgarian',
+    'catalan',
+    'chinese',
+    'croatian',
+    'czech',
+    'danish',
+    'dutch',
     'english',
-    'svenska',
+    'estonian',
+    'finnish',
+    'french',
+    'german',
+    'greek',
+    'hebrew',
+    'hindi',
+    'hungarian',
+    'italian',
+    'japanese',
+    'latvian',
+    'lithuanian',
+    'luxembourgish',
+    'marathi',
+    'norwegian',
+    'persian',
+    'polish',
+    'portuguese',
+    'portuguese-br',
+    'romanian',
+    'russian',
+    'serbian',
+    'slovak',
+    'slovenian',
+    'spanish',
+    'swedish',
+    'thai',
+    'traditional-chinese',
+    'turkish',
+    'ukrainian',
 ];
 
 /*
@@ -312,16 +351,14 @@ $config['cache_path'] = __DIR__ . '/../../storage/cache/';
 | If you use the Encryption class or the Session class you
 | MUST set an encryption key.  See the user guide for info.
 |
-| IMPORTANT: For production, set a strong random key via Config::ENCRYPTION_KEY
-| in your config.php (or, for backwards compatibility, a bare
-| define('ENCRYPTION_KEY', 'your-random-32-character-string')).
+| IMPORTANT: For production, set a strong random key in your config.php
+| using: define('ENCRYPTION_KEY', 'your-random-32-character-string');
 |
 */
-$config['encryption_key'] = defined('Config::ENCRYPTION_KEY')
-    ? Config::ENCRYPTION_KEY
-    : (defined('ENCRYPTION_KEY') && !empty(ENCRYPTION_KEY)
+$config['encryption_key'] =
+    defined('ENCRYPTION_KEY') && !empty(ENCRYPTION_KEY)
         ? ENCRYPTION_KEY
-        : hash('sha256', APPPATH . (defined('DB_PASSWORD') ? DB_PASSWORD : '') . php_uname(), true));
+        : hash('sha256', APPPATH . (defined('DB_PASSWORD') ? DB_PASSWORD : '') . php_uname(), true);
 
 /*
 |--------------------------------------------------------------------------
@@ -458,77 +495,9 @@ $config['rate_limiting'] = true;
 | Additional configuration by toekaa-lnu
 |--------------------------------------------------------------------------
 */
-$config['max_custom_fields'] = defined('Config::MAX_CUSTOM_FIELDS') ? Config::MAX_CUSTOM_FIELDS : 5;
-$config['max_appt_custom_fields'] = defined('Config::MAX_APPOINTMENT_CUSTOM_FIELDS') ? Config::MAX_APPOINTMENT_CUSTOM_FIELDS : 5;
-$config['max_attached_files'] = defined('Config::MAX_ATTACHED_FILES') ? Config::MAX_ATTACHED_FILES : 10;
-$config['attached_files_max_size'] = defined('Config::ATTACHED_FILES_MAX_SIZE') ? Config::ATTACHED_FILES_MAX_SIZE : 8000000;
-$config['attached_files_allowed_types'] = defined('Config::ATTACHED_FILES_ALLOWED_TYPES') ? Config::ATTACHED_FILES_ALLOWED_TYPES : '.doc,.docx,application/msword';
-$config['attached_files_allowed_types_hint'] = defined('Config::ATTACHED_FILES_ALLOWED_TYPES_HINT') ? Config::ATTACHED_FILES_ALLOWED_TYPES_HINT : 'attached_files_user_allowed_types_hint';
-$config['default_book_advance_timeout_unit'] = defined('Config::DEFAULT_BOOK_ADVANCE_TIMEOUT_UNIT') ? Config::DEFAULT_BOOK_ADVANCE_TIMEOUT_UNIT : 'minutes';
-$config['test_email_addresses'] = defined('Config::TEST_EMAIL_ADDRESSES') ? Config::TEST_EMAIL_ADDRESSES : '';
-$config['provider_colors'] = defined('Config::PROVIDER_COLORS')
-    ? Config::PROVIDER_COLORS
-    : [
-        '#000000',
-        '#bb3333',
-        '#33bb33',
-        '#3333bb',
-        '#bb33bb',
-        '#bbbb33',
-        '#33bbbb',
-        '#ff8800',
-        '#008080',
-        '#8b4513',
-        '#ffffff',
-    ];
-$config['service_colors'] = defined('Config::SERVICE_COLORS')
-    ? Config::SERVICE_COLORS
-    : [
-        '#b2d3ec',
-        '#d2dcfd',
-        '#b0e4e9',
-        '#a8ecd2',
-        '#c6e6c2',
-        '#e9e4b8',
-        '#f5d8b7',
-        '#f7d7d4',
-        '#f0baba',
-        '#f0d9ff',
-        '#f5f3f3',
-    ];
-$config['appointment_colors'] = defined('Config::APPOINTMENT_COLORS')
-    ? Config::APPOINTMENT_COLORS
-    : [
-        '#b2d3ec',
-        '#d2dcfd',
-        '#b0e4e9',
-        '#a8ecd2',
-        '#c6e6c2',
-        '#e9e4b8',
-        '#f5d8b7',
-        '#f7d7d4',
-        '#f0baba',
-        '#f0d9ff',
-        '#f5f3f3',
-    ];
 $config['default_booking_step_order'] = defined('Config::DEFAULT_BOOKING_STEP_ORDER')
     ? Config::DEFAULT_BOOKING_STEP_ORDER
     : 'service>time>info>confirmation';
-$config['language_replacements'] = defined('Config::LANGUAGE_REPLACEMENTS') ? Config::LANGUAGE_REPLACEMENTS : '';
-$config['zoom_client_id'] = defined('Config::ZOOM_CLIENT_ID') ? Config::ZOOM_CLIENT_ID : '';
-$config['zoom_client_secret'] = defined('Config::ZOOM_CLIENT_SECRET') ? Config::ZOOM_CLIENT_SECRET : '';
-$config['zoom_account_id'] = defined('Config::ZOOM_ACCOUNT_ID') ? Config::ZOOM_ACCOUNT_ID : '';
-$config['oidc_client_id'] = defined('Config::OIDC_CLIENT_ID') ? Config::OIDC_CLIENT_ID : '';
-$config['oidc_client_secret'] = defined('Config::OIDC_CLIENT_SECRET') ? Config::OIDC_CLIENT_SECRET : '';
-$config['oidc_idp_url'] = defined('Config::OIDC_IDP_URL') ? Config::OIDC_IDP_URL : '';
-$config['oidc_booking_user_param_restrictions'] = defined('Config::OIDC_BOOKING_USER_PARAM_RESTRICTIONS')
-    ? Config::OIDC_BOOKING_USER_PARAM_RESTRICTIONS : '';
-$config['oidc_booking_user_param_disallowed_title'] = defined('Config::OIDC_BOOKING_USER_PARAM_DISALLOWED_TITLE')
-    ? Config::OIDC_BOOKING_USER_PARAM_DISALLOWED_TITLE : 'default_oidc_booking_user_param_disallowed_title';
-$config['oidc_booking_user_param_disallowed_message'] = defined('Config::OIDC_BOOKING_USER_PARAM_DISALLOWED_MESSAGE')
-    ? Config::OIDC_BOOKING_USER_PARAM_DISALLOWED_MESSAGE : 'default_oidc_booking_user_param_disallowed_message';
-$config['oidc_booking_logout_after_register'] = defined('Config::OIDC_BOOKING_LOGOUT_AFTER_REGISTER')
-    ? Config::OIDC_BOOKING_LOGOUT_AFTER_REGISTER : false;
 
 /* End of file config.php */
 /* Location: ./application/config/config.php */

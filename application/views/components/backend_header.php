@@ -4,13 +4,6 @@
  *
  * @var string $active_menu
  */
-
-// LNU: Extended Backend Permissions for Providers (README.md #9). can() alone can't tell whether the setting
-// is on, since it only reads the role's permission bits - so menu visibility for providers is additionally
-// gated here.
-$is_provider = session('role_slug') === DB_SLUG_PROVIDER;
-$provider_has_extended_permissions = $is_provider && setting('provider_extended_backend_permissions');
-$account_url = $provider_has_extended_permissions ? site_url('providers') : site_url('account');
 ?>
 
 <nav id="header" class="navbar navbar-expand-md navbar-dark bg-primary p-0">
@@ -32,7 +25,7 @@ $account_url = $provider_has_extended_permissions ? site_url('providers') : site
         <ul class="navbar-nav">
             <?php $hidden = can('view', PRIV_APPOINTMENTS) ? '' : 'd-none'; ?>
             <?php $active = $active_menu == PRIV_APPOINTMENTS ? 'active' : ''; ?>
-            <li class="nav-item text-center <?= $active . ' ' . $hidden ?>" style="min-width: 100px;">
+            <li class="nav-item text-center <?= $active . $hidden ?>" style="min-width: 100px;">
                 <a href="<?= site_url(
                     'calendar' . (vars('calendar_view') === CALENDAR_VIEW_TABLE ? '?view=table' : ''),
                 ) ?>"
@@ -45,7 +38,7 @@ $account_url = $provider_has_extended_permissions ? site_url('providers') : site
 
             <?php $hidden = can('view', PRIV_CUSTOMERS) ? '' : 'd-none'; ?>
             <?php $active = $active_menu == PRIV_CUSTOMERS ? 'active' : ''; ?>
-            <li class="nav-item text-center <?= $active . ' ' . $hidden ?>" style="min-width: 100px;">
+            <li class="nav-item text-center <?= $active . $hidden ?>" style="min-width: 100px;">
                 <a href="<?= site_url('customers') ?>" class="nav-link text-white fw-light py-3 px-3"
                    data-tippy-content="<?= lang('manage_customers_hint') ?>">
                     <i class="fas fa-user-friends me-2"></i>
@@ -53,42 +46,27 @@ $account_url = $provider_has_extended_permissions ? site_url('providers') : site
                 </a>
             </li>
 
-            <?php $hidden = can('view', PRIV_SERVICES) && (!$is_provider || $provider_has_extended_permissions) ? '' : 'd-none'; ?>
+            <?php $hidden = can('view', PRIV_SERVICES) ? '' : 'd-none'; ?>
             <?php $active = $active_menu == PRIV_SERVICES ? 'active' : ''; ?>
-            <?php if ($provider_has_extended_permissions): ?>
-                <?php // LNU: Extended Backend Permissions for Providers (README.md #9) - Categories is hidden for
-                // providers, leaving only a single "Services" item, so render it as a plain link instead of a
-                // dropdown with just one entry. ?>
-                <li class="nav-item text-center <?= $active . ' ' . $hidden ?>" style="min-width: 100px;">
-                    <a href="<?= site_url('services') ?>" class="nav-link text-white fw-light py-3 px-3"
-                       data-tippy-content="<?= lang('manage_services_hint') ?>">
-                        <i class="fas fa-business-time me-2"></i>
+            <li class="nav-item dropdown text-center <?= $active . $hidden ?>" style="min-width: 100px;">
+                <a class="nav-link dropdown-toggle text-white fw-light py-3 px-3" href="#" data-bs-toggle="dropdown"
+                   data-tippy-content="<?= lang('manage_services_hint') ?>">
+                    <i class="fas fa-business-time me-2"></i>
+                    <?= lang('services') ?>
+                </a>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a class="dropdown-item" href="<?= site_url('services') ?>">
                         <?= lang('services') ?>
                     </a>
-                </li>
-            <?php else: ?>
-                <li class="nav-item dropdown text-center <?= $active . ' ' . $hidden ?>" style="min-width: 100px;">
-                    <a class="nav-link dropdown-toggle text-white fw-light py-3 px-3" href="#" data-bs-toggle="dropdown"
-                       data-tippy-content="<?= lang('manage_services_hint') ?>">
-                        <i class="fas fa-business-time me-2"></i>
-                        <?= lang('services') ?>
+                    <a class="dropdown-item" href="<?= site_url('service_categories') ?>">
+                        <?= lang('categories') ?>
                     </a>
-                    <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item" href="<?= site_url('services') ?>">
-                            <?= lang('services') ?>
-                        </a>
-                        <a class="dropdown-item" href="<?= site_url('service_categories') ?>">
-                            <?= lang('categories') ?>
-                        </a>
-                    </div>
-                </li>
-            <?php endif; ?>
+                </div>
+            </li>
 
-            <?php // LNU: Extended Backend Permissions for Providers (README.md #9) - hidden for providers even when
-            // extended permissions are on, since the Account menu item already leads to their own record. ?>
-            <?php $hidden = can('view', PRIV_USERS) && !$is_provider ? '' : 'd-none'; ?>
+            <?php $hidden = can('view', PRIV_USERS) ? '' : 'd-none'; ?>
             <?php $active = $active_menu == PRIV_USERS ? 'active' : ''; ?>
-            <li class="nav-item dropdown text-center <?= $active . ' ' . $hidden ?>" style="min-width: 100px;">
+            <li class="nav-item dropdown text-center <?= $active . $hidden ?>" style="min-width: 100px;">
                 <a class="nav-link dropdown-toggle text-white fw-light py-3 px-3" href="#" data-bs-toggle="dropdown"
                    data-tippy-content="<?= lang('manage_users_hint') ?>">
                     <i class="fas fa-users me-2"></i>
@@ -109,7 +87,7 @@ $account_url = $provider_has_extended_permissions ? site_url('providers') : site
 
             <?php $hidden = can('view', PRIV_SYSTEM_SETTINGS) || can('view', PRIV_USER_SETTINGS) ? '' : 'd-none'; ?>
             <?php $active = $active_menu == PRIV_SYSTEM_SETTINGS ? 'active' : ''; ?>
-            <li class="nav-item dropdown text-center <?= $active . ' ' . $hidden ?>" style="min-width: 100px;">
+            <li class="nav-item dropdown text-center <?= $active . $hidden ?>" style="min-width: 100px;">
                 <a class="nav-link dropdown-toggle text-white fw-light py-3 px-3" href="#" data-bs-toggle="dropdown"
                    data-tippy-content="<?= lang('settings_hint') ?>">
                     <i class="fas fa-user me-2"></i>
@@ -123,7 +101,7 @@ $account_url = $provider_has_extended_permissions ? site_url('providers') : site
                         </a>
                     <?php endif; ?>
 
-                    <a class="dropdown-item" href="<?= $account_url ?>">
+                    <a class="dropdown-item" href="<?= site_url('account') ?>">
                         <i class="fas fa-user me-2"></i>
                         <?= lang('account') ?>
                     </a>

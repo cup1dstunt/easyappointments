@@ -207,12 +207,11 @@ App.Utils.CalendarTableView = (function () {
         $appointmentsModal.find('#language').val(customer.language);
         $appointmentsModal.find('#timezone').val(customer.timezone);
         $appointmentsModal.find('#customer-notes').val(customer.notes);
-
-        App.Utils.CustomFields.getFieldIndexes('custom-field-container').forEach((i) => {
-            $appointmentsModal.find(`#custom-field-${i}`).val(customer[`custom_field_${i}`]);
-        });
-
-        App.Utils.CustomFields.splitAllGroupValues('custom-field-container');
+        $appointmentsModal.find('#custom-field-1').val(customer.custom_field_1);
+        $appointmentsModal.find('#custom-field-2').val(customer.custom_field_2);
+        $appointmentsModal.find('#custom-field-3').val(customer.custom_field_3);
+        $appointmentsModal.find('#custom-field-4').val(customer.custom_field_4);
+        $appointmentsModal.find('#custom-field-5').val(customer.custom_field_5);
 
         // Appointment fields
 
@@ -220,15 +219,6 @@ App.Utils.CalendarTableView = (function () {
         $appointmentsModal.find('#appointment-meeting-link').val(appointment.meeting_link);
         $appointmentsModal.find('#appointment-status').val(appointment.status);
         $appointmentsModal.find('#appointment-notes').val(appointment.notes);
-
-        App.Utils.CustomFields.getFieldIndexes('appt-custom-field-container').forEach((i) => {
-            $appointmentsModal.find(`#appt-custom-field-${i}`).val(appointment[`appt_custom_field_${i}`]);
-        });
-
-        App.Utils.CustomFields.splitAllGroupValues('appt-custom-field-container');
-
-        App.Utils.AttachedFiles.initialize(appointment.id, appointment.attached_file_names || []);
-
         App.Components.ColorSelection.setColor($appointmentsModal.find('#appointment-color'), appointment.color);
         $appointmentsModal.modal('show');
     }
@@ -512,25 +502,6 @@ App.Utils.CalendarTableView = (function () {
     }
 
     /**
-     * Mark an appointment event with a vertical border in the provider's assigned color, so appointments can be
-     * visually distinguished by provider.
-     *
-     * LNU: Provider Colour in Appointments (README.md #10).
-     *
-     * @param {Object} arg - FullCalendar eventDidMount info.
-     */
-    function onEventDidMount(arg) {
-        const appointment = arg.event.extendedProps.data;
-        const color = appointment?.provider?.color;
-
-        if (color) {
-            arg.el.style['padding-right'] = '2px';
-            arg.el.style['border-right-width'] = '10px';
-            arg.el.style['border-right-color'] = color;
-        }
-    }
-
-    /**
      * Handle calendar event resize.
      *
      * @param {Object} info - FullCalendar event info.
@@ -803,23 +774,6 @@ App.Utils.CalendarTableView = (function () {
         const providerId = $providerColumn.data('provider').id;
 
         const buttons = [
-            {
-                text: lang('availability'),
-                click: (event, messageModal) => {
-                    $('#insert-availability').trigger('click');
-
-                    if (providerId) {
-                        $('#availability-provider').val(providerId);
-                    } else {
-                        $('#availability-provider option:first').prop('selected', true);
-                    }
-
-                    $('#availability-provider').trigger('change');
-                    App.Utils.UI.setDateTimePickerValue($('#availability-start'), info.start);
-                    App.Utils.UI.setDateTimePickerValue($('#availability-end'), info.end);
-                    messageModal.hide();
-                },
-            },
             {
                 text: lang('unavailability'),
                 click: (event, messageModal) => {
@@ -1488,11 +1442,7 @@ App.Utils.CalendarTableView = (function () {
             firstDay: firstWeekdayNumber,
             slotDuration: '00:15:00',
             snapDuration: '00:15:00',
-            scrollTime: vars('calendar_scroll_time'),
-            // LNU: Calendar Display Settings - lets an admin narrow the visible time range and hide weekends.
-            slotMinTime: vars('calendar_slot_min_time'),
-            slotMaxTime: vars('calendar_slot_max_time'),
-            weekends: !Number(vars('calendar_hide_weekends')),
+            scrollTime: '07:00:00',
             slotLabelInterval: '01:00',
             eventTimeFormat: timeFormat,
             eventTextColor: '#333',
@@ -1518,7 +1468,6 @@ App.Utils.CalendarTableView = (function () {
                 listDay: lang('list'),
             },
             eventClick: onEventClick,
-            eventDidMount: onEventDidMount,
             eventResize: onEventResize,
             eventDrop: onEventDrop,
             select: (info) => onSelect(info, fullCalendar),
@@ -1689,13 +1638,6 @@ App.Utils.CalendarTableView = (function () {
      * Initialize the calendar page.
      */
     function initialize() {
-        // LNU: Calendar Display Settings - row height is a CSS custom property (see backend.scss), set here
-        // from the setting rather than hardcoded, so it can be adjusted without a code change.
-        document.documentElement.style.setProperty(
-            '--calendar-timegrid-slot-height',
-            vars('calendar_timegrid_slot_height'),
-        );
-
         createHeader();
         const startDate = moment().toDate();
 

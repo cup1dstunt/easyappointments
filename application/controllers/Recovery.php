@@ -37,9 +37,7 @@ class Recovery extends EA_Controller
     {
         method('get');
 
-        // LNU: Settings Text Translatability - company_name may be set to a translation key instead of
-        // literal text, resolved here via lang()'s existing fallback-to-literal behavior.
-        $company_name = lang(setting('company_name'));
+        $company_name = setting('company_name');
 
         html_vars([
             'page_title' => lang('forgot_your_password'),
@@ -129,9 +127,9 @@ class Recovery extends EA_Controller
                 if ($reset_data) {
                     $reset_link = site_url('recovery/reset?token=' . $reset_data['token']);
                     $settings = [
-                        'company_name' => lang(setting('company_name')),
-                        'company_link' => lang(setting('company_link')),
-                        'company_email' => lang(setting('company_email')),
+                        'company_name' => setting('company_name'),
+                        'company_link' => setting('company_link'),
+                        'company_email' => setting('company_email'),
                         'company_color' =>
                             !empty($company_color) && $company_color != DEFAULT_COMPANY_COLOR ? $company_color : null,
                     ];
@@ -208,7 +206,7 @@ class Recovery extends EA_Controller
             'page_title' => lang('reset_password'),
             'token_valid' => true,
             'token' => $token,
-            'company_name' => lang(setting('company_name')),
+            'company_name' => setting('company_name'),
             'company_logo' => setting('company_logo'),
             'require_captcha' => setting('require_captcha'),
             'altcha_enabled' => setting('altcha_enabled'),

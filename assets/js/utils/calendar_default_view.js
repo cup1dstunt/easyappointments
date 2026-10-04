@@ -148,7 +148,7 @@ App.Utils.CalendarDefaultView = (function () {
         $appointmentsModal.find('.modal-header h3').text(lang('edit_appointment_title'));
         $appointmentsModal.find('#appointment-id').val(appointment.id);
         $appointmentsModal.find('#select-service').val(appointment.id_services).trigger('change');
-        $appointmentsModal.find('#select-provider').val(appointment.id_users_provider).trigger('change');
+        $appointmentsModal.find('#select-provider').val(appointment.id_users_provider);
 
         App.Utils.UI.setDateTimePickerValue(
             $appointmentsModal.find('#start-datetime'),
@@ -171,28 +171,17 @@ App.Utils.CalendarDefaultView = (function () {
         $appointmentsModal.find('#language').val(customer.language);
         $appointmentsModal.find('#timezone').val(customer.timezone);
         $appointmentsModal.find('#customer-notes').val(customer.notes);
-
-        App.Utils.CustomFields.getFieldIndexes('custom-field-container').forEach((i) => {
-            $appointmentsModal.find(`#custom-field-${i}`).val(customer[`custom_field_${i}`]);
-        });
-
-        App.Utils.CustomFields.splitAllGroupValues('custom-field-container');
+        $appointmentsModal.find('#custom-field-1').val(customer.custom_field_1);
+        $appointmentsModal.find('#custom-field-2').val(customer.custom_field_2);
+        $appointmentsModal.find('#custom-field-3').val(customer.custom_field_3);
+        $appointmentsModal.find('#custom-field-4').val(customer.custom_field_4);
+        $appointmentsModal.find('#custom-field-5').val(customer.custom_field_5);
 
         // Appointment fields
         $appointmentsModal.find('#appointment-location').val(appointment.location);
         $appointmentsModal.find('#appointment-meeting-link').val(appointment.meeting_link);
-        App.Components.AppointmentsModal.populateZoomInfo(appointment);
         $appointmentsModal.find('#appointment-status').val(appointment.status);
         $appointmentsModal.find('#appointment-notes').val(appointment.notes);
-
-        App.Utils.CustomFields.getFieldIndexes('appt-custom-field-container').forEach((i) => {
-            $appointmentsModal.find(`#appt-custom-field-${i}`).val(appointment[`appt_custom_field_${i}`]);
-        });
-
-        App.Utils.CustomFields.splitAllGroupValues('appt-custom-field-container');
-
-        App.Utils.AttachedFiles.initialize(appointment.id, appointment.attached_file_names || []);
-
         App.Components.ColorSelection.setColor($appointmentsModal.find('#appointment-color'), appointment.color);
 
         $appointmentsModal.modal('show');
@@ -467,25 +456,6 @@ App.Utils.CalendarDefaultView = (function () {
 
         if ($popover.length && $popover.position().top < 200) {
             $popover.css('top', '200px');
-        }
-    }
-
-    /**
-     * Mark an appointment event with a vertical border in the provider's assigned color, so appointments can be
-     * visually distinguished by provider when viewing multiple providers at once.
-     *
-     * LNU: Provider Colour in Appointments (README.md #10).
-     *
-     * @param {Object} arg - FullCalendar eventDidMount info.
-     */
-    function onEventDidMount(arg) {
-        const appointment = arg.event.extendedProps.data;
-        const color = appointment?.provider?.color;
-
-        if (color) {
-            arg.el.style['padding-right'] = '2px';
-            arg.el.style['border-right-width'] = '10px';
-            arg.el.style['border-right-color'] = color;
         }
     }
 
@@ -766,22 +736,6 @@ App.Utils.CalendarDefaultView = (function () {
         if (info.allDay) return;
 
         const buttons = [
-            {
-                text: lang('availability'),
-                click: (event, messageModal) => {
-                    $('#insert-availability').trigger('click');
-                    const $providerSelect = $('#availability-provider');
-                    if (isProviderFilter()) {
-                        $providerSelect.val($selectFilterItem.val());
-                    } else {
-                        $providerSelect.find('option:first').prop('selected', true);
-                    }
-                    $providerSelect.trigger('change');
-                    App.Utils.UI.setDateTimePickerValue($('#availability-start'), info.start);
-                    App.Utils.UI.setDateTimePickerValue($('#availability-end'), info.end);
-                    messageModal.hide();
-                },
-            },
             {
                 text: lang('unavailability'),
                 click: (event, messageModal) => {
@@ -1174,12 +1128,7 @@ App.Utils.CalendarDefaultView = (function () {
             events.push({
                 title: lang('not_working'),
                 start: calendarDate.clone().toDate(),
-                // "HH:mm" format, not the "+ ':00'" trick used previously - dayPlan.start/end may already be
-                // "HH:mm:ss" (the raw MySQL TIME format, returned as-is by working plan exceptions fetched
-                // fresh from the server) rather than "HH:mm" (this app's own client-constructed format right
-                // after a save) - appending ":00" to the former produces a malformed 4-segment time string that
-                // only "works" via an unreliable native Date() fallback. This format tolerates both.
-                end: moment(dateStr + ' ' + dayPlan.start, 'YYYY-MM-DD HH:mm').toDate(),
+                end: moment(dateStr + ' ' + dayPlan.start + ':00').toDate(),
                 allDay: false,
                 color: EVENT_COLORS.notWorking,
                 editable: false,
@@ -1195,7 +1144,7 @@ App.Utils.CalendarDefaultView = (function () {
         if (viewEnd > workEnd.toDate()) {
             events.push({
                 title: lang('not_working'),
-                start: moment(dateStr + ' ' + dayPlan.end, 'YYYY-MM-DD HH:mm').toDate(),
+                start: moment(dateStr + ' ' + dayPlan.end + ':00').toDate(),
                 end: calendarDate.clone().add(1, 'day').toDate(),
                 allDay: false,
                 color: EVENT_COLORS.notWorking,
@@ -1270,18 +1219,7 @@ App.Utils.CalendarDefaultView = (function () {
 
             $('#insert-working-plan-exception').toggle(isProviderFilter());
             $reloadAppointments.trigger('click');
-
-            // LNU: Extended Backend Permissions for Providers (README.md #9) - store the provider's own filter
-            // selection in sessionStorage keyed to their user id, so it doesn't leak to a different provider
-            // logging in later on the same shared browser via localStorage.
-            if (vars('role_slug') === App.Layouts.Backend.DB_SLUG_PROVIDER) {
-                window.sessionStorage.setItem(
-                    'EasyAppointments.ProviderFilterItem',
-                    JSON.stringify({ userId: vars('user_id'), value: providerId }),
-                );
-            } else {
-                window.localStorage.setItem('EasyAppointments.SelectFilterItem', providerId);
-            }
+            window.localStorage.setItem('EasyAppointments.SelectFilterItem', providerId);
         });
     }
 
@@ -1367,13 +1305,6 @@ App.Utils.CalendarDefaultView = (function () {
         const initialView = window.innerWidth < 468 ? 'timeGridDay' : 'timeGridWeek';
         const firstWeekdayNumber = App.Utils.Date.getWeekdayId(vars('first_weekday'));
 
-        // LNU: Calendar Display Settings - row height is a CSS custom property (see backend.scss), set here
-        // from the setting rather than hardcoded, so it can be adjusted without a code change.
-        document.documentElement.style.setProperty(
-            '--calendar-timegrid-slot-height',
-            vars('calendar_timegrid_slot_height'),
-        );
-
         // Create FullCalendar instance
         fullCalendar = new FullCalendar.Calendar($calendar[0], {
             initialView,
@@ -1384,11 +1315,7 @@ App.Utils.CalendarDefaultView = (function () {
             firstDay: firstWeekdayNumber,
             slotDuration: '00:15:00',
             snapDuration: '00:15:00',
-            // LNU: Calendar Display Settings - lets an admin narrow the visible time range and hide weekends.
-            slotMinTime: vars('calendar_slot_min_time'),
-            slotMaxTime: vars('calendar_slot_max_time'),
-            scrollTime: vars('calendar_scroll_time'),
-            weekends: !Number(vars('calendar_hide_weekends')),
+            scrollTime: '07:00:00',
             slotLabelInterval: '01:00',
             eventTimeFormat: timeFormat,
             eventTextColor: '#333',
@@ -1414,7 +1341,6 @@ App.Utils.CalendarDefaultView = (function () {
             datesSet: onDatesSet,
             dateClick: onDateClick,
             eventClick: onEventClick,
-            eventDidMount: onEventDidMount,
             eventResize: onEventResize,
             eventDrop: onEventDrop,
             select: onSelect,
@@ -1431,26 +1357,20 @@ App.Utils.CalendarDefaultView = (function () {
 
         $('#insert-working-plan-exception').hide();
 
+        // Select provider if user is a provider
+        if (vars('role_slug') === App.Layouts.Backend.DB_SLUG_PROVIDER) {
+            $selectFilterItem.find('optgroup:eq(0) option[value="' + vars('user_id') + '"]').prop('selected', true);
+        }
+
         addEventListeners();
 
-        // LNU: Extended Backend Permissions for Providers (README.md #9) - restore the provider's own filter
-        // selection from sessionStorage (scoped to their user id), falling back to their own record, instead of
-        // sharing the localStorage filter used by non-provider roles.
-        if (vars('role_slug') === App.Layouts.Backend.DB_SLUG_PROVIDER) {
-            const storedProvider = JSON.parse(window.sessionStorage.getItem('EasyAppointments.ProviderFilterItem') || 'null');
-            const restoredValue = storedProvider && storedProvider.userId === vars('user_id') ? storedProvider.value : vars('user_id');
+        // Restore saved filter selection
+        const savedFilter = window.localStorage.getItem('EasyAppointments.SelectFilterItem');
 
-            $selectFilterItem.find('optgroup[type="providers-group"] option[value="' + restoredValue + '"]').prop('selected', true);
-            $reloadAppointments.trigger('click');
+        if (savedFilter && $selectFilterItem.find('option[value="' + savedFilter + '"]').length) {
+            $selectFilterItem.val(savedFilter).trigger('change');
         } else {
-            // Restore saved filter selection
-            const savedFilter = window.localStorage.getItem('EasyAppointments.SelectFilterItem');
-
-            if (savedFilter && $selectFilterItem.find('option[value="' + savedFilter + '"]').length) {
-                $selectFilterItem.val(savedFilter).trigger('change');
-            } else {
-                $reloadAppointments.trigger('click');
-            }
+            $reloadAppointments.trigger('click');
         }
 
         // Display edit dialog if appointment hash provided

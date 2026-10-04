@@ -37,8 +37,6 @@ App.Components.AppointmentsModal = (function () {
     const $appointmentId = $('#appointment-id');
     const $appointmentLocation = $('#appointment-location');
     const $appointmentMeetingLink = $('#appointment-meeting-link');
-    const $zoomInfoContainer = $('#zoom-info-container');
-    const $zoomHostLink = $('#zoom-host-link');
     const $appointmentStatus = $('#appointment-status');
     const $appointmentColor = $('#appointment-color');
     const $appointmentNotes = $('#appointment-notes');
@@ -49,6 +47,11 @@ App.Components.AppointmentsModal = (function () {
     const $insertAppointment = $('#insert-appointment');
     const $existingCustomersList = $('#existing-customers-list');
     const $newCustomer = $('#new-customer');
+    const $customField1 = $('#custom-field-1');
+    const $customField2 = $('#custom-field-2');
+    const $customField3 = $('#custom-field-3');
+    const $customField4 = $('#custom-field-4');
+    const $customField5 = $('#custom-field-5');
 
     const moment = window.moment;
 
@@ -68,62 +71,9 @@ App.Components.AppointmentsModal = (function () {
     }
 
     /**
-     * LNU: Zoom Meeting Links (README.md #14).
-     *
-     * Lock the generic meeting-link field whenever the selected provider has Zoom enabled, since Zoom will
-     * silently overwrite it with the meeting's join link on save.
-     */
-    function updateMeetingLinkLock() {
-        const providerId = $selectProvider.val();
-
-        const provider = vars('available_providers').find(
-            (availableProvider) => Number(availableProvider.id) === Number(providerId),
-        );
-
-        $appointmentMeetingLink.prop('readonly', Boolean(provider && provider.create_zoom_links));
-    }
-
-    /**
-     * LNU: Zoom Meeting Links (README.md #14).
-     *
-     * Show the appointment's Zoom host link, if it has one. The join link is shown by the generic meeting-link
-     * field above - only the host-only link needs its own, read-only display.
-     *
-     * @param {Object} appointment - Appointment data object.
-     */
-    function populateZoomInfo(appointment) {
-        if (!appointment.zoom_start_link) {
-            $zoomInfoContainer.addClass('d-none');
-            $zoomHostLink.val('');
-            return;
-        }
-
-        $zoomHostLink.val(appointment.zoom_start_link);
-        $zoomInfoContainer.removeClass('d-none');
-    }
-
-    /**
      * Add the component event listeners.
      */
     function addEventListeners() {
-        /**
-         * Event: Open Link Button "Click"
-         *
-         * Shared by every "open-link-button" in the modal (the meeting-link field, and the Zoom host-link
-         * display) - each is a plain text input rather than a clickable anchor (the meeting-link field needs
-         * to stay editable for Jitsi/Google Meet/manual links, and the Zoom host link would otherwise overflow
-         * the modal as one long unbroken string), so this opens whatever URL is in the button's associated
-         * input (named via "data-target") in a new tab instead.
-         */
-        $appointmentsModal.on('click', '.open-link-button', (event) => {
-            const targetId = $(event.currentTarget).data('target');
-            const url = $(`#${targetId}`).val();
-
-            if (url) {
-                window.open(url, '_blank');
-            }
-        });
-
         /**
          * Event: Manage Appointments Dialog Save Button "Click"
          *
@@ -162,10 +112,6 @@ App.Components.AppointmentsModal = (function () {
                 appointment.id = $appointmentId.val();
             }
 
-            App.Utils.CustomFields.getFieldIndexes('appt-custom-field-container').forEach((i) => {
-                appointment[`appt_custom_field_${i}`] = $(`#appt-custom-field-${i}`).val();
-            });
-
             const customer = {
                 first_name: $firstName.val(),
                 last_name: $lastName.val(),
@@ -177,20 +123,18 @@ App.Components.AppointmentsModal = (function () {
                 language: $language.val(),
                 timezone: $timezone.val(),
                 notes: $customerNotes.val(),
+                custom_field_1: $customField1.val(),
+                custom_field_2: $customField2.val(),
+                custom_field_3: $customField3.val(),
+                custom_field_4: $customField4.val(),
+                custom_field_5: $customField5.val(),
             };
-
-            App.Utils.CustomFields.getFieldIndexes('custom-field-container').forEach((i) => {
-                customer[`custom_field_${i}`] = $(`#custom-field-${i}`).val();
-            });
 
             if ($customerId.val() !== '') {
                 // Set the id value, only if we are editing an appointment.
                 customer.id = $customerId.val();
                 appointment.id_users_customer = customer.id;
             }
-
-            const attachedFiles = App.Utils.AttachedFiles.getAttachedFiles();
-            const discardedFileNames = App.Utils.AttachedFiles.getDiscardedFileNames();
 
             // Define success callback.
             const successCallback = () => {
@@ -226,9 +170,6 @@ App.Components.AppointmentsModal = (function () {
                                 successCallback,
                                 errorCallback,
                                 false,
-                                undefined,
-                                attachedFiles,
-                                discardedFileNames,
                             );
                         },
                     },
@@ -242,9 +183,6 @@ App.Components.AppointmentsModal = (function () {
                                 successCallback,
                                 errorCallback,
                                 true,
-                                undefined,
-                                attachedFiles,
-                                discardedFileNames,
                             );
                         },
                     },
@@ -265,9 +203,6 @@ App.Components.AppointmentsModal = (function () {
                                     successCallback,
                                     errorCallback,
                                     false,
-                                    undefined,
-                                    attachedFiles,
-                                    discardedFileNames,
                                 );
                             },
                         },
@@ -281,9 +216,6 @@ App.Components.AppointmentsModal = (function () {
                                     successCallback,
                                     errorCallback,
                                     true,
-                                    undefined,
-                                    attachedFiles,
-                                    discardedFileNames,
                                 );
                             },
                         },
@@ -401,11 +333,11 @@ App.Components.AppointmentsModal = (function () {
                 $language.val(customer.language);
                 $timezone.val(customer.timezone);
                 $customerNotes.val(customer.notes);
-
-                App.Utils.CustomFields.getFieldIndexes('custom-field-container').forEach((i) => {
-                    $(`#custom-field-${i}`).val(customer[`custom_field_${i}`]);
-                });
-                App.Utils.CustomFields.splitAllGroupValues('custom-field-container');
+                $customField1.val(customer.custom_field_1);
+                $customField2.val(customer.custom_field_2);
+                $customField3.val(customer.custom_field_3);
+                $customField4.val(customer.custom_field_4);
+                $customField5.val(customer.custom_field_5);
             }
 
             $selectCustomer.trigger('click'); // Hide the list.
@@ -515,9 +447,7 @@ App.Components.AppointmentsModal = (function () {
 
             vars('available_providers').forEach((provider) => {
                 provider.services.forEach((providerServiceId) => {
-                    // LNU: Extended Backend Permissions for Providers (README.md #9).
                     if (
-                        !Number(vars('provider_extended_backend_permissions')) &&
                         vars('role_slug') === App.Layouts.Backend.DB_SLUG_PROVIDER &&
                         Number(provider.id) !== vars('user_id')
                     ) {
@@ -548,7 +478,6 @@ App.Components.AppointmentsModal = (function () {
          */
         $selectProvider.on('change', () => {
             updateTimezone();
-            updateMeetingLinkLock();
         });
 
         /**
@@ -566,11 +495,11 @@ App.Components.AppointmentsModal = (function () {
             $language.val(vars('default_language'));
             $timezone.val(vars('default_timezone'));
             $customerNotes.val('');
-
-            App.Utils.CustomFields.getFieldIndexes('custom-field-container').forEach((i) => {
-                $(`#custom-field-${i}`).val('');
-            });
-            App.Utils.CustomFields.splitAllGroupValues('custom-field-container');
+            $customField1.val('');
+            $customField2.val('');
+            $customField3.val('');
+            $customField4.val('');
+            $customField5.val('');
         });
     }
 
@@ -582,13 +511,9 @@ App.Components.AppointmentsModal = (function () {
      */
     function resetModal() {
         // Empty form fields.
-        $appointmentsModal.find('textarea, select').val('');
-        $appointmentsModal.find('input:not([type="checkbox"]):not([type="radio"])').val('');
-        $appointmentsModal.find('input:where([type="checkbox"], [type="radio"])').prop('checked', false);
+        $appointmentsModal.find('input, textarea').val('');
         $appointmentsModal.find('.modal-message').addClass('.d-none');
         $appointmentsModal.find('.is-invalid').removeClass('is-invalid');
-
-        App.Utils.AttachedFiles.initialize(null, []);
 
         const defaultStatusValue = $appointmentStatus.find('option:first').val();
         $appointmentStatus.val(defaultStatusValue);
@@ -655,9 +580,6 @@ App.Components.AppointmentsModal = (function () {
         App.Utils.UI.initializeDateTimePicker($endDatetime);
         App.Utils.UI.setDateTimePickerValue($endDatetime, endDatetime);
         $appointmentsModal.find('.modal-message').removeClass('alert-danger').text('').addClass('d-none');
-
-        populateZoomInfo({});
-        updateMeetingLinkLock();
     }
 
     /**
@@ -673,9 +595,6 @@ App.Components.AppointmentsModal = (function () {
         $appointmentsModal.find('.modal-message').addClass('d-none');
 
         try {
-            App.Utils.CustomFields.joinAllGroupValues('appt-custom-field-container');
-            App.Utils.CustomFields.joinAllGroupValues('custom-field-container');
-
             // Check required fields.
             let missingRequiredField = false;
 
@@ -725,7 +644,6 @@ App.Components.AppointmentsModal = (function () {
      */
     function initialize() {
         addEventListeners();
-        App.Utils.AttachedFiles.addEventListeners();
     }
 
     document.addEventListener('DOMContentLoaded', initialize);
@@ -733,7 +651,5 @@ App.Components.AppointmentsModal = (function () {
     return {
         resetModal,
         validateAppointmentForm,
-        populateZoomInfo,
-        updateMeetingLinkLock,
     };
 })();

@@ -91,7 +91,6 @@ const AVAILABILITIES_TYPE_FLEXIBLE = 'flexible';
 const AVAILABILITIES_TYPE_FIXED = 'fixed';
 
 const EVENT_MINIMUM_DURATION = 5; // Minutes
-const EVENT_MINIMUM_COOLDOWN = 0; // Minutes
 
 const DEFAULT_COMPANY_COLOR = '#ffffff';
 
