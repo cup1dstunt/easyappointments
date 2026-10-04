@@ -574,4 +574,11 @@ $lang['about_app_premium'] = 'Wir bieten umfassende Dienstleistungen für selbst
 $lang['go_premium'] = 'Premium erwerben';
 $lang['notify_users_on_create_question'] = 'Möchten Sie den Kunden über diesen neuen Termin informieren?';
 $lang['notify_users_on_delete_question'] = 'Möchten Sie den Kunden über die Stornierung des Termins informieren?';
+$lang['booking_step_order_enabled'] = 'Eigene Reihenfolge der Buchungsschritte';
+$lang['booking_step_order_hint'] = 'Wenn aktiviert, kann die Reihenfolge der Buchungsschritte geändert werden. Geben Sie die Schrittnamen (service, time, info, confirmation) in der gewünschten Reihenfolge an, getrennt durch ">". Die Standardreihenfolge ist "service>time>info>confirmation". Alle vier Schritte müssen genau einmal vorkommen, "service" muss vor "time" stehen und "confirmation" immer der letzte Schritt sein. Ein ungültiger Wert wird ignoriert und stattdessen die Standardreihenfolge verwendet.';
+$lang['booking_email_note'] = 'Hinweis in der Buchungs-E-Mail';
+$lang['booking_email_note_placeholder'] = 'Hier können Sie einen optionalen Hinweis für Kunden hinterlegen, die bei Ihnen einen Termin buchen. Wenn gesetzt, wird er in die Bestätigungs-E-Mail der Buchung eingefügt.';
+$lang['booking_email_note_to_customer'] = 'Ein Hinweis von Ihrem Anbieter';
+$lang['reply_to_customer_for_provider_email'] = 'Antwort an Kunden in der Anbieter-E-Mail';
+$lang['reply_to_customer_for_provider_email_hint'] = 'Wenn aktiviert, wird bei der Terminbenachrichtigung an den Anbieter die Antwortadresse (Reply-To) auf den Kunden gesetzt, sodass der Anbieter dem Kunden direkt antworten kann. E-Mails an Kunden, Administratoren und Sekretäre sind davon nicht betroffen.';
 // End
