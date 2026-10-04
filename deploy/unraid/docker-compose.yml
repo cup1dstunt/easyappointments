@@ -1,0 +1,46 @@
+# Easy!Appointments (cup1dstunt fork) for Unraid, see deploy/unraid/README.md.
+# Copy .env.example to .env next to this file and fill in the passwords.
+
+services:
+  app:
+    image: ghcr.io/cup1dstunt/easyappointments:latest
+    # To build on the server instead of pulling the published image, comment
+    # out "image" above and use:
+    # build: https://github.com/cup1dstunt/easyappointments.git#main
+    container_name: easyappointments
+    hostname: easyappointments
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - '${APP_PORT:-8090}:80'
+    environment:
+      BASE_URL: ${BASE_URL}
+      LANGUAGE: ${LANGUAGE:-english}
+      TZ: ${TZ:-Europe/Berlin}
+      DB_HOST: db
+      DB_NAME: easyappointments
+      DB_USERNAME: easyappointments
+      DB_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?set ENCRYPTION_KEY in .env}
+    volumes:
+      - ${APPDATA:-/mnt/user/appdata/easyappointments}/storage:/var/www/html/storage
+
+  db:
+    image: mariadb:11.4
+    container_name: easyappointments-db
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: easyappointments
+      MARIADB_USER: easyappointments
+      MARIADB_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?set DB_ROOT_PASSWORD in .env}
+      TZ: ${TZ:-Europe/Berlin}
+    volumes:
+      - ${APPDATA:-/mnt/user/appdata/easyappointments}/mysql:/var/lib/mysql
+    healthcheck:
+      test: ['CMD', 'healthcheck.sh', '--connect', '--innodb_initialized']
+      interval: 10s
+      timeout: 5s
+      retries: 10

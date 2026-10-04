@@ -122,7 +122,8 @@ class EA_Migration extends CI_Migration
 
     /**
      * Include and run a single lnu migration file's up() or down() method,
-     * echoing whether it actually changed anything or was a no-op.
+     * echoing (on the console only) whether it actually changed anything or was
+     * a no-op.
      *
      * @param string $file Full path to the migration file.
      * @param string $method Either "up" or "down".
@@ -140,6 +141,12 @@ class EA_Migration extends CI_Migration
         }
 
         $changed = (new $class())->$method();
+
+        // Only report on the console: the web installer and updater return
+        // JSON, which any output here would corrupt.
+        if (!is_cli()) {
+            return;
+        }
 
         if ($changed) {
             echo '  [applied] ' . $name . ' (' . $method . ')' . PHP_EOL;
