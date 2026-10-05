@@ -93,6 +93,8 @@ class Notifications
                         $customer['email'],
                         $ics_stream,
                         $customer['timezone'],
+                        false,
+                        !$manage_mode,
                     );
                 } catch (Throwable $e) {
                     $this->log_exception($e, 'appointment-saved to customer', $appointment['id'] ?? null);

@@ -44,6 +44,7 @@ class Email_messages
         $this->CI->load->model('settings_model');
 
         $this->CI->load->library('email');
+        $this->CI->load->library('confirmation_email');
         $this->CI->load->library('ics_file');
         $this->CI->load->library('timezones');
     }
@@ -64,6 +65,8 @@ class Email_messages
      * @param string|null $timezone Custom timezone.
      * @param bool $reply_to_customer LNU: Reply-To Customer for Provider Email - set the Reply-To address to the
      * customer instead of the default, so the recipient can reply directly to the customer.
+     * @param bool $use_confirmation_template LNU: Editable confirmation email - use the admin-defined subject and text
+     * (Settings > Email templates) instead of the given ones, if they are set.
      *
      * @throws DateInvalidTimeZoneException
      * @throws DateMalformedStringException
@@ -82,6 +85,7 @@ class Email_messages
         string $ics_stream,
         ?string $timezone = null,
         bool $reply_to_customer = false,
+        bool $use_confirmation_template = false,
     ): void {
         $appointment_timezone = new DateTimeZone($provider['timezone']);
 
@@ -99,10 +103,28 @@ class Email_messages
             $appointment['end_datetime'] = $appointment_end->format('Y-m-d H:i:s');
         }
 
+        $html_subject = $subject;
+
+        if ($use_confirmation_template) {
+            $rendered = $this->CI->confirmation_email->render(
+                $appointment,
+                $provider,
+                $service,
+                $customer,
+                $appointment_link,
+                $subject,
+                $message,
+            );
+
+            $subject = $rendered['subject'];
+            $message = $rendered['message'];
+            $html_subject = e($subject);
+        }
+
         $html = $this->CI->load->view(
             'emails/appointment_saved_email',
             [
-                'subject' => $subject,
+                'subject' => $html_subject,
                 'message' => $message,
                 'appointment' => $appointment,
                 'service' => $service,
