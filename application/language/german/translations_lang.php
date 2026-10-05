@@ -582,7 +582,7 @@ $lang['booking_email_note_to_customer'] = 'Ein Hinweis von Ihrem Anbieter';
 $lang['reply_to_customer_for_provider_email'] = 'Antwort an Kunden in der Anbieter-E-Mail';
 $lang['reply_to_customer_for_provider_email_hint'] = 'Wenn aktiviert, wird bei der Terminbenachrichtigung an den Anbieter die Antwortadresse (Reply-To) auf den Kunden gesetzt, sodass der Anbieter dem Kunden direkt antworten kann. E-Mails an Kunden, Administratoren und Sekretäre sind davon nicht betroffen.';
 $lang['email_templates'] = 'E-Mail-Vorlagen';
-$lang['email_templates_info'] = 'Hier können Sie Betreff und Text der E-Mails anpassen, die das System versendet. Die Vorlagen gelten global für die gesamte Installation. Leere Felder verwenden den Standardtext (siehe Platzhalter in den Feldern). Zeilenumbrüche bleiben erhalten; Logo, Termindetails und Layout der E-Mail bleiben unverändert.';
+$lang['email_templates_info'] = 'Hier können Sie Betreff und Text der E-Mails anpassen, die das System versendet. Die Vorlagen gelten global für die gesamte Installation. Leere Felder verwenden den Standardtext (siehe Platzhalter in den Feldern). Zeilenumbrüche bleiben erhalten; Logo und Layout der E-Mail bleiben unverändert; die Termindetails lassen sich bei der Terminbestätigung ausblenden.';
 $lang['email_template_subject'] = 'Betreff';
 $lang['email_template_body'] = 'Text';
 $lang['email_template_variables'] = 'Verfügbare Variablen';
@@ -638,4 +638,8 @@ $lang['whats_new'] = 'Was ist neu';
 $lang['whats_new_latest'] = 'Neu';
 $lang['whats_new_all_changes'] = 'Alle Änderungen gegenüber dem Original';
 $lang['whats_new_fork_changes'] = 'Änderungen des Forks';
+$lang['provider_meeting_link'] = 'Link zum Meeting';
+$lang['provider_meeting_link_hint'] = 'Link zum Online-Meeting-Raum dieses Anbieters. Neue Termine übernehmen ihn als Meeting-Link, deshalb steht er in den E-Mails als {meeting_link} zur Verfügung und wird in den Kalendereintrag übernommen.';
+$lang['email_template_show_details'] = 'Termindetails unter dem Text anzeigen';
+$lang['email_template_show_details_hint'] = 'Wenn ausgeschaltet, enthält die Bestätigungsmail nur Ihren Text und den Button zum Ändern des Termins. Nutzen Sie die Variablen, um alles Nötige einzufügen. Gilt erst, sobald Sie einen eigenen Text eingetragen haben.';
 // End

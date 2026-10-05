@@ -43,7 +43,10 @@ App.Pages.EmailTemplates = (function () {
      */
     function deserialize(settings) {
         settings.forEach((setting) => {
-            $('[data-field="' + setting.name + '"]').val(setting.value);
+            const $field = $('[data-field="' + setting.name + '"]');
+
+            // Fields with a default (select boxes) show it while nothing is saved yet.
+            $field.val(setting.value === '' && $field.data('default') !== undefined ? $field.data('default') : setting.value);
         });
     }
 
@@ -71,7 +74,9 @@ App.Pages.EmailTemplates = (function () {
      * Empty the fields, so the default texts are used again.
      */
     function onResetSettingsClick() {
-        $('[data-field]').val('');
+        $('[data-field]').each((index, field) => {
+            $(field).val($(field).data('default') ?? '');
+        });
     }
 
     /**
@@ -104,7 +109,7 @@ App.Pages.EmailTemplates = (function () {
             });
         });
 
-        $('[data-field]').on('focus', (event) => {
+        $('input[data-field], textarea[data-field]').on('focus', (event) => {
             $lastField = $(event.currentTarget);
         });
 

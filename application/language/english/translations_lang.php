@@ -582,7 +582,7 @@ $lang['booking_email_note'] = 'Booking Email Note';
 $lang['booking_email_note_placeholder'] = 'Here you can add an optional note to the customer booking an appointment with you. If set, it is added to the confirmation email for the booking.';
 $lang['booking_email_note_to_customer'] = 'A note from your provider';
 $lang['email_templates'] = 'Email Templates';
-$lang['email_templates_info'] = 'Here you can edit the subject and text of the emails the system sends. The templates apply globally to the whole installation. Empty fields use the default text (shown as placeholder). Line breaks are kept; logo, appointment details and layout of each email stay as they are.';
+$lang['email_templates_info'] = 'Here you can edit the subject and text of the emails the system sends. The templates apply globally to the whole installation. Empty fields use the default text (shown as placeholder). Line breaks are kept; logo and layout of each email stay as they are; the appointment details of the confirmation email can be hidden.';
 $lang['email_template_subject'] = 'Subject';
 $lang['email_template_body'] = 'Text';
 $lang['email_template_variables'] = 'Available variables';
@@ -638,4 +638,8 @@ $lang['whats_new'] = 'What\'s new';
 $lang['whats_new_latest'] = 'New';
 $lang['whats_new_all_changes'] = 'All changes compared to the original';
 $lang['whats_new_fork_changes'] = 'Fork changes';
+$lang['provider_meeting_link'] = 'Meeting Link';
+$lang['provider_meeting_link_hint'] = 'Link to the online meeting room of this provider. New appointments take it over as their meeting link, so it is available as {meeting_link} in the emails and is added to the calendar entry.';
+$lang['email_template_show_details'] = 'Show appointment details below the text';
+$lang['email_template_show_details_hint'] = 'If switched off, the confirmation email only contains your text and the button to change the appointment. Use the variables to include what is needed. Only applies once you have entered your own text.';
 // End

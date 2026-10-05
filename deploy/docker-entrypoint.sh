@@ -63,4 +63,33 @@ chown('/var/www/html/config.php', 'www-data');
 chmod('/var/www/html/config.php', 0640);
 PHP
 
+# Bring an already installed database up to date, so updates that add columns (e.g. the provider meeting link)
+# need no manual step. A fresh database is left alone: the web installer creates it. Data is never touched, the
+# migrations only add what is missing.
+state=1
+i=0
+while [ "$i" -lt 30 ]; do
+    state=0
+    php <<'PHP' || state=$?
+<?php
+mysqli_report(MYSQLI_REPORT_OFF);
+$db = @new mysqli(getenv('DB_HOST') ?: 'db', getenv('DB_USERNAME') ?: 'easyappointments', getenv('DB_PASSWORD'), getenv('DB_NAME') ?: 'easyappointments');
+if ($db->connect_errno) {
+    exit(1);
+}
+exit($db->query('SELECT 1 FROM ea_migrations LIMIT 1') ? 0 : 2);
+PHP
+    [ "$state" -ne 1 ] && break
+    i=$((i + 1))
+    sleep 2
+done
+
+if [ "$state" -eq 0 ]; then
+    echo "easyappointments: applying pending database migrations"
+    su -s /bin/sh www-data -c "cd /var/www/html && php index.php console migrate" ||
+        echo "easyappointments: migration failed, see the output above" >&2
+elif [ "$state" -eq 1 ]; then
+    echo "easyappointments: database not reachable, skipping migrations" >&2
+fi
+
 exec docker-php-entrypoint "$@"

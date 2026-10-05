@@ -62,6 +62,22 @@
                                               placeholder="<?= e(lang('email_template_' . $key . '_default_body')) ?>"></textarea>
                                 </div>
 
+                                <?php if ($key === 'confirmation'): ?>
+                                    <div class="mb-3">
+                                        <label class="form-label" for="email-confirmation-show-details">
+                                            <?= lang('email_template_show_details') ?>
+                                        </label>
+                                        <select id="email-confirmation-show-details" class="form-select"
+                                                data-field="email_confirmation_show_details" data-default="1">
+                                            <option value="1"><?= lang('yes') ?></option>
+                                            <option value="0"><?= lang('no') ?></option>
+                                        </select>
+                                        <div class="form-text text-muted small">
+                                            <?= lang('email_template_show_details_hint') ?>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
+
                                 <div>
                                     <label class="form-label">
                                         <?= lang('email_template_variables') ?>

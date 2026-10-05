@@ -11,6 +11,7 @@
  * @var array $settings
  * @var array $timezone
  * @var string $appointment_link
+ * @var bool $show_details LNU: show the appointment and customer details below the text.
  */
 
 $customer_first_name = trim((string) ($customer['first_name'] ?? ''));
@@ -416,6 +417,7 @@ $customer_address = trim((string) ($customer['address'] ?? ''));
                                             <?= $message ?>
                                         </p>
 
+                                        <?php if ($show_details ?? true): // LNU: hide for a fully custom mail text ?>
                                         <h2 style="text-align: center;">
                                             <?= lang('appointment_details_title') ?>
                                         </h2>
@@ -615,6 +617,7 @@ $customer_address = trim((string) ($customer['address'] ?? ''));
 
                                         <br>
                                         <br>
+                                        <?php endif; ?>
 
                                         <table class="btn btn-primary" role="presentation" border="0" cellpadding="0" cellspacing="0">
                                             <tbody>

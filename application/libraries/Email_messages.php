@@ -104,8 +104,11 @@ class Email_messages
         }
 
         $html_subject = $subject;
+        $show_details = true;
 
         if ($use_confirmation_template) {
+            $show_details = $this->CI->confirmation_email->show_details();
+
             $rendered = $this->CI->confirmation_email->render(
                 $appointment,
                 $provider,
@@ -133,6 +136,7 @@ class Email_messages
                 'settings' => $settings,
                 'timezone' => $timezone,
                 'appointment_link' => $appointment_link,
+                'show_details' => $show_details,
             ],
             true,
         );
@@ -207,10 +211,12 @@ class Email_messages
                 'service_name' => $service['name'] ?? '',
                 'provider_name' => trim(($provider['first_name'] ?? '') . ' ' . ($provider['last_name'] ?? '')),
                 'location' => $appointment['location'] ?? '',
+                'meeting_link' => $appointment['meeting_link'] ?? '',
                 'reason' => (string) $reason,
             ],
             lang('appointment_cancelled_title'),
             lang('appointment_removed_from_schedule'),
+            Confirmation_email::HTML_VALUES,
         );
 
         $html = $this->CI->load->view(

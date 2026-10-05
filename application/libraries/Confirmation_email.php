@@ -27,6 +27,7 @@ class Confirmation_email
                 'service_name',
                 'provider_name',
                 'location',
+                'meeting_link',
                 'appointment_link',
             ],
         ],
@@ -41,6 +42,7 @@ class Confirmation_email
                 'service_name',
                 'provider_name',
                 'location',
+                'meeting_link',
                 'reason',
             ],
         ],
@@ -65,7 +67,15 @@ class Confirmation_email
         'service_name',
         'provider_name',
         'location',
+        'meeting_link',
         'appointment_link',
+    ];
+
+    /**
+     * Variables that are inserted as HTML (sprintf pattern, applied to the escaped value) instead of plain text.
+     */
+    public const HTML_VALUES = [
+        'meeting_link' => '<a href="%1$s">%1$s</a>',
     ];
 
     /**
@@ -90,9 +100,6 @@ class Confirmation_email
         string $default_subject,
         string $default_message,
     ): array {
-        $subject_template = trim((string) setting('email_confirmation_subject', ''));
-        $body_template = trim((string) setting('email_confirmation_body', ''));
-
         $values = [
             'customer_name' => trim($customer['first_name'] . ' ' . $customer['last_name']),
             'customer_first_name' => $customer['first_name'],
@@ -103,17 +110,29 @@ class Confirmation_email
             'service_name' => $service['name'],
             'provider_name' => trim($provider['first_name'] . ' ' . $provider['last_name']),
             'location' => $appointment['location'] ?? '',
+            'meeting_link' => $appointment['meeting_link'] ?? '',
             'appointment_link' => $appointment_link,
         ];
 
-        $subject = $subject_template === '' ? $default_subject : $this->replace($subject_template, $values);
+        return $this->render_template(
+            'confirmation',
+            $values,
+            $default_subject,
+            $default_message,
+            self::HTML_VALUES,
+        );
+    }
 
-        $message = $body_template === '' ? $default_message : nl2br(e($this->replace($body_template, $values)));
-
-        return [
-            'subject' => $subject,
-            'message' => $message,
-        ];
+    /**
+     * Whether the appointment and customer details are shown below the confirmation text.
+     *
+     * The details are only hidden if a custom text is set and the switch (Settings > Email templates) is off, so an
+     * untouched installation keeps its mail unchanged.
+     */
+    public function show_details(): bool
+    {
+        return trim((string) setting('email_confirmation_body', '')) === '' ||
+            (string) setting('email_confirmation_show_details', '1') !== '0';
     }
 
     /**
@@ -129,6 +148,8 @@ class Confirmation_email
             $names[] = 'email_' . $key . '_subject';
             $names[] = 'email_' . $key . '_body';
         }
+
+        $names[] = 'email_confirmation_show_details';
 
         return $names;
     }
@@ -165,7 +186,7 @@ class Confirmation_email
         foreach ($values as $name => $value) {
             $escaped[$name] = e((string) $value);
 
-            if (isset($html_values[$name])) {
+            if (isset($html_values[$name]) && (string) $value !== '') {
                 $escaped[$name] = sprintf($html_values[$name], $escaped[$name]);
             }
         }

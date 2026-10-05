@@ -169,6 +169,17 @@
                                           class="form-control" rows="5" disabled></textarea>
                             </div>
 
+                            <div class="mb-3">
+                                <label class="form-label" for="meeting-link">
+                                    <?= lang('provider_meeting_link') ?>
+                                </label>
+                                <input type="url" id="meeting-link" class="form-control" maxlength="512"
+                                       placeholder="https://" disabled/>
+                                <div class="form-text text-muted">
+                                    <small><?= lang('provider_meeting_link_hint') ?></small>
+                                </div>
+                            </div>
+
                         </div>
                         <div class="settings col-12 col-lg-6">
                             <div class="mb-3">
