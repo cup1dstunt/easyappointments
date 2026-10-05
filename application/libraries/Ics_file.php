@@ -79,9 +79,12 @@ class Ics_file
             ->setUid($appointment['id_caldav_calendar'] ?: $this->generate_uid($appointment['id']))
             ->setSequence($this->generate_sequence($appointment['update_datetime'] ?? null));
 
-        if (!empty($service['location'])) {
+        // LNU: The meeting link is added to the location, so it is a clickable entry in the calendar.
+        $location_parts = array_filter([(string) ($service['location'] ?? ''), (string) ($appointment['meeting_link'] ?? '')]);
+
+        if ($location_parts) {
             $location = new Location();
-            $location->setName((string) $service['location']);
+            $location->setName(implode(' - ', $location_parts));
             $event->addLocation($location);
         }
 

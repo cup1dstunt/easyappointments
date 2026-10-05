@@ -47,6 +47,7 @@ class Providers_model extends EA_Model
         'language' => 'language',
         'notes' => 'notes',
         'bookingEmailNote' => 'booking_email_note',
+        'meetingLink' => 'meeting_link',
         'isPrivate' => 'is_private',
         'ldapDn' => 'ldap_dn',
         'roleId' => 'id_roles',
@@ -101,6 +102,11 @@ class Providers_model extends EA_Model
         // Validate the email address.
         if (!filter_var($provider['email'], FILTER_VALIDATE_EMAIL)) {
             throw new InvalidArgumentException('Invalid email address provided: ' . $provider['email']);
+        }
+
+        // LNU: The meeting link ends up as a link in emails and calendar entries, so only web addresses are allowed.
+        if (!empty($provider['meeting_link']) && !preg_match('#^https?://\S+$#i', $provider['meeting_link'])) {
+            throw new InvalidArgumentException('Invalid meeting link provided: ' . $provider['meeting_link']);
         }
 
         // Validate provider services.
@@ -716,6 +722,7 @@ class Providers_model extends EA_Model
             ->or_like('zip_code', $keyword)
             ->or_like('notes', $keyword)
             ->or_like('booking_email_note', $keyword)
+            ->or_like('meeting_link', $keyword)
             ->group_end()
             ->limit($limit)
             ->offset($offset)
@@ -817,6 +824,7 @@ class Providers_model extends EA_Model
             'zip' => $provider['zip_code'],
             'notes' => $provider['notes'],
             'bookingEmailNote' => $provider['booking_email_note'],
+            'meetingLink' => $provider['meeting_link'],
             'isPrivate' => $provider['is_private'],
             'ldapDn' => $provider['ldap_dn'],
             'timezone' => $provider['timezone'],
@@ -927,6 +935,10 @@ class Providers_model extends EA_Model
 
         if (array_key_exists('bookingEmailNote', $provider)) {
             $decoded_resource['booking_email_note'] = $provider['bookingEmailNote'];
+        }
+
+        if (array_key_exists('meetingLink', $provider)) {
+            $decoded_resource['meeting_link'] = $provider['meetingLink'];
         }
 
         if (array_key_exists('timezone', $provider)) {

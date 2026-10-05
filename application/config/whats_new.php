@@ -14,6 +14,20 @@ $config['whats_new_compare_url'] =
 
 $config['whats_new'] = [
     [
+        'id' => '2026-10-05c',
+        'date' => '2026-10-05',
+        'entries' => [
+            'en' => [
+                'Users > Providers: new field "Meeting Link". New appointments take it over; it is available as {meeting_link} in the email templates and is added to the calendar entry (.ics and Google Calendar button).',
+                'Settings > Email templates: option to hide the appointment details below the confirmation text, for a fully custom email.',
+            ],
+            'de' => [
+                'Benutzer > Anbieter: neues Feld „Link zum Meeting“. Neue Termine übernehmen ihn; er steht in den E-Mail-Vorlagen als {meeting_link} bereit und wird in den Kalendereintrag übernommen (.ics und Google-Kalender-Button).',
+                'Einstellungen > E-Mail-Vorlagen: Termindetails unter dem Bestätigungstext lassen sich ausblenden, für eine komplett eigene E-Mail.',
+            ],
+        ],
+    ],
+    [
         'id' => '2026-10-05b',
         'date' => '2026-10-05',
         'entries' => [

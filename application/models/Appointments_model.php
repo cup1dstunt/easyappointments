@@ -216,6 +216,18 @@ class Appointments_model extends EA_Model
         $appointment['update_datetime'] = date('Y-m-d H:i:s');
         $appointment['hash'] = random_string('alnum', 12);
 
+        // LNU: New appointments take over the meeting link of the provider (unless one was generated or set already).
+        if (empty($appointment['meeting_link']) && !empty($appointment['id_users_provider'])) {
+            $provider_meeting_link = $this->db
+                ->select('meeting_link')
+                ->get_where('users', ['id' => $appointment['id_users_provider']])
+                ->row_array()['meeting_link'] ?? '';
+
+            if ($provider_meeting_link !== '') {
+                $appointment['meeting_link'] = $provider_meeting_link;
+            }
+        }
+
         if (!$this->db->insert('appointments', $appointment)) {
             throw new RuntimeException('Could not insert appointment.');
         }

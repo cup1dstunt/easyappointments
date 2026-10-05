@@ -604,8 +604,11 @@ class Google_sync
                 $appointment_start_instance->format('Ymd\THis\Z') .
                 '/' .
                 $appointment_end_instance->format('Ymd\THis\Z'),
-            'location' => setting('company_name'),
-            'details' => 'View/Change Appointment: ' . site_url('booking/reschedule/' . $appointment['hash']),
+            'location' => !empty($appointment['meeting_link']) ? $appointment['meeting_link'] : setting('company_name'),
+            'details' =>
+                (!empty($appointment['meeting_link']) ? lang('meeting_link') . ': ' . $appointment['meeting_link'] . "\n\n" : '') .
+                'View/Change Appointment: ' .
+                site_url('booking/reschedule/' . $appointment['hash']),
         ];
 
         // Build base query
