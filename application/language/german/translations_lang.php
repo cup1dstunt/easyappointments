@@ -581,4 +581,11 @@ $lang['booking_email_note_placeholder'] = 'Hier können Sie einen optionalen Hin
 $lang['booking_email_note_to_customer'] = 'Ein Hinweis von Ihrem Anbieter';
 $lang['reply_to_customer_for_provider_email'] = 'Antwort an Kunden in der Anbieter-E-Mail';
 $lang['reply_to_customer_for_provider_email_hint'] = 'Wenn aktiviert, wird bei der Terminbenachrichtigung an den Anbieter die Antwortadresse (Reply-To) auf den Kunden gesetzt, sodass der Anbieter dem Kunden direkt antworten kann. E-Mails an Kunden, Administratoren und Sekretäre sind davon nicht betroffen.';
+$lang['email_templates'] = 'E-Mail-Vorlagen';
+$lang['email_templates_info'] = 'Hier können Sie Betreff und Text der Bestätigungs-E-Mail anpassen, die Kunden nach einer Terminbuchung erhalten. Die Vorlage gilt global für die gesamte Installation. Leere Felder verwenden den Standardtext (siehe Platzhalter in den Feldern).';
+$lang['email_template_subject'] = 'Betreff';
+$lang['email_template_body'] = 'Text';
+$lang['email_template_variables'] = 'Verfügbare Variablen';
+$lang['email_template_variables_hint'] = 'Klicken Sie auf eine Variable, um sie an der Cursorposition einzufügen. Sie wird beim Versand durch die Termindaten ersetzt. Zeilenumbrüche werden übernommen.';
+$lang['email_template_reset'] = 'Auf Standard zurücksetzen';
 // End

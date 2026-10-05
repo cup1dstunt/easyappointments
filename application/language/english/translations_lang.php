@@ -581,4 +581,11 @@ $lang['booking_step_order_hint'] = 'When enabled, the order of the booking steps
 $lang['booking_email_note'] = 'Booking Email Note';
 $lang['booking_email_note_placeholder'] = 'Here you can add an optional note to the customer booking an appointment with you. If set, it is added to the confirmation email for the booking.';
 $lang['booking_email_note_to_customer'] = 'A note from your provider';
+$lang['email_templates'] = 'Email Templates';
+$lang['email_templates_info'] = 'Here you can edit the subject and text of the confirmation email customers receive after booking an appointment. The template applies globally to the whole installation. Empty fields use the default text (shown as placeholder).';
+$lang['email_template_subject'] = 'Subject';
+$lang['email_template_body'] = 'Text';
+$lang['email_template_variables'] = 'Available variables';
+$lang['email_template_variables_hint'] = 'Click a variable to insert it at the cursor position. It is replaced with the appointment data when the email is sent. Line breaks are kept.';
+$lang['email_template_reset'] = 'Reset to default';
 // End
