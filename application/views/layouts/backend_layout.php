@@ -39,6 +39,8 @@
 
 <?php component('backend_footer', ['user_display_name' => vars('user_display_name')]); ?>
 
+<?php component('whats_new_modal'); ?>
+
 <script src="<?= asset_url('assets/vendor/jquery/jquery.min.js') ?>"></script>
 <script src="<?= asset_url('assets/vendor/@popperjs-core/popper.min.js') ?>"></script>
 <script src="<?= asset_url('assets/vendor/bootstrap/bootstrap.min.js') ?>"></script>
@@ -61,6 +63,7 @@
 <script src="<?= asset_url('assets/js/utils/url.js') ?>"></script>
 <script src="<?= asset_url('assets/js/utils/validation.js') ?>"></script>
 <script src="<?= asset_url('assets/js/layouts/backend_layout.js') ?>"></script>
+<script src="<?= asset_url('assets/js/layouts/whats_new.js') ?>"></script>
 <script src="<?= asset_url('assets/js/http/localization_http_client.js') ?>"></script>
 
 <?php component('js_vars_script'); ?>

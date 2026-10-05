@@ -273,6 +273,41 @@ class Email_messages
     }
 
     /**
+     * Get a mail option, preferring the value saved in the admin settings over the email.php config.
+     *
+     * LNU: SMTP settings in the admin GUI. The settings are stored with a "mail_" prefix; empty values fall back
+     * to the config file.
+     *
+     * @param string $key Option name as used in email.php (e.g. "smtp_host").
+     *
+     * @return mixed
+     */
+    private function mail_config(string $key): mixed
+    {
+        $value = setting('mail_' . $key);
+
+        return $value === null || $value === '' ? config($key) : $value;
+    }
+
+    /**
+     * Send a test email with the current mail settings.
+     *
+     * LNU: SMTP settings in the admin GUI.
+     *
+     * @param string $recipient_email Recipient email address.
+     *
+     * @throws Exception If the message cannot be sent.
+     */
+    public function send_test(string $recipient_email): void
+    {
+        $html = '<p>' . e(lang('mail_test_message')) . '</p>';
+
+        $php_mailer = $this->get_php_mailer($recipient_email, lang('mail_test_subject'), $html);
+
+        $php_mailer->send();
+    }
+
+    /**
      * Create PHP Mailer instance based on the email configuration.
      *
      * @param string|null $recipient_email
@@ -295,18 +330,22 @@ class Email_messages
         $php_mailer->CharSet = 'UTF-8';
         $php_mailer->SMTPDebug = config('smtp_debug') ? SMTP::DEBUG_SERVER : null;
 
-        if (config('protocol') === 'smtp') {
+        // LNU: SMTP settings in the admin GUI - values saved in Settings > Email override email.php.
+        if ($this->mail_config('protocol') === 'smtp') {
             $php_mailer->isSMTP();
-            $php_mailer->Host = config('smtp_host');
-            $php_mailer->SMTPAuth = config('smtp_auth');
-            $php_mailer->Username = config('smtp_user');
-            $php_mailer->Password = config('smtp_pass');
-            $php_mailer->SMTPSecure = config('smtp_crypto');
-            $php_mailer->Port = config('smtp_port');
+            $php_mailer->Host = (string) $this->mail_config('smtp_host');
+            $php_mailer->SMTPAuth = (bool) $this->mail_config('smtp_auth');
+            $php_mailer->Username = (string) $this->mail_config('smtp_user');
+            $php_mailer->Password = (string) $this->mail_config('smtp_pass');
+
+            $crypto = (string) $this->mail_config('smtp_crypto');
+            $php_mailer->SMTPSecure = in_array($crypto, ['ssl', 'tls'], true) ? $crypto : '';
+            $php_mailer->SMTPAutoTLS = $crypto !== 'none';
+            $php_mailer->Port = (int) ($this->mail_config('smtp_port') ?: 25);
         }
 
-        $from_name = config('from_name') ?: setting('company_name');
-        $from_address = config('from_address') ?: setting('company_email');
+        $from_name = $this->mail_config('from_name') ?: setting('company_name');
+        $from_address = $this->mail_config('from_address') ?: setting('company_email');
 
         $php_mailer->setFrom($from_address, $from_name);
 
@@ -315,7 +354,7 @@ class Email_messages
         if ($reply_to_email) {
             $php_mailer->addReplyTo($reply_to_email, (string) $reply_to_name);
         } else {
-            $reply_to_address = config('reply_to') ?: setting('company_email');
+            $reply_to_address = $this->mail_config('reply_to') ?: setting('company_email');
             $php_mailer->addReplyTo($reply_to_address);
         }
 

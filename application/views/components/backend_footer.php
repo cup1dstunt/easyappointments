@@ -4,6 +4,12 @@
  *
  * @var string $user_display_name
  */
+
+/** @var EA_Controller $CI */
+$CI = &get_instance();
+$CI->load->library('whats_new');
+
+$whats_new_compare_url = $CI->whats_new->get_compare_url();
 ?>
 <div id="footer" class="d-lg-flex justify-content-lg-start align-items-lg-center p-2 text-center text-lg-left mt-auto bg-body border-top" style="font-size: 11px;">
     <div class="mb-3 me-lg-5 mb-lg-0">
@@ -20,6 +26,17 @@
         <a href="https://alextselegidis.com" target="_blank">Alex Tselegidis</a>
 
         &copy; <?= date('Y') ?> - Software Development
+    </div>
+
+    <div class="mb-3 me-lg-5 mb-lg-0">
+        <a href="#" id="whats-new-link"><?= lang('whats_new') ?></a>
+
+        <?php if (!empty($whats_new_compare_url)): ?>
+            <span>|</span>
+            <a href="<?= e($whats_new_compare_url) ?>" target="_blank" rel="noopener">
+                <?= lang('whats_new_fork_changes') ?>
+            </a>
+        <?php endif; ?>
     </div>
 
     <div class="mb-3 me-lg-5 mb-lg-0">
