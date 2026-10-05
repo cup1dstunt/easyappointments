@@ -38,6 +38,14 @@ Bind-Mount) und nicht für den Betrieb gedacht.
    inklusive der Fork-Features (Buchungsschritt-Reihenfolge, Provider-E-Mail-
    Hinweis, Reply-To an Kunden) ausgeführt.
 
+## E-Mail-Versand
+
+Das Image hat keinen eigenen Mailserver. Nach der Installation als Admin unter
+**Einstellungen > E-Mail (SMTP)** den SMTP-Server (Host, Port, Verschlüsselung,
+Benutzer, Passwort) und den Absender eintragen und mit **Test-E-Mail senden**
+prüfen. Die Werte liegen in der Datenbank, eine Änderung an der Compose-Datei ist
+nicht nötig.
+
 ## Reverse Proxy
 
 Hinter Nginx Proxy Manager, SWAG oder Traefik den Proxy auf
