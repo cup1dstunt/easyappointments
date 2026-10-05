@@ -85,6 +85,14 @@
                         </div>
                     </div>
 
+                    <div class="mb-3">
+                        <label class="form-label" for="mail-mailtype"><?= lang('mail_type') ?></label>
+                        <select id="mail-mailtype" class="form-select" data-field="mail_mailtype">
+                            <option value="html"><?= lang('mail_type_html') ?></option>
+                            <option value="text"><?= lang('mail_type_text') ?></option>
+                        </select>
+                    </div>
+
                     <h5 class="fw-light border-bottom pb-2 mt-4 mb-3"><?= lang('mail_sender') ?></h5>
 
                     <div class="row">

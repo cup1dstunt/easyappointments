@@ -14,8 +14,8 @@
 /**
  * Email_templates controller.
  *
- * LNU: Editable confirmation email - handles the settings page where the subject and text of the customer
- * confirmation email can be edited.
+ * LNU: Editable emails - handles the settings page where the subject and text of the confirmation, cancellation,
+ * password reset and new password emails can be edited.
  *
  * @package Controllers
  */
@@ -46,17 +46,14 @@ class Email_templates extends EA_Controller
         script_vars([
             'user_id' => $user_id,
             'role_slug' => session('role_slug'),
-            'email_template_settings' => [
-                [
-                    'name' => 'email_confirmation_subject',
-                    'value' => setting('email_confirmation_subject', ''),
-                ],
-                [
-                    'name' => 'email_confirmation_body',
-                    'value' => setting('email_confirmation_body', ''),
-                ],
-            ],
-            'email_template_variables' => Confirmation_email::VARIABLES,
+            'email_template_settings' => array_map(
+                static fn(string $name): array => ['name' => $name, 'value' => setting($name, '')],
+                Confirmation_email::setting_names(),
+            ),
+            'email_template_variables' => array_map(
+                static fn(array $template): array => $template['variables'],
+                Confirmation_email::TEMPLATES,
+            ),
         ]);
 
         html_vars([
@@ -80,7 +77,7 @@ class Email_templates extends EA_Controller
 
             check('email_template_settings', 'array|null');
 
-            $allowed = ['email_confirmation_subject', 'email_confirmation_body'];
+            $allowed = Confirmation_email::setting_names();
 
             foreach (request('email_template_settings', []) as $email_template_setting) {
                 if (!in_array($email_template_setting['name'], $allowed, true)) {

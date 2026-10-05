@@ -7,6 +7,7 @@ developers to maintain and readjust their custom modifications on the main proje
 
 ### Added
 
+- LNU: Settings > Email templates now covers all system emails (confirmation, cancellation, password reset link, new password) with editable subject and text and clickable variables; Settings > Email (SMTP) gets an HTML/plain-text format option
 - LNU: Settings > Email (SMTP) to configure the mail server, sender and reply-to in the admin area, with a test email button. Previously only the config file could (and the default PHP mail() does not work in Docker), so no emails were sent
 - LNU: "What's new" window shown once per user after an update, with footer links to it and to all fork changes compared to the original (release notes in `application/config/whats_new.php`)
 - Added request method check on each request so that only allowed methods are accepted

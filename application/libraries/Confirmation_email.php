@@ -12,6 +12,47 @@
 class Confirmation_email
 {
     /**
+     * All editable emails and their template variables. Each email has a "email_<key>_subject" and a
+     * "email_<key>_body" setting; the confirmation email keeps its original setting names.
+     */
+    public const TEMPLATES = [
+        'confirmation' => [
+            'variables' => [
+                'customer_name',
+                'customer_first_name',
+                'customer_last_name',
+                'appointment_date',
+                'appointment_time',
+                'appointment_end_time',
+                'service_name',
+                'provider_name',
+                'location',
+                'appointment_link',
+            ],
+        ],
+        'deleted' => [
+            'variables' => [
+                'customer_name',
+                'customer_first_name',
+                'customer_last_name',
+                'appointment_date',
+                'appointment_time',
+                'appointment_end_time',
+                'service_name',
+                'provider_name',
+                'location',
+                'reason',
+            ],
+        ],
+        'password_reset' => [
+            'variables' => ['reset_link'],
+        ],
+        'recovery' => [
+            'variables' => ['password'],
+        ],
+    ];
+
+    /**
      * Template variables that can be used in the subject and the text, e.g. {customer_name}.
      */
     public const VARIABLES = [
@@ -72,6 +113,66 @@ class Confirmation_email
         return [
             'subject' => $subject,
             'message' => $message,
+        ];
+    }
+
+    /**
+     * Setting names (subject and text) of all editable emails.
+     *
+     * @return string[]
+     */
+    public static function setting_names(): array
+    {
+        $names = [];
+
+        foreach (array_keys(self::TEMPLATES) as $key) {
+            $names[] = 'email_' . $key . '_subject';
+            $names[] = 'email_' . $key . '_body';
+        }
+
+        return $names;
+    }
+
+    /**
+     * Render any editable email (other than the confirmation email, see render()).
+     *
+     * @param string $key Template key, e.g. "deleted".
+     * @param array $values Plain text values for the {variables}.
+     * @param string $default_subject Fallback subject.
+     * @param string $default_message Fallback message (HTML).
+     * @param array $html_values Variables whose (escaped) value is wrapped, e.g. ['password' => '<strong>%s</strong>'].
+     *
+     * @return array{subject: string, message: string}
+     */
+    public function render_template(
+        string $key,
+        array $values,
+        string $default_subject,
+        string $default_message,
+        array $html_values = [],
+    ): array {
+        $subject_template = trim((string) setting('email_' . $key . '_subject', ''));
+        $body_template = trim((string) setting('email_' . $key . '_body', ''));
+
+        $subject = $subject_template === '' ? $default_subject : $this->replace($subject_template, $values);
+
+        if ($body_template === '') {
+            return ['subject' => $subject, 'message' => $default_message];
+        }
+
+        $escaped = [];
+
+        foreach ($values as $name => $value) {
+            $escaped[$name] = e((string) $value);
+
+            if (isset($html_values[$name])) {
+                $escaped[$name] = sprintf($html_values[$name], $escaped[$name]);
+            }
+        }
+
+        return [
+            'subject' => $subject,
+            'message' => nl2br($this->replace(e($body_template), $escaped)),
         ];
     }
 
