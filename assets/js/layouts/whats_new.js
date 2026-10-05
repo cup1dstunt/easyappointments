@@ -28,15 +28,7 @@
             $modal.modal('show');
         });
 
-        // Remember that the newest release was seen, so the window does not open again.
-        $modal.on('hidden.bs.modal', () => {
-            if ($modal.data('autoShow') === 1) {
-                $modal.data('autoShow', 0);
-
-                $.post(App.Utils.Url.siteUrl('whats_new/dismiss'), {csrf_token: vars('csrf_token')});
-            }
-        });
-
+        // The server already marked the release as seen while rendering the page.
         if ($modal.data('autoShow') === 1) {
             $modal.modal('show');
         }

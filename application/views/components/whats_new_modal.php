@@ -5,7 +5,13 @@ $CI->load->library('whats_new');
 
 $releases = $CI->whats_new->get_releases();
 $compare_url = $CI->whats_new->get_compare_url();
-$auto_show = $CI->whats_new->is_unseen(session('user_id') ? (int) session('user_id') : null);
+$user_id = session('user_id') ? (int) session('user_id') : null;
+$auto_show = $CI->whats_new->is_unseen($user_id);
+
+// Count the release as seen as soon as it is shown, so it never reappears on the next page load or menu change.
+if ($auto_show) {
+    $CI->whats_new->mark_seen($user_id);
+}
 ?>
 
 <div id="whats-new-modal" class="modal fade" tabindex="-1" data-auto-show="<?= $auto_show ? '1' : '0' ?>">

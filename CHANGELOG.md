@@ -53,6 +53,7 @@ developers to maintain and readjust their custom modifications on the main proje
 
 ### Fixed
 
+- LNU: "What's new" window no longer reappears on every page load or menu change; the release counts as seen as soon as it is shown (stored per user in the settings)
 - Release builds now ship only the Google Calendar service instead of every Google API service, keeping the download size small
 - Language switching now works for languages with hyphenated codes such as Brazilian Portuguese and Traditional Chinese
 - Added missing language code mappings for Brazilian Portuguese and Traditional Chinese
