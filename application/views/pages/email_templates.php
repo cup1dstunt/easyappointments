@@ -34,33 +34,46 @@
                         <?= lang('email_templates_info') ?>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label" for="email-confirmation-subject">
-                            <?= lang('email_template_subject') ?>
-                        </label>
-                        <input type="text" id="email-confirmation-subject" class="form-control"
-                               data-field="email_confirmation_subject"
-                               placeholder="<?= e(lang('appointment_booked')) ?>">
-                    </div>
+                    <?php foreach (['confirmation', 'deleted', 'password_reset', 'recovery'] as $key): ?>
+                        <div class="email-template card mb-4" data-template="<?= $key ?>">
+                            <div class="card-header">
+                                <strong><?= lang('email_template_' . $key) ?></strong>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-text text-muted mb-3">
+                                    <?= lang('email_template_' . $key . '_info') ?>
+                                </div>
 
-                    <div class="mb-3">
-                        <label class="form-label" for="email-confirmation-body">
-                            <?= lang('email_template_body') ?>
-                        </label>
-                        <textarea id="email-confirmation-body" class="form-control" rows="10"
-                                  data-field="email_confirmation_body"
-                                  placeholder="<?= e(lang('thank_you_for_appointment')) ?>"></textarea>
-                    </div>
+                                <div class="mb-3">
+                                    <label class="form-label" for="email-<?= $key ?>-subject">
+                                        <?= lang('email_template_subject') ?>
+                                    </label>
+                                    <input type="text" id="email-<?= $key ?>-subject" class="form-control"
+                                           data-field="email_<?= $key ?>_subject"
+                                           placeholder="<?= e(lang('email_template_' . $key . '_default_subject')) ?>">
+                                </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">
-                            <?= lang('email_template_variables') ?>
-                        </label>
-                        <div id="email-template-variables"></div>
-                        <div class="form-text text-muted small">
-                            <?= lang('email_template_variables_hint') ?>
+                                <div class="mb-3">
+                                    <label class="form-label" for="email-<?= $key ?>-body">
+                                        <?= lang('email_template_body') ?>
+                                    </label>
+                                    <textarea id="email-<?= $key ?>-body" class="form-control" rows="6"
+                                              data-field="email_<?= $key ?>_body"
+                                              placeholder="<?= e(lang('email_template_' . $key . '_default_body')) ?>"></textarea>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">
+                                        <?= lang('email_template_variables') ?>
+                                    </label>
+                                    <div class="email-template-variables"></div>
+                                    <div class="form-text text-muted small">
+                                        <?= lang('email_template_variables_hint') ?>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    <?php endforeach; ?>
                 </fieldset>
             </form>
         </div>

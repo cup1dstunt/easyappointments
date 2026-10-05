@@ -12,21 +12,21 @@
 /**
  * Email templates page.
  *
- * LNU: Editable confirmation email - subject and text of the customer confirmation email.
+ * LNU: Editable emails - subject and text of the confirmation, cancellation, password reset and new password emails.
  */
 App.Pages.EmailTemplates = (function () {
     const $saveSettings = $('#save-settings');
     const $resetSettings = $('#reset-settings');
-    const $variables = $('#email-template-variables');
     let $lastField = $('#email-confirmation-body');
 
     /**
-     * Insert a {variable} at the cursor position of the last focused field.
+     * Insert a {variable} at the cursor position of the given field.
      *
+     * @param {jQuery} $field
      * @param {String} variable
      */
-    function insertVariable(variable) {
-        const field = $lastField.get(0);
+    function insertVariable($field, variable) {
+        const field = $field.get(0);
         const text = '{' + variable + '}';
         const start = field.selectionStart ?? field.value.length;
         const end = field.selectionEnd ?? field.value.length;
@@ -80,14 +80,28 @@ App.Pages.EmailTemplates = (function () {
     function initialize() {
         deserialize(vars('email_template_settings'));
 
-        vars('email_template_variables').forEach((variable) => {
-            $('<button/>', {
-                type: 'button',
-                class: 'btn btn-sm btn-outline-secondary me-1 mb-1',
-                text: '{' + variable + '}',
-            })
-                .on('click', () => insertVariable(variable))
-                .appendTo($variables);
+        const variables = vars('email_template_variables');
+
+        $('.email-template').each((index, card) => {
+            const $card = $(card);
+            const $container = $card.find('.email-template-variables');
+
+            (variables[$card.data('template')] || []).forEach((variable) => {
+                $('<button/>', {
+                    type: 'button',
+                    class: 'btn btn-sm btn-outline-secondary me-1 mb-1',
+                    text: '{' + variable + '}',
+                })
+                    .on('click', () => {
+                        // Insert into the last focused field of this email, defaulting to its text field.
+                        const $target = $lastField.closest('.email-template').is($card)
+                            ? $lastField
+                            : $card.find('textarea');
+
+                        insertVariable($target, variable);
+                    })
+                    .appendTo($container);
+            });
         });
 
         $('[data-field]').on('focus', (event) => {

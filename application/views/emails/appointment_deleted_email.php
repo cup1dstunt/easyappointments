@@ -9,6 +9,8 @@
  * @var array $settings
  * @var array $timezone
  * @var string $reason
+ * @var string|null $heading LNU: Editable emails - subject (also used as heading).
+ * @var string|null $intro_message LNU: Editable emails - HTML-safe text below the heading.
  */
 
 $customer_first_name = trim((string) ($customer['first_name'] ?? ''));
@@ -407,11 +409,11 @@ $customer_address = trim((string) ($customer['address'] ?? ''));
                                         <img src="cid:logo.png" alt="Logo" style="display:block;max-width:292px;max-height:67px;margin: auto auto 24px;">
 
                                         <h1 style="text-align: center;">
-                                            <?= lang('appointment_cancelled_title') ?>
+                                            <?= isset($heading) ? e($heading) : lang('appointment_cancelled_title') ?>
                                         </h1>
 
                                         <p style="text-align: center; margin-bottom: 40px">
-                                            <?= lang('appointment_removed_from_schedule') ?>
+                                            <?= $intro_message ?? lang('appointment_removed_from_schedule') ?>
                                         </p>
 
                                         <h2 style="text-align: center;">

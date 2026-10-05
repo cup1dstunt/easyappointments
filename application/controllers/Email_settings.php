@@ -26,6 +26,7 @@ class Email_settings extends EA_Controller
      */
     public const FIELDS = [
         'protocol',
+        'mailtype',
         'smtp_host',
         'smtp_port',
         'smtp_crypto',

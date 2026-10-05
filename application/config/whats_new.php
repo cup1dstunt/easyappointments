@@ -14,6 +14,18 @@ $config['whats_new_compare_url'] =
 
 $config['whats_new'] = [
     [
+        'id' => '2026-10-05b',
+        'date' => '2026-10-05',
+        'entries' => [
+            'en' => [
+                'Settings > Email templates: edit subject and text of all emails (confirmation, cancellation, password reset, new password); Settings > Email (SMTP): choose HTML or plain text.',
+            ],
+            'de' => [
+                'Einstellungen > E-Mail-Vorlagen: Betreff und Text aller E-Mails anpassen (Bestätigung, Absage, Passwort zurücksetzen, neues Passwort); Einstellungen > E-Mail (SMTP): HTML oder reinen Text wählen.',
+            ],
+        ],
+    ],
+    [
         'id' => '2026-10-05',
         'date' => '2026-10-05',
         'entries' => [

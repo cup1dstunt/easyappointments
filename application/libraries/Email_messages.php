@@ -194,9 +194,30 @@ class Email_messages
             $appointment['end_datetime'] = $appointment_end->format('Y-m-d H:i:s');
         }
 
+        // LNU: Editable emails - admin-defined subject and text (Settings > Email templates).
+        $rendered = $this->CI->confirmation_email->render_template(
+            'deleted',
+            [
+                'customer_name' => trim(($customer['first_name'] ?? '') . ' ' . ($customer['last_name'] ?? '')),
+                'customer_first_name' => $customer['first_name'] ?? '',
+                'customer_last_name' => $customer['last_name'] ?? '',
+                'appointment_date' => format_date($appointment['start_datetime']),
+                'appointment_time' => format_time($appointment['start_datetime']),
+                'appointment_end_time' => format_time($appointment['end_datetime']),
+                'service_name' => $service['name'] ?? '',
+                'provider_name' => trim(($provider['first_name'] ?? '') . ' ' . ($provider['last_name'] ?? '')),
+                'location' => $appointment['location'] ?? '',
+                'reason' => (string) $reason,
+            ],
+            lang('appointment_cancelled_title'),
+            lang('appointment_removed_from_schedule'),
+        );
+
         $html = $this->CI->load->view(
             'emails/appointment_deleted_email',
             [
+                'heading' => $rendered['subject'],
+                'intro_message' => $rendered['message'],
                 'appointment' => $appointment,
                 'service' => $service,
                 'provider' => $provider,
@@ -208,7 +229,7 @@ class Email_messages
             true,
         );
 
-        $subject = lang('appointment_cancelled_title');
+        $subject = $rendered['subject'];
 
         $php_mailer = $this->get_php_mailer($recipient_email, $subject, $html);
 
@@ -226,17 +247,25 @@ class Email_messages
      */
     public function send_password(string $password, string $recipient_email, array $settings): void
     {
+        $rendered = $this->CI->confirmation_email->render_template(
+            'recovery',
+            ['password' => $password],
+            lang('new_account_password'),
+            str_replace('$password', '<strong>' . $password . '</strong>', lang('new_password_is')),
+            ['password' => '<strong>%s</strong>'],
+        );
+
         $html = $this->CI->load->view(
             'emails/account_recovery_email',
             [
-                'subject' => lang('new_account_password'),
-                'message' => str_replace('$password', '<strong>' . $password . '</strong>', lang('new_password_is')),
+                'subject' => $rendered['subject'],
+                'message' => $rendered['message'],
                 'settings' => $settings,
             ],
             true,
         );
 
-        $subject = lang('new_account_password');
+        $subject = $rendered['subject'];
 
         $php_mailer = $this->get_php_mailer($recipient_email, $subject, $html);
 
@@ -254,18 +283,25 @@ class Email_messages
      */
     public function send_password_reset_link(string $reset_link, string $recipient_email, array $settings): void
     {
+        $rendered = $this->CI->confirmation_email->render_template(
+            'password_reset',
+            ['reset_link' => $reset_link],
+            lang('password_reset_request'),
+            lang('password_reset_email_message'),
+        );
+
         $html = $this->CI->load->view(
             'emails/password_reset_email',
             [
-                'subject' => lang('password_reset_request'),
-                'message' => lang('password_reset_email_message'),
+                'subject' => $rendered['subject'],
+                'message' => $rendered['message'],
                 'reset_link' => $reset_link,
                 'settings' => $settings,
             ],
             true,
         );
 
-        $subject = lang('password_reset_request');
+        $subject = $rendered['subject'];
 
         $php_mailer = $this->get_php_mailer($recipient_email, $subject, $html);
 
@@ -369,7 +405,7 @@ class Email_messages
         if ($html) {
             $plain_text = str_replace(["\n\n", "\n\n\n"], '', strip_tags($html));
 
-            if (config('mailtype') === 'html') {
+            if ($this->mail_config('mailtype') !== 'text') {
                 $php_mailer->isHTML();
             } else {
                 $html = $plain_text;

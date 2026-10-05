@@ -15,7 +15,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <title>
-        <?= $subject ?> | Easy!Appointments
+        <?= e($subject) ?> | Easy!Appointments
     </title>
     <style>
         /* -------------------------------------
@@ -383,7 +383,7 @@
                                         <!-- Logo at the top center, embedded as CID -->
                                         <img src="cid:logo.png" alt="Logo" style="display:block;max-width:292px;max-height:67px;margin: auto auto 24px;">
                                         <h2 style="text-align: center;">
-                                            <?= $subject ?>
+                                            <?= e($subject) ?>
                                         </h2>
                                         <p style="text-align: center;">
                                             <?= $message ?>
