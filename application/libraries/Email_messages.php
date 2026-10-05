@@ -273,6 +273,24 @@ class Email_messages
     }
 
     /**
+     * Send a test email so the mail settings can be verified.
+     *
+     * @param string $recipient_email Recipient email address.
+     *
+     * @throws Exception
+     */
+    public function send_test(string $recipient_email): void
+    {
+        $subject = lang('smtp_test_subject');
+
+        $html = '<p>' . e(lang('smtp_test_message')) . '</p>';
+
+        $php_mailer = $this->get_php_mailer($recipient_email, $subject, $html);
+
+        $php_mailer->send();
+    }
+
+    /**
      * Create PHP Mailer instance based on the email configuration.
      *
      * @param string|null $recipient_email
@@ -295,7 +313,19 @@ class Email_messages
         $php_mailer->CharSet = 'UTF-8';
         $php_mailer->SMTPDebug = config('smtp_debug') ? SMTP::DEBUG_SERVER : null;
 
-        if (config('protocol') === 'smtp') {
+        // LNU: SMTP in the admin settings - the values saved on the E-Mail settings page take precedence over the
+        // static email.php config, which stays the fallback for installs that never touched the page.
+        if (setting('smtp_enabled') === '1') {
+            $php_mailer->isSMTP();
+            $php_mailer->Host = (string) setting('smtp_host');
+            $php_mailer->Port = (int) (setting('smtp_port') ?: 587);
+            $php_mailer->SMTPAuth = setting('smtp_auth') === '1';
+            $php_mailer->Username = (string) setting('smtp_user');
+            $php_mailer->Password = (string) setting('smtp_pass');
+            $php_mailer->SMTPSecure = (string) setting('smtp_crypto');
+            $php_mailer->SMTPAutoTLS = $php_mailer->SMTPSecure !== '';
+            $php_mailer->Timeout = 15;
+        } elseif (config('protocol') === 'smtp') {
             $php_mailer->isSMTP();
             $php_mailer->Host = config('smtp_host');
             $php_mailer->SMTPAuth = config('smtp_auth');
@@ -305,8 +335,8 @@ class Email_messages
             $php_mailer->Port = config('smtp_port');
         }
 
-        $from_name = config('from_name') ?: setting('company_name');
-        $from_address = config('from_address') ?: setting('company_email');
+        $from_name = setting('smtp_from_name') ?: config('from_name') ?: setting('company_name');
+        $from_address = setting('smtp_from_address') ?: config('from_address') ?: setting('company_email');
 
         $php_mailer->setFrom($from_address, $from_name);
 

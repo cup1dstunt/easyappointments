@@ -3,6 +3,14 @@
 This file contains the code changes that were introduced into each release (starting from v1.1.0) so that is easy for 
 developers to maintain and readjust their custom modifications on the main project codebase.
 
+## [Unreleased] - LNU fork
+
+### Added
+
+- E-Mail settings page (Settings > E-Mail) to configure the SMTP server in the UI, with a test e-mail button; without it e-mails used PHP `mail()`, which does not work in Docker
+- "What's new" window shown once per browser after a fork update (`fork_version` in `config/app.php`, entries in `config/whats_new.php`)
+- Footer link to all changes of this fork compared to the original project
+
 ## [1.6.0] - 2026-05-27
 
 ### Added
