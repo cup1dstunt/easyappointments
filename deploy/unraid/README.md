@@ -8,6 +8,9 @@ Die `docker-compose.yml` im Hauptordner des Repositorys ist die
 Entwicklungsumgebung von Upstream (Xdebug, phpMyAdmin, LDAP, Quellcode als
 Bind-Mount) und nicht für den Betrieb gedacht.
 
+Für andere Docker-Systeme (Linux-Server, NAS, VPS, Docker Desktop) siehe
+[`deploy/docker`](../docker/README.md).
+
 ## Voraussetzungen
 
 - Unraid 6.12 oder neuer mit dem Plugin **Docker Compose Manager**

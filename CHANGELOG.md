@@ -7,6 +7,7 @@ developers to maintain and readjust their custom modifications on the main proje
 
 ### Added
 
+- Generic Docker Compose setup for any Docker host in `deploy/docker` (named volumes, `.env.example`, optional local build) with a German guide, including the `docker pull` "invalid reference format" pitfall
 - LNU: Provider "Meeting Link" (Users > Providers): taken over by new appointments, available as `{meeting_link}` in the email templates and added to the .ics location and the Google Calendar button; option to hide the appointment details in the confirmation email
 - LNU: Settings > Email templates now covers all system emails (confirmation, cancellation, password reset link, new password) with editable subject and text and clickable variables; Settings > Email (SMTP) gets an HTML/plain-text format option
 - LNU: Settings > Email (SMTP) to configure the mail server, sender and reply-to in the admin area, with a test email button. Previously only the config file could (and the default PHP mail() does not work in Docker), so no emails were sent

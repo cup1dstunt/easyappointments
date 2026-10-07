@@ -73,6 +73,8 @@ Built to support a wide range of scheduling needs:
 
 ## ⚡ Quick Start (Development)
 
+> Running this fork in production (any Docker host)? See [deploy/docker/README.md](deploy/docker/README.md) (German). Unraid: [deploy/unraid/README.md](deploy/unraid/README.md). Note that `docker pull` needs an image name (`ghcr.io/cup1dstunt/easyappointments:latest`), not the repository URL.
+
 Clone and run the project locally using the provided Docker Compose environment:
 
 ```bash
