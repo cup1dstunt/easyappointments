@@ -433,10 +433,14 @@ $customer_address = trim((string) ($customer['address'] ?? ''));
                                             </tr>
                                             <tr>
                                                 <td class="label" style="padding: 3px;font-weight: bold;">
-                                                    <?= lang('provider') ?>
+                                                    <?= lang('email_provider_label') ?>
                                                 </td>
                                                 <td style="padding: 3px;">
                                                     <?= e($provider['first_name'] . ' ' . $provider['last_name']) ?>
+                                                    <?php if (!empty($provider['email'])): ?>
+                                                        <br>
+                                                        <a href="mailto:<?= e($provider['email']) ?>"><?= e($provider['email']) ?></a>
+                                                    <?php endif; ?>
                                                 </td>
                                             </tr>
                                             <tr>

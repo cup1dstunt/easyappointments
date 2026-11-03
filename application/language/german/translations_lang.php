@@ -642,4 +642,5 @@ $lang['provider_meeting_link'] = 'Link zum Meeting';
 $lang['provider_meeting_link_hint'] = 'Link zum Online-Meeting-Raum dieses Anbieters. Neue Termine übernehmen ihn als Meeting-Link, deshalb steht er in den E-Mails als {meeting_link} zur Verfügung und wird in den Kalendereintrag übernommen.';
 $lang['email_template_show_details'] = 'Termindetails unter dem Text anzeigen';
 $lang['email_template_show_details_hint'] = 'Wenn ausgeschaltet, enthält die Bestätigungsmail nur Ihren Text und den Button zum Ändern des Termins. Nutzen Sie die Variablen, um alles Nötige einzufügen. Gilt erst, sobald Sie einen eigenen Text eingetragen haben.';
+$lang['email_provider_label'] = 'Lehrkraft';
 // End
