@@ -14,6 +14,18 @@ $config['whats_new_compare_url'] =
 
 $config['whats_new'] = [
     [
+        'id' => '2026-11-03',
+        'date' => '2026-11-03',
+        'entries' => [
+            'en' => [
+                'Confirmation email: the provider\'s email address is shown below the name in the appointment details and is available as {provider_email} in the email template.',
+            ],
+            'de' => [
+                'Bestätigungsmail: Die E-Mail-Adresse der Lehrkraft steht in den Termindaten unter dem Namen und ist in der E-Mail-Vorlage als {provider_email} verfügbar. „Anbieter“ heißt dort jetzt „Lehrkraft“.',
+            ],
+        ],
+    ],
+    [
         'id' => '2026-10-05c',
         'date' => '2026-10-05',
         'entries' => [

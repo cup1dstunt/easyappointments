@@ -642,4 +642,5 @@ $lang['provider_meeting_link'] = 'Meeting Link';
 $lang['provider_meeting_link_hint'] = 'Link to the online meeting room of this provider. New appointments take it over as their meeting link, so it is available as {meeting_link} in the emails and is added to the calendar entry.';
 $lang['email_template_show_details'] = 'Show appointment details below the text';
 $lang['email_template_show_details_hint'] = 'If switched off, the confirmation email only contains your text and the button to change the appointment. Use the variables to include what is needed. Only applies once you have entered your own text.';
+$lang['email_provider_label'] = 'Provider';
 // End
